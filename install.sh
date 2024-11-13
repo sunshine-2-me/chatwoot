@@ -43,40 +43,9 @@ fi
 eval set -- "$PARSED"
 
 c=n d=n h=n i=n I=n l=n r=n s=n u=n w=n v=n BRANCH=master SERVICE=web
-# Default values
-POSTGRES_HOST=''
-POSTGRES_USERNAME=''
-POSTGRES_PASSWORD=''
-REDIS_HOST=''
-RAILS_ENV='production'
 # Iterate options in order and nicely split until we see --
 while true; do
     case "$1" in
-        --postgres-host)
-            # shift
-            POSTGRES_HOST=$2
-            shift
-            ;;
-        --postgres-username)
-            # shift
-            POSTGRES_USERNAME=$2
-            shift
-            ;;
-        --postgres-password)
-            # shift
-            POSTGRES_PASSWORD=$2
-            shift
-            ;;
-        --redis-host)
-            # shift
-            REDIS_HOST=$2
-            shift
-            ;;
-        --rails-env)
-            # shift
-            RAILS_ENV=$2
-            shift
-            ;;
         -c|--console)
             c=y
             break
@@ -134,13 +103,6 @@ while true; do
             ;;
     esac
 done
-
-# Export environment variables
-export POSTGRES_HOST
-export POSTGRES_USERNAME
-export POSTGRES_PASSWORD
-export REDIS_HOST
-export RAILS_ENV
 
 # Example of using these variables
 echo "Using POSTGRES_HOST: $POSTGRES_HOST"

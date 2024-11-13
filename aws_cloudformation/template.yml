@@ -443,11 +443,11 @@ Resources:
           cat << 'EOF' > $SCRIPT_PATH
 
           # Define environment variables
-          POSTGRES_HOST=${SumoChatwootRDSDBInstance.Endpoint.Address}
-          POSTGRES_USERNAME=${SumoChatwootDBMasterUsername}
-          POSTGRES_PASSWORD=${SumoChatwootDBMasterUserPassword}
-          REDIS_HOST=${SumoChatwootRDSDBInstance.Endpoint.Address}
-          RAILS_ENV='production'
+          export POSTGRES_HOST=${SumoChatwootRDSDBInstance.Endpoint.Address}
+          export POSTGRES_USERNAME=${SumoChatwootDBMasterUsername}
+          export POSTGRES_PASSWORD=${SumoChatwootDBMasterUserPassword}
+          export REDIS_HOST=${SumoChatwootRDSDBInstance.Endpoint.Address}
+          export RAILS_ENV='production'
           
 
           # Define the directory where the repository will be cloned
