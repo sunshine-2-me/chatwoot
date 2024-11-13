@@ -21,17 +21,20 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Creating a Key Pair Using AWS CLI
-        id: check-create-key
+        id: retrieve-key
         run: |
           key_name="${{ secrets.KEY_NAME }}"
-          set -e
-          if aws ec2 describe-key-pairs --key-names "$key_name"; then
-            echo "Key pair $key_name already exists, skipping creation."
-          else
-            aws ec2 create-key-pair --key-name "$key_name" --query 'KeyMaterial' --output text > "$key_name.pem"
-            chmod 400 "$key_name.pem"
+          PEM_FILE="$key_name.pem"
+          if [ ! -f "$PEM_FILE" ]; then
+            if ! aws ec2 describe-key-pairs --key-names "$key_name" 2>/dev/null; then
+              aws ec2 create-key-pair --key-name "$key_name" --query 'KeyMaterial' --output text > "$PEM_FILE"
+              chmod 400 "$PEM_FILE"
+              echo "key_created=true" >> $GITHUB_ENV
+            else
+              echo "Key pair $key_name already exists, but PEM file is not available."
+              exit 1
+            fi
           fi
-          echo "key_created=true" >> $GITHUB_ENV
 
       - name: Upload Key Pair PEM File as Artifact
         if: env.key_created == 'true'
@@ -85,7 +88,7 @@ jobs:
         with:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
-          key: ${{ secrets.KEY_NAME }}.pem
+          key: ${{ steps.retrieve-key.outputs.PEM_FILE }}
           source: './'
           target: '/home/ubuntu/sumo-chatwoot'
                   
@@ -94,7 +97,7 @@ jobs:
         with:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
-          key: ${{ secrets.KEY_NAME }}.pem
+          key: ${{ steps.retrieve-key.outputs.PEM_FILE }}
           script: |
             export POSTGRES_HOST=${{ env.POSTGRES_HOST }}
             export POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
