@@ -37,7 +37,8 @@ jobs:
               echo "$ssh_key" > "$PEM_FILE"
               chmod 600 "$PEM_FILE"
               echo "PEM_FILE_PATH=$PEM_FILE" >> $GITHUB_ENV
-              echo "SSH_KEY=$(echo "$ssh_key" | base64)" >> $GITHUB_ENV
+              encoded_ssh_key=$(echo "$ssh_key" | base64 | tr -d '\n')
+              echo "SSH_KEY=$encoded_ssh_key" >> $GITHUB_ENV
           fi
 
 
