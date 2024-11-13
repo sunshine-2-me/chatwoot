@@ -33,11 +33,13 @@ jobs:
               aws ec2 delete-key-pair --key-name "$key_name"
               echo "Key pair $key_name deleted."
             fi
-              aws ec2 create-key-pair --key-name "$key_name" --query 'KeyMaterial' --output text > "$PEM_FILE"
+              ssh_key=$(aws ec2 create-key-pair --key-name "$key_name" --query 'KeyMaterial' --output text)
+              echo "$ssh_key" > ""$PEM_FILE""
               chmod 600 "$PEM_FILE"
               echo "key_created=true" >> $GITHUB_ENV
           fi
           echo "PEM_FILE_PATH=$PEM_FILE" >> $GITHUB_ENV
+          echo "SSH_KEY=$ssh_key" >> $GITHUB_ENV
 
       - name: Upload Key Pair PEM File as Artifact
         if: env.key_created == 'true'
@@ -91,7 +93,7 @@ jobs:
         with:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
-          key_path: ${{ env.PEM_FILE_PATH }}
+          key: ${{ env.SSH_KEY }}
           overwrite: true
           source: './*'
           target: '/home/ubuntu/sumo-chatwoot'
@@ -101,7 +103,7 @@ jobs:
         with:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
-          key_path: ${{ env.PEM_FILE_PATH }}
+          key: ${{ env.SSH_KEY }}
           script: |
             export POSTGRES_HOST=${{ env.POSTGRES_HOST }}
             export POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
