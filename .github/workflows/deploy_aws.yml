@@ -34,14 +34,14 @@ jobs:
               echo "Key pair $key_name deleted."
             fi
               aws ec2 create-key-pair --key-name "$key_name" --query 'KeyMaterial' --output text > "$PEM_FILE"
-              chmod 777 "$PEM_FILE"
+              chmod 600 "$PEM_FILE"
               echo "key_created=true" >> $GITHUB_ENV
           fi
           echo "PEM_FILE_PATH=$PEM_FILE" >> $GITHUB_ENV
 
       - name: Upload Key Pair PEM File as Artifact
         if: env.key_created == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: key-pair-pem
           path: ${{ secrets.KEY_NAME }}.pem
