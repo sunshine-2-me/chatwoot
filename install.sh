@@ -105,11 +105,11 @@ while true; do
 done
 
 # Example of using these variables
-echo "Using POSTGRES_HOST: $POSTGRES_HOST"
-echo "Using POSTGRES_USERNAME: $POSTGRES_USERNAME"
-echo "Using POSTGRES_PASSWORD: $POSTGRES_PASSWORD"
-echo "Using REDIS_HOST: $REDIS_HOST"
-echo "Using RAILS_ENV: $RAILS_ENV"
+# echo "Using POSTGRES_HOST: $POSTGRES_HOST"
+# echo "Using POSTGRES_USERNAME: $POSTGRES_USERNAME"
+# echo "Using POSTGRES_PASSWORD: $POSTGRES_PASSWORD"
+# echo "Using REDIS_HOST: $REDIS_HOST"
+# echo "Using RAILS_ENV: $RAILS_ENV"
 
 
 # log if debug flag set

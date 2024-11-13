@@ -436,19 +436,12 @@ Resources:
           # Install necessary utilities
           apt-get install -y git
 
-          # Define your script path
-          SCRIPT_PATH="/home/ubuntu/init-script.sh"
-
-          # Create the script with your commands
-          cat << 'EOF' > $SCRIPT_PATH
-
           # Define environment variables
           export POSTGRES_HOST=${SumoChatwootRDSDBInstance.Endpoint.Address}
           export POSTGRES_USERNAME=${SumoChatwootDBMasterUsername}
           export POSTGRES_PASSWORD=${SumoChatwootDBMasterUserPassword}
           export REDIS_HOST=${SumoChatwootRDSDBInstance.Endpoint.Address}
           export RAILS_ENV='production'
-          
 
           # Define the directory where the repository will be cloned
           REPO_DIR=/home/ubuntu/sumo-chatwoot
@@ -469,14 +462,6 @@ Resources:
           
           EOF
 
-          # Make the script executable
-          chmod +x $SCRIPT_PATH
-
-          # Add the script to rc.local for execution on every boot
-          echo "$SCRIPT_PATH" >> /etc/rc.local
-
-          # Ensure rc.local has correct permissions and is executable
-          chmod +x /etc/rc.local
 
   # SumoChatwootLaunchConfiguration:
   #   Type: AWS::AutoScaling::LaunchConfiguration
@@ -580,22 +565,26 @@ Outputs:
     Description: DNS name of the ALB
     Value: !GetAtt SumoChatwootLoadBalancer.DNSName
 
-  # RDSInstanceEndpoint:
-  #   Description: Endpoint of the RDS PostgreSQL instance
-  #   Value: !GetAtt SumoChatwootRDSDBInstance.Endpoint.Address
+  ChatwootInstanceId:
+    Description: "Instance ID of the Chatwoot EC2 instance"
+    Value: !Ref SumoChatwootInstance
 
-  # RDSMasterUsername:
-  #   Description: The master username for the RDS instance
-  #   Value: !Ref SumoChatwootDBMasterUsername
+  RDSInstanceEndpoint:
+    Description: Endpoint of the RDS PostgreSQL instance
+    Value: !GetAtt SumoChatwootRDSDBInstance.Endpoint.Address
 
-  # RedisPrimaryEndpoint:
-  #   Description: Primary endpoint of the Redis cluster
-  #   Value: !GetAtt SumoChatwootRedisCluster.PrimaryEndPoint.Address
+  RedisPrimaryEndpoint:
+    Description: Primary endpoint of the Redis cluster
+    Value: !GetAtt SumoChatwootRedisCluster.PrimaryEndPoint.Address
+
+  InstancePublicIP:
+    Description: Public IP address of the EC2 instance
+    Value: !GetAtt SumoChatwootInstance.PublicIp
+    Export:
+      Name: SumoChatwootInstancePublicIP
 
   # AutoScalingGroupName:
   #   Description: Name of the Auto Scaling Group
   #   Value: !Ref SumoChatwootAutoScalingGroup
 
-  ChatwootInstanceId:
-    Description: "Instance ID of the Chatwoot EC2 instance"
-    Value: !Ref SumoChatwootInstance
+
