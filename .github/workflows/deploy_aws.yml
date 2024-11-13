@@ -20,28 +20,23 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # - name: Creating a Key Pair Using AWS CLI
-      #   id: retrieve-key
-      #   run: |
-      #     key_name="${{ secrets.KEY_NAME }}"
-      #     PEM_FILE="$key_name.pem"
-      #     if [ ! -f "$PEM_FILE" ]; then
-      #       if ! aws ec2 describe-key-pairs --key-names "$key_name" 2>/dev/null; then
-      #         echo "Key pair $key_name does not exists."
-      #       else
-      #         echo "Key pair $key_name already exists."
-      #         aws ec2 delete-key-pair --key-name "$key_name"
-      #         echo "Key pair $key_name deleted."
-      #       fi
-      #         ssh_key=$(aws ec2 create-key-pair --key-name "$key_name" --query 'KeyMaterial' --output text)
-      #         echo "$ssh_key"
-      #         echo "$ssh_key" > "$PEM_FILE"
-      #         chmod 600 "$PEM_FILE"
-      #         echo "PEM_FILE_PATH=$PEM_FILE" >> $GITHUB_ENV
-      #         encoded_ssh_key=$(echo "$ssh_key" | base64 | tr -d '\n')
-      #         echo "$encoded_ssh_key"
-      #         echo "SSH_KEY=$encoded_ssh_key" >> $GITHUB_ENV
-      #     fi
+      - name: Creating a Key Pair Using AWS CLI
+        id: retrieve-key
+        run: |
+          key_name="${{ secrets.KEY_NAME }}"
+          PEM_FILE="$key_name.pem"
+          if [ ! -f "$PEM_FILE" ]; then
+            if ! aws ec2 describe-key-pairs --key-names "$key_name" 2>/dev/null; then
+              echo "Key pair $key_name does not exists."
+            else
+              echo "Key pair $key_name already exists."
+              aws ec2 delete-key-pair --key-name "$key_name"
+              echo "Key pair $key_name deleted."
+            fi
+              aws ec2 create-key-pair --key-name "$key_name" --query 'KeyMaterial' --output text > "$PEM_FILE"
+              chmod 600 "$PEM_FILE"
+              echo "PEM_FILE_PATH=$PEM_FILE" >> $GITHUB_ENV
+          fi
 
 
       - name: Upload Key Pair PEM File as Artifact
