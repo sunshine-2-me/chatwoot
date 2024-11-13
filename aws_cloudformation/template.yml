@@ -545,13 +545,13 @@ Outputs:
   #   Description: VPC ID
   #   Value: !Ref SumoChatwootVPC
 
-  PublicSubnets:
-    Description: Public Subnets
-    Value:
-      !Join [
-        ",",
-        [!Ref SumoChatwootPublicSubnet1, !Ref SumoChatwootPublicSubnet2],
-      ]
+  # PublicSubnets:
+  #   Description: Public Subnets
+  #   Value:
+  #     !Join [
+  #       ",",
+  #       [!Ref SumoChatwootPublicSubnet1, !Ref SumoChatwootPublicSubnet2],
+  #     ]
 
   # PrivateSubnets:
   #   Description: Private Subnets

@@ -80,12 +80,21 @@ jobs:
           --output text)
           echo "REDIS_HOST=${RedisPrimaryEndpoint}" >> $GITHUB_ENV
 
+      - name: Upload Source Code to EC2
+        uses: appleboy/scp-action@v0.1.3
+        with:
+          host: ${{ env.EC2_PUBLIC_IP }}
+          username: ubuntu
+          key: ${{ secrets.KEY_NAME }}.pem
+          source: './'
+          target: '/home/ubuntu/sumo-chatwoot'
+                  
       - name: Update EC2 with new source code
         uses: appleboy/ssh-action@v0.1.3
         with:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
-          key: ${{ secrets.KEY_NAME }}
+          key: ${{ secrets.KEY_NAME }}.pem
           script: |
             export POSTGRES_HOST=${{ env.POSTGRES_HOST }}
             export POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
