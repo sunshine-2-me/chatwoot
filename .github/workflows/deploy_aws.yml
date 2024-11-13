@@ -32,7 +32,6 @@ jobs:
               echo "key_created=true" >> $GITHUB_ENV
             else
               echo "Key pair $key_name already exists, but PEM file is not available."
-              exit 1
             fi
           fi
 
