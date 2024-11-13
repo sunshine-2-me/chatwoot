@@ -52,6 +52,26 @@ RAILS_ENV='production'
 # Iterate options in order and nicely split until we see --
 while true; do
     case "$1" in
+        --postgres-host)
+            POSTGRES_HOST=$1
+            shift
+            ;;
+        --postgres-username)
+            POSTGRES_USERNAME=$1
+            shift
+            ;;
+        --postgres-password)
+            POSTGRES_PASSWORD=$1
+            shift
+            ;;
+        --redis-host)
+            REDIS_HOST=$1
+            shift
+            ;;
+        --rails-env)
+            RAILS_ENV=$1
+            shift
+            ;;
         -c|--console)
             c=y
             break
@@ -98,26 +118,6 @@ while true; do
         -v|--version)
             v=y
             shift
-            ;;
-        --postgres-host)
-            shift
-            POSTGRES_HOST=$1
-            ;;
-        --postgres-username)
-            shift
-            POSTGRES_USERNAME=$1
-            ;;
-        --postgres-password)
-            shift
-            POSTGRES_PASSWORD=$1
-            ;;
-        --redis-host)
-            shift
-            REDIS_HOST=$1
-            ;;
-        --rails-env)
-            shift
-            RAILS_ENV=$1
             ;;
         --)
             shift
