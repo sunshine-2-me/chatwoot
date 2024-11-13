@@ -36,10 +36,10 @@ jobs:
               ssh_key=$(aws ec2 create-key-pair --key-name "$key_name" --query 'KeyMaterial' --output text)
               echo "$ssh_key" > "$PEM_FILE"
               chmod 600 "$PEM_FILE"
-              echo "key_created=true" >> $GITHUB_ENV
+              echo "PEM_FILE_PATH=$PEM_FILE" >> $GITHUB_ENV
+              echo "SSH_KEY=$(echo "$ssh_key" | base64)" >> $GITHUB_ENV
           fi
-          echo "PEM_FILE_PATH=$PEM_FILE" >> $GITHUB_ENV
-          echo "SSH_KEY=$ssh_key" >> $GITHUB_ENV
+
 
       - name: Upload Key Pair PEM File as Artifact
         if: env.key_created == 'true'
