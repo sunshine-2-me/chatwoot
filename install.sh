@@ -53,24 +53,29 @@ RAILS_ENV='production'
 while true; do
     case "$1" in
         --postgres-host)
+            # shift
+            POSTGRES_HOST=$2
             shift
-            POSTGRES_HOST=$1
             ;;
         --postgres-username)
+            # shift
+            POSTGRES_USERNAME=$2
             shift
-            POSTGRES_USERNAME=$1
             ;;
         --postgres-password)
+            # shift
+            POSTGRES_PASSWORD=$2
             shift
-            POSTGRES_PASSWORD=$1
             ;;
         --redis-host)
+            # shift
+            REDIS_HOST=$2
             shift
-            REDIS_HOST=$1
             ;;
         --rails-env)
+            # shift
+            RAILS_ENV=$2
             shift
-            RAILS_ENV=$1
             ;;
         -c|--console)
             c=y
