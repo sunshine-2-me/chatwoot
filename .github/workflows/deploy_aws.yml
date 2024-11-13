@@ -1,0 +1,79 @@
+name: Deploy Sumo Chatwoot Infrastructure
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Creating a Key Pair Using AWS CLI
+        id: check-create-key
+        run: |
+          key_name="${{ secrets.KEY_NAME }}"
+          set -e
+          if aws ec2 describe-key-pairs --key-names "$key_name"; then
+            echo "Key pair $key_name already exists, skipping creation."
+          else
+            aws ec2 create-key-pair --key-name "$key_name" --query 'KeyMaterial' --output text > "$key_name.pem"
+            chmod 400 "$key_name.pem"
+          fi
+          echo "key_created=true" >> $GITHUB_ENV
+
+      - name: Upload Key Pair PEM File as Artifact
+        if: env.key_created == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: key-pair-pem
+          path: ${{ secrets.KEY_NAME }}.pem
+
+      - name: Validate Cloudformation
+        run: |
+          aws cloudformation validate-template \
+            --template-body file://aws_cloudformation/template.yml
+
+      - name: Deploy CloudFormation Stack
+        run: |
+          aws cloudformation deploy \
+            --template-file aws_cloudformation/template.yml \
+            --stack-name sumo-chatwoot-stack \
+            --parameter-overrides \
+              SumoChatwootDBMasterUsername=${{ secrets.RDS_MASTER_USERNAME }} \
+              SumoChatwootDBMasterUserPassword=${{ secrets.RDS_MASTER_PASSWORD }} \
+              SumoChatwootCertificateArn=${{ secrets.ACM_CERTIFICATE_ARN }} \
+              SumoChatwootKeyName=${{ secrets.KEY_NAME}} \
+              GithubToken=${{ secrets.GIT_TOKEN}} \
+            --capabilities CAPABILITY_NAMED_IAM
+
+      # - name: Retrieve CloudFormation Outputs
+      #   id: cf-outputs
+      #   run: |
+      #     aws cloudformation describe-stacks --stack-name sumo-chatwoot-stack --query 'Stacks[0].Outputs' --output json
+
+      - name: Print CloudFormation Outputs
+        run: |
+          echo "CloudFormation Outputs:"
+          aws cloudformation describe-stacks --stack-name sumo-chatwoot-stack --query 'Stacks[0].Outputs' --output table
+
+      # - name: Create the AMI
+      #   run: |
+      #     echo "Create the AMI"
+      #     INSTANCE_ID=$(aws cloudformation describe-stacks --stack-name YourStackName --query 'Stacks[0].Outputs[?OutputKey==`ChatwootInstanceId`].OutputValue' --output text)
+      #     aws ec2 create-image --instance-id $INSTANCE_ID --name "chatwoot-base-ami" --description "Base AMI for Chatwoot application" --no-reboot
+
+      - name: Post-deployment script
+        run: |
+          echo "Deployment complete!"
