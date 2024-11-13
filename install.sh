@@ -43,6 +43,12 @@ fi
 eval set -- "$PARSED"
 
 c=n d=n h=n i=n I=n l=n r=n s=n u=n w=n v=n BRANCH=master SERVICE=web
+# Default values
+POSTGRES_HOST=''
+POSTGRES_USERNAME=''
+POSTGRES_PASSWORD=''
+REDIS_HOST=''
+RAILS_ENV='production'
 # Iterate options in order and nicely split until we see --
 while true; do
     case "$1" in
@@ -93,6 +99,26 @@ while true; do
             v=y
             shift
             ;;
+        --postgres-host)
+            shift
+            POSTGRES_HOST=$1
+            ;;
+        --postgres-username)
+            shift
+            POSTGRES_USERNAME=$1
+            ;;
+        --postgres-password)
+            shift
+            POSTGRES_PASSWORD=$1
+            ;;
+        --redis-host)
+            shift
+            REDIS_HOST=$1
+            ;;
+        --rails-env)
+            shift
+            RAILS_ENV=$1
+            ;;
         --)
             shift
             break
@@ -103,6 +129,21 @@ while true; do
             ;;
     esac
 done
+
+# Export environment variables
+export POSTGRES_HOST
+export POSTGRES_USERNAME
+export POSTGRES_PASSWORD
+export REDIS_HOST
+export RAILS_ENV
+
+# Example of using these variables
+echo "Using POSTGRES_HOST: $POSTGRES_HOST"
+echo "Using POSTGRES_USERNAME: $POSTGRES_USERNAME"
+echo "Using POSTGRES_PASSWORD: $POSTGRES_PASSWORD"
+echo "Using REDIS_HOST: $REDIS_HOST"
+echo "Using RAILS_ENV: $RAILS_ENV"
+
 
 # log if debug flag set
 if [ "$d" == "y" ]; then
@@ -346,11 +387,12 @@ function setup_chatwoot() {
 
   cp .env.example .env
   sed -i -e "/SECRET_KEY_BASE/ s/=.*/=$secret/" .env
-  sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/localhost:6379/' .env
-  sed -i -e '/POSTGRES_HOST/ s/=.*/=localhost/' .env
-  sed -i -e '/POSTGRES_USERNAME/ s/=.*/=chatwoot/' .env
-  sed -i -e "/POSTGRES_PASSWORD/ s/=.*/=$pg_pass/" .env
+  sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/$REDIS_HOST:6379/' .env
+  sed -i -e '/POSTGRES_HOST/ s/=.*/=$POSTGRES_HOST/' .env
+  sed -i -e '/POSTGRES_USERNAME/ s/=.*/=$POSTGRES_USERNAME/' .env
+  sed -i -e "/POSTGRES_PASSWORD/ s/=.*/=$POSTGRES_PASSWORD/" .env
   sed -i -e '/RAILS_ENV/ s/=.*/=$RAILS_ENV/' .env
+
   echo -en "\nINSTALLATION_ENV=linux_script" >> ".env"
 
   rake assets:precompile RAILS_ENV=production NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"

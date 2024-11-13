@@ -442,6 +442,14 @@ Resources:
           # Create the script with your commands
           cat << 'EOF' > $SCRIPT_PATH
 
+          # Define environment variables
+          POSTGRES_HOST=${SumoChatwootRDSDBInstance.Endpoint.Address}
+          POSTGRES_USERNAME=${SumoChatwootDBMasterUsername}
+          POSTGRES_PASSWORD=${SumoChatwootDBMasterUserPassword}
+          REDIS_HOST=${SumoChatwootRDSDBInstance.Endpoint.Address}
+          RAILS_ENV='production'
+          
+
           # Define the directory where the repository will be cloned
           REPO_DIR=/home/ubuntu/sumo-chatwoot
           # Configure Git with the GitHub token for authentication
@@ -457,12 +465,8 @@ Resources:
             cd "$REPO_DIR" || exit
           fi
           chmod 777 install.sh
-          sudo ./install.sh --install
+          sudo ./install.sh --install --postgres-host $POSTGRES_HOST --postgres-username $POSTGRES_USERNAME --postgres-password $POSTGRES_PASSWORD --redis-host $REDIS_HOST --rails-env $RAILS_ENV
           
-          echo 'DATABASE_URL=postgres://${SumoChatwootDBMasterUsername}:${SumoChatwootDBMasterUserPassword}@${SumoChatwootRDSDBInstance.Endpoint.Address}:5432/chatwoot_production' >> .env
-          echo 'REDIS_URL=redis://${SumoChatwootRDSDBInstance.Endpoint.Address}:6379' >> .env
-          echo 'RAILS_ENV=production bundle exec rake db:prepare' >> .env
-
           EOF
 
           # Make the script executable
