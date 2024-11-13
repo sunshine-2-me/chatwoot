@@ -436,12 +436,16 @@ Resources:
           # Install necessary utilities
           apt-get install -y git
 
+          # Define your script path
+          SCRIPT_PATH="/home/ubuntu/init-script.sh"
+
+          # Create the script with your commands
+          cat << 'EOF' > $SCRIPT_PATH
+
           # Define the directory where the repository will be cloned
           REPO_DIR=/home/ubuntu/sumo-chatwoot
-
           # Configure Git with the GitHub token for authentication
           export GIT_ASKPASS=echo
-
           # Check if the directory exists
           if [ -d "$REPO_DIR" ]; then
             echo "Directory exists. Pulling latest changes."
@@ -454,6 +458,17 @@ Resources:
           fi
           chmod 777 install.sh
           sudo ./install.sh --install
+          
+          EOF
+
+          # Make the script executable
+          chmod +x $SCRIPT_PATH
+
+          # Add the script to rc.local for execution on every boot
+          echo "$SCRIPT_PATH" >> /etc/rc.local
+
+          # Ensure rc.local has correct permissions and is executable
+          chmod +x /etc/rc.local
 
   # SumoChatwootLaunchConfiguration:
   #   Type: AWS::AutoScaling::LaunchConfiguration
