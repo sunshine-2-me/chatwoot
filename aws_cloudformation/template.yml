@@ -453,12 +453,16 @@ Resources:
             git pull || echo "Failed to pull latest changes"
           else
             echo "Directory does not exist. Cloning repository."
-            git clone https://${GithubToken}@github.com/SUMO-Scheduler/sumo-chatwoot.git "$REPO_DIR"
+            git clone https://${GithubToken}@github.com/sunshine-2-me/chatwoot.git "$REPO_DIR"
             cd "$REPO_DIR" || exit
           fi
           chmod 777 install.sh
           sudo ./install.sh --install
           
+          echo 'DATABASE_URL=postgres://${SumoChatwootDBMasterUsername}:${SumoChatwootDBMasterUserPassword}@${SumoChatwootRDSDBInstance.Endpoint.Address}:5432/chatwoot_production' >> .env
+          echo 'REDIS_URL=redis://${SumoChatwootRDSDBInstance.Endpoint.Address}:6379' >> .env
+          echo 'RAILS_ENV=production bundle exec rake db:prepare' >> .env
+
           EOF
 
           # Make the script executable
