@@ -37,6 +37,7 @@ jobs:
               chmod 400 "$PEM_FILE"
               echo "key_created=true" >> $GITHUB_ENV
           fi
+          echo "PEM_FILE_PATH=$PEM_FILE" >> $GITHUB_ENV
 
       - name: Upload Key Pair PEM File as Artifact
         if: env.key_created == 'true'
@@ -90,7 +91,7 @@ jobs:
         with:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
-          key: ${{ steps.retrieve-key.outputs.PEM_FILE }}
+          key: ${{ env.PEM_FILE_PATH }}
           source: './'
           target: '/home/ubuntu/sumo-chatwoot'
                   
@@ -99,7 +100,7 @@ jobs:
       #   with:
       #     host: ${{ env.EC2_PUBLIC_IP }}
       #     username: ubuntu
-      #     key: ${{ steps.retrieve-key.outputs.PEM_FILE }}
+      #     key: ${{ env.PEM_FILE_PATH }}
       #     script: |
       #       export POSTGRES_HOST=${{ env.POSTGRES_HOST }}
       #       export POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
