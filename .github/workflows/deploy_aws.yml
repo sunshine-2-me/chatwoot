@@ -87,31 +87,31 @@ jobs:
           echo "REDIS_HOST=${RedisPrimaryEndpoint}" >> $GITHUB_ENV
 
       - name: Upload Source Code to EC2
-        uses: appleboy/scp-action@v0.1.3
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ env.EC2_PUBLIC_IP }}
           username: ubuntu
-          key: ${{ env.PEM_FILE_PATH }}
+          key_path: ${{ env.PEM_FILE_PATH }}
           source: './'
           target: '/home/ubuntu/sumo-chatwoot'
                   
-      # - name: Update EC2 with new source code
-      #   uses: appleboy/ssh-action@v0.1.3
-      #   with:
-      #     host: ${{ env.EC2_PUBLIC_IP }}
-      #     username: ubuntu
-      #     key: ${{ env.PEM_FILE_PATH }}
-      #     script: |
-      #       export POSTGRES_HOST=${{ env.POSTGRES_HOST }}
-      #       export POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
-      #       export POSTGRES_PASSWORD=${{ secrets.RDS_MASTER_PASSWORD }}
-      #       export REDIS_HOST=${{ env.POSTGRES_HOST }}
-      #       export RAILS_ENV='production'
+      - name: Update EC2 with new source code
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          host: ${{ env.EC2_PUBLIC_IP }}
+          username: ubuntu
+          key_path: ${{ env.PEM_FILE_PATH }}
+          script: |
+            export POSTGRES_HOST=${{ env.POSTGRES_HOST }}
+            export POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
+            export POSTGRES_PASSWORD=${{ secrets.RDS_MASTER_PASSWORD }}
+            export REDIS_HOST=${{ env.POSTGRES_HOST }}
+            export RAILS_ENV='production'
 
-      #       cd /home/ubuntu/sumo-chatwoot
-      #       git pull origin develop
-      #       chmod 777 install.sh
-      #       sudo ./install.sh --install
+            cd /home/ubuntu/sumo-chatwoot
+            git pull origin develop
+            chmod 777 install.sh
+            sudo ./install.sh --install
             
       # - name: Retrieve CloudFormation Outputs
       #   id: cf-outputs
