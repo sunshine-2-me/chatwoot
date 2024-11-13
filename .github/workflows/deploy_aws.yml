@@ -34,10 +34,12 @@ jobs:
               echo "Key pair $key_name deleted."
             fi
               ssh_key=$(aws ec2 create-key-pair --key-name "$key_name" --query 'KeyMaterial' --output text)
+              echo "$ssh_key"
               echo "$ssh_key" > "$PEM_FILE"
               chmod 600 "$PEM_FILE"
               echo "PEM_FILE_PATH=$PEM_FILE" >> $GITHUB_ENV
               encoded_ssh_key=$(echo "$ssh_key" | base64 | tr -d '\n')
+              echo "$encoded_ssh_key"
               echo "SSH_KEY=$encoded_ssh_key" >> $GITHUB_ENV
           fi
 
