@@ -465,7 +465,7 @@ Resources:
             cd "$REPO_DIR" || exit
           fi
           chmod 777 install.sh
-          sudo ./install.sh --install --postgres-host $POSTGRES_HOST --postgres-username $POSTGRES_USERNAME --postgres-password $POSTGRES_PASSWORD --redis-host $REDIS_HOST --rails-env $RAILS_ENV
+          sudo ./install.sh --postgres-host $POSTGRES_HOST --postgres-username $POSTGRES_USERNAME --postgres-password $POSTGRES_PASSWORD --redis-host $REDIS_HOST --rails-env $RAILS_ENV --install 
           
           EOF
 
