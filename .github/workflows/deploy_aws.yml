@@ -92,6 +92,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           overwrite: true
+          rm: true
           source: './*'
           target: '/home/ubuntu/sumo-chatwoot'
                   
