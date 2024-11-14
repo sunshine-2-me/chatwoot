@@ -341,13 +341,13 @@ function setup_chatwoot() {
   local RAILS_ENV=production
   get_pgpass
 
-  # sudo -i -u chatwoot << EOF
+  sudo -i -u ubuntu << EOF
   rvm --version
   rvm autolibs disable
   rvm install "ruby-3.3.3"
   rvm use 3.3.3 --default
 
-  git clone https://github.com/SUMO-Scheduler/sumo-chatwoot.git
+  # git clone https://github.com/SUMO-Scheduler/sumo-chatwoot.git
   cd /home/ubuntu/sumo-chatwoot
   git checkout "$BRANCH"
   bundle
@@ -364,7 +364,7 @@ function setup_chatwoot() {
   echo -en "\nINSTALLATION_ENV=linux_script" >> ".env"
 
   rake assets:precompile RAILS_ENV=production NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
-# EOF
+EOF
 }
 
 ##############################################################################
@@ -377,10 +377,10 @@ function setup_chatwoot() {
 #   None
 ##############################################################################
 function run_db_migrations(){
-  # sudo -i -u chatwoot << EOF
+  sudo -i -u ubuntu << EOF
   cd /home/ubuntu/sumo-chatwoot
   RAILS_ENV=production POSTGRES_STATEMENT_TIMEOUT=600s bundle exec rails db:chatwoot_prepare
-# EOF
+EOF
 }
 
 ##############################################################################
@@ -430,10 +430,10 @@ function setup_ssl() {
   sed -i "s/chatwoot.domain.com/$domain_name/g" /etc/nginx/sites-available/nginx_chatwoot.conf
   ln -s /etc/nginx/sites-available/nginx_chatwoot.conf /etc/nginx/sites-enabled/nginx_chatwoot.conf
   systemctl restart nginx
-  # sudo -i -u chatwoot << EOF
+  sudo -i -u ubuntu << EOF
   cd /home/ubuntu/sumo-chatwoot
   sed -i "s/http:\/\/0.0.0.0:3000/https:\/\/$domain_name/g" .env
-# EOF
+EOF
   systemctl restart chatwoot.target
 }
 
@@ -613,8 +613,7 @@ exit 0
 #   None
 ##############################################################################
 function get_console() {
-  # sudo -i -u chatwoot bash -c " cd sumo-chatwoot && RAILS_ENV=production bundle exec rails c"
-  cd /home/ubuntu/sumo-chatwoot && RAILS_ENV=production bundle exec rails c
+  sudo -i -u ubuntu bash -c " cd sumo-chatwoot && RAILS_ENV=production bundle exec rails c"
 }
 
 ##############################################################################
@@ -715,7 +714,7 @@ function ssl() {
 #   None
 ##############################################################################
 function upgrade_prereq() {
-  # sudo -i -u chatwoot << "EOF"
+  sudo -i -u ubuntu << "EOF"
   cd /home/ubuntu/sumo-chatwoot
   git update-index --refresh
   git diff-index --quiet HEAD --
@@ -724,7 +723,7 @@ function upgrade_prereq() {
     echo "Please proceed to update manually."
     exit 1
   fi
-# EOF
+EOF
 }
 
 ##############################################################################
@@ -822,10 +821,10 @@ function get_pnpm() {
   echo "pnpm is not installed. Installing pnpm..."
   npm install -g pnpm
   echo "Cleaning up existing node_modules directory..."
-  # sudo -i -u chatwoot << "EOF"
+  sudo -i -u ubuntu << "EOF"
   cd /home/ubuntu/sumo-chatwoot
   rm -rf node_modules
-# EOF
+EOF
 }
 
 ##############################################################################
@@ -846,7 +845,7 @@ function upgrade() {
   upgrade_redis
   upgrade_node
   get_pnpm
-  # sudo -i -u chatwoot << "EOF"
+  sudo -i -u ubuntu << "EOF"
 
   # Navigate to the Chatwoot directory
   cd /home/ubuntu/sumo-chatwoot
@@ -870,7 +869,7 @@ function upgrade() {
   # Migrate the database schema
   RAILS_ENV=production POSTGRES_STATEMENT_TIMEOUT=600s bundle exec rake db:migrate
 
-# EOF
+EOF
 
   # Copy the updated targets
   cp /home/chatwoot/chatwoot/deployment/chatwoot-web.1.service /etc/systemd/system/chatwoot-web.1.service
@@ -961,13 +960,10 @@ function get_installation_identifier() {
 
   local installation_identifier
 
-#   installation_identifier=$(sudo -i -u chatwoot << "EOF"
-#   cd sumo-chatwoot
-#   RAILS_ENV=production bundle exec rake instance_id:get_installation_identifier
-# EOF
-  installation_identifier=$(
+  installation_identifier=$(sudo -i -u ubuntu << "EOF"
   cd /home/ubuntu/sumo-chatwoot
   RAILS_ENV=production bundle exec rake instance_id:get_installation_identifier
+EOF
 )
   echo "$installation_identifier"
 }
