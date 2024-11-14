@@ -106,7 +106,7 @@ jobs:
             export POSTGRES_HOST=${{ env.POSTGRES_HOST }}
             export POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
             export POSTGRES_PASSWORD=${{ secrets.RDS_MASTER_PASSWORD }}
-            export REDIS_HOST=${{ env.POSTGRES_HOST }}
+            export REDIS_HOST=${{ env.REDIS_HOST }}
             export RAILS_ENV='production'
 
             cd /home/ubuntu/sumo-chatwoot
