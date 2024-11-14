@@ -105,11 +105,11 @@ while true; do
 done
 
 # Example of using these variables
-# echo "Using POSTGRES_HOST: $POSTGRES_HOST"
-# echo "Using POSTGRES_USERNAME: $POSTGRES_USERNAME"
-# echo "Using POSTGRES_PASSWORD: $POSTGRES_PASSWORD"
-# echo "Using REDIS_HOST: $REDIS_HOST"
-# echo "Using RAILS_ENV: $RAILS_ENV"
+echo "Using POSTGRES_HOST: $POSTGRES_HOST"
+echo "Using POSTGRES_USERNAME: $POSTGRES_USERNAME"
+echo "Using POSTGRES_PASSWORD: $POSTGRES_PASSWORD"
+echo "Using REDIS_HOST: $REDIS_HOST"
+echo "Using RAILS_ENV: $RAILS_ENV"
 
 
 # log if debug flag set
@@ -348,7 +348,7 @@ function setup_chatwoot() {
   rvm use 3.3.3 --default
 
   # git clone https://github.com/SUMO-Scheduler/sumo-chatwoot.git
-  cd /home/ubuntu/sumo-chatwoot
+  cd sumo-chatwoot
   git checkout "$BRANCH"
   bundle
   pnpm i
@@ -378,7 +378,7 @@ EOF
 ##############################################################################
 function run_db_migrations(){
   sudo -i -u ubuntu << EOF
-  cd /home/ubuntu/sumo-chatwoot
+  cd sumo-chatwoot
   RAILS_ENV=production POSTGRES_STATEMENT_TIMEOUT=600s bundle exec rails db:chatwoot_prepare
 EOF
 }
@@ -431,7 +431,7 @@ function setup_ssl() {
   ln -s /etc/nginx/sites-available/nginx_chatwoot.conf /etc/nginx/sites-enabled/nginx_chatwoot.conf
   systemctl restart nginx
   sudo -i -u ubuntu << EOF
-  cd /home/ubuntu/sumo-chatwoot
+  cd sumo-chatwoot
   sed -i "s/http:\/\/0.0.0.0:3000/https:\/\/$domain_name/g" .env
 EOF
   systemctl restart chatwoot.target
@@ -715,7 +715,7 @@ function ssl() {
 ##############################################################################
 function upgrade_prereq() {
   sudo -i -u ubuntu << "EOF"
-  cd /home/ubuntu/sumo-chatwoot
+  cd sumo-chatwoot
   git update-index --refresh
   git diff-index --quiet HEAD --
   if [ "$?" -eq 1 ]; then
@@ -822,7 +822,7 @@ function get_pnpm() {
   npm install -g pnpm
   echo "Cleaning up existing node_modules directory..."
   sudo -i -u ubuntu << "EOF"
-  cd /home/ubuntu/sumo-chatwoot
+  cd sumo-chatwoot
   rm -rf node_modules
 EOF
 }
@@ -848,7 +848,7 @@ function upgrade() {
   sudo -i -u ubuntu << "EOF"
 
   # Navigate to the Chatwoot directory
-  cd /home/ubuntu/sumo-chatwoot
+  cd sumo-chatwoot
 
   # Pull the latest version of the master branch
   git checkout master && git pull
@@ -961,7 +961,7 @@ function get_installation_identifier() {
   local installation_identifier
 
   installation_identifier=$(sudo -i -u ubuntu << "EOF"
-  cd /home/ubuntu/sumo-chatwoot
+  cd sumo-chatwoot
   RAILS_ENV=production bundle exec rake instance_id:get_installation_identifier
 EOF
 )
