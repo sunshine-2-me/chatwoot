@@ -112,7 +112,7 @@ jobs:
             cd /home/ubuntu/sumo-chatwoot
             git pull origin develop
             chmod 777 install.sh
-            sudo ./install.sh --install
+            sudo -E ./install.sh --install
             
       # - name: Retrieve CloudFormation Outputs
       #   id: cf-outputs
