@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for setting up Bastion Hosts'
+
+Parameters:
+  SumoChatwootVPCId:
+    Description: 'VPC ID where the RDS instance will be deployed'
+    Type: 'AWS::EC2::VPC::Id'
+
+  SumoChatwootPublicSubnet1Id:
+    Description: 'Public Subnet 1 ID'
+    Type: 'AWS::EC2::Subnet::Id'
+
+  SumoChatwootPublicSubnet2Id:
+    Description: 'Public Subnet 2 ID'
+    Type: 'AWS::EC2::Subnet::Id'
+
+  KeyPairName:
+    Description: 'Name of an existing EC2 KeyPair to enable SSH access to the instances'
+    Type: 'AWS::EC2::KeyPair::KeyName'
+
+Resources:
+  # Security Group for Bastion Hosts
+  SumoChatwootBastionSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref SumoChatwootVPCId
+      GroupDescription: Security group for Bastion hosts
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-bastion-sg
+
+  # Bastion Host in Public Subnet 1
+  SumoChatwootBastionHostA:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.micro
+      KeyName: !Ref KeyPairName
+      SubnetId: !Ref SumoChatwootPublicSubnet1Id
+      ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
+      SecurityGroupIds:
+        - !Ref SumoChatwootBastionSecurityGroup
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-bastion-a
+
+  # Bastion Host in Public Subnet 2
+  SumoChatwootBastionHostB:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.micro
+      KeyName: !Ref KeyPairName
+      SubnetId: !Ref SumoChatwootPublicSubnet2Id
+      ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
+      SecurityGroupIds:
+        - !Ref SumoChatwootBastionSecurityGroup
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-bastion-b
+
+Outputs:
+  SumoChatwootBastionHostAPublicIP:
+    Description: 'Public IP address of Bastion Host A'
+    Value: !GetAtt SumoChatwootBastionHostA.PublicIp
+
+  SumoChatwootBastionHostBPublicIP:
+    Description: 'Public IP address of Bastion Host B'
+    Value: !GetAtt SumoChatwootBastionHostB.PublicIp

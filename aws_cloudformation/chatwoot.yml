@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for deploying Chatwoot on an EC2 instance'
+
+Parameters:
+  SumoChatwootPublicSubnet1Id:
+    Description: 'Public Subnet 1 ID'
+    Type: 'AWS::EC2::Subnet::Id'
+
+  SumoChatwootPrivateSubnet1Id:
+    Description: 'Private Subnet 1 ID'
+    Type: 'AWS::EC2::Subnet::Id'
+
+  SumoChatwootLoadBalancerSGId:
+    Description: 'SumoChatwootLoadBalancerSG ID'
+    Type: 'AWS::EC2::SecurityGroup::Id'
+
+  KeyPairName:
+    Description: 'Name of an existing EC2 KeyPair to enable SSH access to the instances'
+    Type: 'AWS::EC2::KeyPair::KeyName'
+
+
+Resources:
+  SumoChatwootInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: c5.xlarge
+      KeyName: !Ref KeyPairName
+      ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
+      # SubnetId: !Ref SumoChatwootPrivateSubnet1Id
+      # SecurityGroupIds:
+      #   - !Ref SumoChatwootLoadBalancerSGId
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 60
+            VolumeType: gp2
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !Ref SumoChatwootPublicSubnet1Id
+          GroupSet:
+            - !Ref SumoChatwootLoadBalancerSGId
+
+Outputs:
+  SumoChatwootInstanceId:
+    Description: 'The ID of the Chatwoot EC2 instance'
+    Value: !Ref SumoChatwootInstance
+
+  SumoChatwootInstancePrivateIP:
+    Description: 'Private IP address of the Chatwoot EC2 instance'
+    Value: !GetAtt SumoChatwootInstance.PrivateIp
+
+  SumoChatwootInstancePublicIP:
+    Description: 'Public IP address of the Chatwoot EC2 instance'
+    Value: !GetAtt SumoChatwootInstance.PublicIp    

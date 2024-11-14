@@ -20,107 +20,234 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # - name: Creating a Key Pair Using AWS CLI
-      #   id: retrieve-key
-      #   run: |
-      #     key_name="${{ secrets.KEY_NAME }}"
-      #     PEM_FILE="$key_name.pem"
-      #     if [ ! -f "$PEM_FILE" ]; then
-      #       if ! aws ec2 describe-key-pairs --key-names "$key_name" 2>/dev/null; then
-      #         echo "Key pair $key_name does not exists."
-      #       else
-      #         echo "Key pair $key_name already exists."
-      #         aws ec2 delete-key-pair --key-name "$key_name"
-      #         echo "Key pair $key_name deleted."
-      #       fi
-      #         aws ec2 create-key-pair --key-name "$key_name" --query 'KeyMaterial' --output text > "$PEM_FILE"
-      #         chmod 600 "$PEM_FILE"
-      #         echo "PEM_FILE_PATH=$PEM_FILE" >> $GITHUB_ENV
-      #     fi
-
-
-      # - name: Upload Key Pair PEM File as Artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: key-pair-pem
-      #     path: ${{ secrets.KEY_NAME }}.pem
-
       - name: Validate Cloudformation
         run: |
           aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/template.yml
-
-      - name: Deploy CloudFormation Stack
+            --template-body file://aws_cloudformation/network.yml
+          aws cloudformation validate-template \
+            --template-body file://aws_cloudformation/application_load_balancer.yml
+          aws cloudformation validate-template \
+            --template-body file://aws_cloudformation/postgresql.yml
+          aws cloudformation validate-template \
+            --template-body file://aws_cloudformation/redis.yml
+          aws cloudformation validate-template \
+            --template-body file://aws_cloudformation/bastion.yml
+          aws cloudformation validate-template \
+            --template-body file://aws_cloudformation/chatwoot.yml
+      
+      - name: Deploy Network Cloudformation
         run: |
           STACK_NAME=sumo-chatwoot-stack
           aws cloudformation deploy \
-            --template-file aws_cloudformation/template.yml \
+            --template-file aws_cloudformation/network.yml \
             --stack-name $STACK_NAME \
-            --parameter-overrides \
-              SumoChatwootDBMasterUsername=${{ secrets.RDS_MASTER_USERNAME }} \
-              SumoChatwootDBMasterUserPassword=${{ secrets.RDS_MASTER_PASSWORD }} \
-              SumoChatwootCertificateArn=${{ secrets.ACM_CERTIFICATE_ARN }} \
-              SumoChatwootKeyName=${{ secrets.KEY_NAME}} \
-              GithubToken=${{ secrets.GIT_TOKEN}} \
             --capabilities CAPABILITY_NAMED_IAM
 
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-          InstancePublicIP=$(aws cloudformation describe-stacks \
-          --stack-name $STACK_NAME \
-          --query "Stacks[0].Outputs[?OutputKey=='InstancePublicIP'].OutputValue" \
-          --output text)
-          echo "EC2_PUBLIC_IP=${InstancePublicIP}" >> $GITHUB_ENV
+          SumoChatwootVPCId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootVPCId'].OutputValue" --output text)
+          echo "SumoChatwootVPCId=${SumoChatwootVPCId}" >> $GITHUB_ENV
 
-          RDSInstanceEndpoint=$(aws cloudformation describe-stacks \
-          --stack-name $STACK_NAME \
-          --query "Stacks[0].Outputs[?OutputKey=='RDSInstanceEndpoint'].OutputValue" \
-          --output text)
-          echo "POSTGRES_HOST=${RDSInstanceEndpoint}" >> $GITHUB_ENV
+          SumoChatwootPublicSubnet1Id=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootPublicSubnet1Id'].OutputValue" --output text)
+          echo "SumoChatwootPublicSubnet1Id=${SumoChatwootPublicSubnet1Id}" >> $GITHUB_ENV
 
-          RedisPrimaryEndpoint=$(aws cloudformation describe-stacks \
-          --stack-name $STACK_NAME \
-          --query "Stacks[0].Outputs[?OutputKey=='RedisPrimaryEndpoint'].OutputValue" \
-          --output text)
-          echo "REDIS_HOST=${RedisPrimaryEndpoint}" >> $GITHUB_ENV
+          SumoChatwootPublicSubnet2Id=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootPublicSubnet2Id'].OutputValue" --output text)
+          echo "SumoChatwootPublicSubnet2Id=${SumoChatwootPublicSubnet2Id}" >> $GITHUB_ENV
 
-      - name: Upload Source Code to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ env.EC2_PUBLIC_IP }}
-          username: ubuntu
-          key: ${{ secrets.SSH_KEY }}
-          overwrite: true
-          rm: true
-          source: './*'
-          target: '/home/ubuntu/sumo-chatwoot'
+          SumoChatwootPrivateSubnet1Id=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootPrivateSubnet1Id'].OutputValue" --output text)
+          echo "SumoChatwootPrivateSubnet1Id=${SumoChatwootPrivateSubnet1Id}" >> $GITHUB_ENV
+
+          SumoChatwootPrivateSubnet2Id=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootPrivateSubnet2Id'].OutputValue" --output text)
+          echo "SumoChatwootPrivateSubnet2Id=${SumoChatwootPrivateSubnet2Id}" >> $GITHUB_ENV
+
+      - name: Deploy Application Load Balancer Cloudformation
+        run: |
+          STACK_NAME=sumo-chatwoot-stack
+          aws cloudformation deploy \
+            --template-file aws_cloudformation/application_load_balancer.yml \
+            --stack-name $STACK_NAME \
+            --parameter-overrides \
+              SumoChatwootVPCId=${{ env.SumoChatwootVPCId }} \
+              SumoChatwootPublicSubnet1Id=${{ env.SumoChatwootPublicSubnet1Id }} \
+              SumoChatwootPublicSubnet2Id=${{ env.SumoChatwootPublicSubnet2Id}} \
+              SumoChatwootCertificateArn=${{ secrets.ACM_CERTIFICATE_ARN }} \
+            --capabilities CAPABILITY_NAMED_IAM
+
+          echo "CloudFormation Outputs:"
+          aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
+
+          SumoChatwootLoadBalancerDNSName=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootLoadBalancerDNSName'].OutputValue" --output text)
+          echo "SumoChatwootLoadBalancerDNSName=${SumoChatwootLoadBalancerDNSName}" >> $GITHUB_ENV
+
+          SumoChatwootLoadBalancerSGId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootLoadBalancerSGId'].OutputValue" --output text)
+          echo "SumoChatwootLoadBalancerSGId=${SumoChatwootLoadBalancerSGId}" >> $GITHUB_ENV
+          
+      - name: Deploy Postgresql
+        run: |
+          STACK_NAME=sumo-chatwoot-stack
+          aws cloudformation deploy \
+            --template-file aws_cloudformation/postgresql.yml \
+            --stack-name $STACK_NAME \
+            --parameter-overrides \
+              SumoChatwootVPCId=${{ env.SumoChatwootVPCId }} \
+              SumoChatwootPrivateSubnet1Id=${{ env.SumoChatwootPrivateSubnet1Id }} \
+              SumoChatwootPrivateSubnet2Id=${{ env.SumoChatwootPrivateSubnet2Id }} \
+              SumoChatwootLoadBalancerSGId=${{ env.SumoChatwootLoadBalancerSGId }} \
+              SumoChatwootDBUsername=${{ secrets.RDS_MASTER_USERNAME }} \
+              SumoChatwootDBPassword=${{ secrets.RDS_MASTER_PASSWORD }} \
+            --capabilities CAPABILITY_NAMED_IAM
+
+          echo "CloudFormation Outputs:"
+          aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
+
+          SumoChatwootRDSInstanceEndpoint=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootRDSInstanceEndpoint'].OutputValue" --output text)
+          echo "SumoChatwootRDSInstanceEndpoint=${SumoChatwootRDSInstanceEndpoint}" >> $GITHUB_ENV
+
+          SumoChatwootRDSInstancePort=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootRDSInstancePort'].OutputValue" --output text)
+          echo "SumoChatwootRDSInstancePort=${SumoChatwootRDSInstancePort}" >> $GITHUB_ENV
+
+      - name: Deploy Redis
+        run: |
+          STACK_NAME=sumo-chatwoot-stack
+          aws cloudformation deploy \
+            --template-file aws_cloudformation/redis.yml \
+            --stack-name $STACK_NAME \
+            --parameter-overrides \
+              SumoChatwootVPCId=${{ env.SumoChatwootVPCId }} \
+              SumoChatwootPrivateSubnet1Id=${{ env.SumoChatwootPrivateSubnet1Id }} \
+              SumoChatwootPrivateSubnet2Id=${{ env.SumoChatwootPrivateSubnet2Id }} \
+              SumoChatwootLoadBalancerSGId=${{ env.SumoChatwootLoadBalancerSGId }} \
+            --capabilities CAPABILITY_NAMED_IAM
+
+          echo "CloudFormation Outputs:"
+          aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
+
+          SumoChatwootRedisPrimaryEndpointAddress=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootRedisPrimaryEndpointAddress'].OutputValue" --output text)
+          echo "SumoChatwootRedisPrimaryEndpointAddress=${SumoChatwootRedisPrimaryEndpointAddress}" >> $GITHUB_ENV
+
+          SumoChatwootRedisPrimaryEndpointPort=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootRedisPrimaryEndpointPort'].OutputValue" --output text)
+          echo "SumoChatwootRedisPrimaryEndpointPort=${SumoChatwootRedisPrimaryEndpointPort}" >> $GITHUB_ENV
+
+      - name: Deploy Bastion
+        run: |
+          STACK_NAME=sumo-chatwoot-stack
+          aws cloudformation deploy \
+            --template-file aws_cloudformation/bastion.yml \
+            --stack-name $STACK_NAME \
+            --parameter-overrides \
+              SumoChatwootVPCId=${{ env.SumoChatwootVPCId }} \
+              SumoChatwootPublicSubnet1Id=${{ env.SumoChatwootPublicSubnet1Id }} \
+              SumoChatwootPublicSubnet2Id=${{ env.SumoChatwootPublicSubnet2Id }} \
+              KeyPairName=${{ secrets.KEY_NAME }} \
+            --capabilities CAPABILITY_NAMED_IAM
+
+          echo "CloudFormation Outputs:"
+          aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
+
+          SumoChatwootBastionHostAPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostAPublicIP'].OutputValue" --output text)
+          echo "SumoChatwootBastionHostAPublicIP=${SumoChatwootBastionHostAPublicIP}" >> $GITHUB_ENV
+
+          SumoChatwootBastionHostBPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostBPublicIP'].OutputValue" --output text)
+          echo "SumoChatwootBastionHostBPublicIP=${SumoChatwootBastionHostBPublicIP}" >> $GITHUB_ENV
+
+      - name: Deploy Chatwoot EC2
+        run: |
+          STACK_NAME=sumo-chatwoot-stack
+          aws cloudformation deploy \
+            --template-file aws_cloudformation/chatwoot.yml \
+            --stack-name $STACK_NAME \
+            --parameter-overrides \
+              SumoChatwootPublicSubnet1Id=${{ env.SumoChatwootPublicSubnet1Id }} \
+              SumoChatwootPrivateSubnet1Id=${{ env.SumoChatwootPrivateSubnet1Id }} \
+              SumoChatwootLoadBalancerSGId=${{ env.SumoChatwootLoadBalancerSGId }} \
+              KeyPairName=${{ secrets.KEY_NAME }} \
+            --capabilities CAPABILITY_NAMED_IAM
+
+          echo "CloudFormation Outputs:"
+          aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
+
+          SumoChatwootInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstanceId'].OutputValue" --output text)
+          echo "SumoChatwootInstanceId=${SumoChatwootInstanceId}" >> $GITHUB_ENV
+
+          SumoChatwootInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePublicIP'].OutputValue" --output text)
+          echo "SumoChatwootInstancePublicIP=${SumoChatwootInstancePublicIP}" >> $GITHUB_ENV
+
+          SumoChatwootInstancePrivateIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePrivateIP'].OutputValue" --output text)
+          echo "SumoChatwootInstancePrivateIP=${SumoChatwootInstancePrivateIP}" >> $GITHUB_ENV
+
+
+      # - name: Deploy CloudFormation Stack
+      #   run: |
+      #     STACK_NAME=sumo-chatwoot-stack
+      #     aws cloudformation deploy \
+      #       --template-file aws_cloudformation/template.yml \
+      #       --stack-name $STACK_NAME \
+      #       --parameter-overrides \
+      #         SumoChatwootDBMasterUsername=${{ secrets.RDS_MASTER_USERNAME }} \
+      #         SumoChatwootDBMasterUserPassword=${{ secrets.RDS_MASTER_PASSWORD }} \
+      #         SumoChatwootCertificateArn=${{ secrets.ACM_CERTIFICATE_ARN }} \
+      #         SumoChatwootKeyName=${{ secrets.KEY_NAME}} \
+      #         GithubToken=${{ secrets.GIT_TOKEN}} \
+      #       --capabilities CAPABILITY_NAMED_IAM
+
+          # echo "CloudFormation Outputs:"
+          # aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
+
+          # InstancePublicIP=$(aws cloudformation describe-stacks \
+          # --stack-name $STACK_NAME \
+          # --query "Stacks[0].Outputs[?OutputKey=='InstancePublicIP'].OutputValue" \
+          # --output text)
+          # echo "EC2_PUBLIC_IP=${InstancePublicIP}" >> $GITHUB_ENV
+
+          # RDSInstanceEndpoint=$(aws cloudformation describe-stacks \
+          # --stack-name $STACK_NAME \
+          # --query "Stacks[0].Outputs[?OutputKey=='RDSInstanceEndpoint'].OutputValue" \
+          # --output text)
+          # echo "POSTGRES_HOST=${RDSInstanceEndpoint}" >> $GITHUB_ENV
+
+          # RedisPrimaryEndpoint=$(aws cloudformation describe-stacks \
+          # --stack-name $STACK_NAME \
+          # --query "Stacks[0].Outputs[?OutputKey=='RedisPrimaryEndpoint'].OutputValue" \
+          # --output text)
+          # echo "REDIS_HOST=${RedisPrimaryEndpoint}" >> $GITHUB_ENV
+
+      # - name: Upload Source Code to EC2
+      #   uses: appleboy/scp-action@v0.1.7
+      #   with:
+      #     host: ${{ env.EC2_PUBLIC_IP }}
+      #     username: ubuntu
+      #     key: ${{ secrets.SSH_KEY }}
+      #     overwrite: true
+      #     rm: true
+      #     source: './*'
+      #     target: '/home/ubuntu/sumo-chatwoot'
                   
-      - name: Update EC2 with new source code
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ env.EC2_PUBLIC_IP }}
-          username: ubuntu
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            POSTGRES_HOST=${{ env.POSTGRES_HOST }}
-            POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
-            POSTGRES_PASSWORD=${{ secrets.RDS_MASTER_PASSWORD }}
-            REDIS_HOST=${{ env.REDIS_HOST }}
-            RAILS_ENV='production'
+      # - name: Update EC2 with new source code
+      #   uses: appleboy/ssh-action@v1.1.0
+      #   with:
+      #     host: ${{ env.EC2_PUBLIC_IP }}
+      #     username: ubuntu
+      #     key: ${{ secrets.SSH_KEY }}
+      #     script: |
+      #       POSTGRES_HOST=${{ env.POSTGRES_HOST }}
+      #       POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
+      #       POSTGRES_PASSWORD=${{ secrets.RDS_MASTER_PASSWORD }}
+      #       REDIS_HOST=${{ env.REDIS_HOST }}
+      #       RAILS_ENV='production'
 
-            cd /home/ubuntu/sumo-chatwoot
-            git pull origin develop
-            chmod 777 install.sh
-            sudo ./install.sh --install
+      #       cd /home/ubuntu/sumo-chatwoot
+      #       git pull origin develop
+      #       chmod 777 install.sh
+      #       sudo ./install.sh --install
 
-            # sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/$REDIS_HOST:6379/' .env
-            # sed -i -e '/POSTGRES_HOST/ s/=.*/=$POSTGRES_HOST/' .env
-            # sed -i -e '/POSTGRES_USERNAME/ s/=.*/=$POSTGRES_USERNAME/' .env
-            # sed -i -e "/POSTGRES_PASSWORD/ s/=.*/=$POSTGRES_PASSWORD/" .env
+      #       # sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/$REDIS_HOST:6379/' .env
+      #       # sed -i -e '/POSTGRES_HOST/ s/=.*/=$POSTGRES_HOST/' .env
+      #       # sed -i -e '/POSTGRES_USERNAME/ s/=.*/=$POSTGRES_USERNAME/' .env
+      #       # sed -i -e "/POSTGRES_PASSWORD/ s/=.*/=$POSTGRES_PASSWORD/" .env
 
-            # RAILS_ENV=production bundle exec rake db:prepare
-            # sudo cwctl --restart
+      #       # RAILS_ENV=production bundle exec rake db:prepare
+      #       # sudo cwctl --restart
             
       # - name: Retrieve CloudFormation Outputs
       #   id: cf-outputs

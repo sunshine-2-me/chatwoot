@@ -173,10 +173,10 @@ EOF
 function install_dependencies() {
   apt update && apt upgrade -y
   apt install -y curl
-  curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor --yes -o /usr/share/keyrings/redis-archive-keyring.gpg
+  curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
   echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
   mkdir -p /etc/apt/keyrings
-  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor --yes -o /etc/apt/keyrings/nodesource.gpg
+  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
   NODE_MAJOR=20
   echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
 
@@ -244,13 +244,12 @@ function create_cw_user() {
 #   None
 ##############################################################################
 function configure_rvm() {
-  # create_cw_user
+  create_cw_user
 
   gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
   gpg2 --keyserver hkp://keyserver.ubuntu.com --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
   curl -sSL https://get.rvm.io | bash -s stable
-  # adduser chatwoot rvm
-  adduser ubuntu rvm
+  adduser chatwoot rvm
 }
 
 ##############################################################################
@@ -333,15 +332,15 @@ function setup_chatwoot() {
   local RAILS_ENV=production
   get_pgpass
 
-  sudo -i -u ubuntu << EOF
+  sudo -i -u chatwoot << EOF
   rvm --version
   rvm autolibs disable
   rvm install "ruby-3.3.3"
   rvm use 3.3.3 --default
 
-  # git clone https://github.com/SUMO-Scheduler/sumo-chatwoot.git
-  cd sumo-chatwoot
-  # git checkout "$BRANCH"
+  git clone https://github.com/chatwoot/chatwoot.git
+  cd chatwoot
+  git checkout "$BRANCH"
   bundle
   pnpm i
 
@@ -368,8 +367,8 @@ EOF
 #   None
 ##############################################################################
 function run_db_migrations(){
-  sudo -i -u ubuntu << EOF
-  cd sumo-chatwoot
+  sudo -i -u chatwoot << EOF
+  cd chatwoot
   RAILS_ENV=production POSTGRES_STATEMENT_TIMEOUT=600s bundle exec rails db:chatwoot_prepare
 EOF
 }
@@ -384,12 +383,12 @@ EOF
 #   None
 ##############################################################################
 function configure_systemd_services() {
-  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot-web.1.service /etc/systemd/system/chatwoot-web.1.service
-  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot-worker.1.service /etc/systemd/system/chatwoot-worker.1.service
-  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot.target /etc/systemd/system/chatwoot.target
+  cp /home/chatwoot/chatwoot/deployment/chatwoot-web.1.service /etc/systemd/system/chatwoot-web.1.service
+  cp /home/chatwoot/chatwoot/deployment/chatwoot-worker.1.service /etc/systemd/system/chatwoot-worker.1.service
+  cp /home/chatwoot/chatwoot/deployment/chatwoot.target /etc/systemd/system/chatwoot.target
 
-  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot /etc/sudoers.d/chatwoot
-  cp /home/ubuntu/sumo-chatwoot/deployment/setup_20.04.sh /usr/local/bin/cwctl
+  cp /home/chatwoot/chatwoot/deployment/chatwoot /etc/sudoers.d/chatwoot
+  cp /home/chatwoot/chatwoot/deployment/setup_20.04.sh /usr/local/bin/cwctl
   chmod +x /usr/local/bin/cwctl
 
   systemctl enable chatwoot.target
@@ -421,8 +420,8 @@ function setup_ssl() {
   sed -i "s/chatwoot.domain.com/$domain_name/g" /etc/nginx/sites-available/nginx_chatwoot.conf
   ln -s /etc/nginx/sites-available/nginx_chatwoot.conf /etc/nginx/sites-enabled/nginx_chatwoot.conf
   systemctl restart nginx
-  sudo -i -u ubuntu << EOF
-  cd sumo-chatwoot
+  sudo -i -u chatwoot << EOF
+  cd chatwoot
   sed -i "s/http:\/\/0.0.0.0:3000/https:\/\/$domain_name/g" .env
 EOF
   systemctl restart chatwoot.target
@@ -498,15 +497,14 @@ For more verbose logs, open up a second terminal and follow along using,
 EOF
 
   sleep 3
-#  read -rp 'Would you like to configure a domain and SSL for Chatwoot?(yes or no): ' configure_webserver
-  configure_webserver="no"
+  read -rp 'Would you like to configure a domain and SSL for Chatwoot?(yes or no): ' configure_webserver
+
   if [ "$configure_webserver" == "yes" ]; then
     get_domain_info
   fi
 
   echo -en "\n"
-#  read -rp 'Would you like to install Postgres and Redis? (Answer no if you plan to use external services)(yes or no): ' install_pg_redis
-  install_pg_redis="yes"
+  read -rp 'Would you like to install Postgres and Redis? (Answer no if you plan to use external services)(yes or no): ' install_pg_redis
 
   echo -en "\n➥ 1/9 Installing dependencies. This takes a while.\n"
   install_dependencies &>> "${LOG_FILE}"
@@ -604,7 +602,7 @@ exit 0
 #   None
 ##############################################################################
 function get_console() {
-  sudo -i -u ubuntu bash -c " cd sumo-chatwoot && RAILS_ENV=production bundle exec rails c"
+  sudo -i -u chatwoot bash -c " cd chatwoot && RAILS_ENV=production bundle exec rails c"
 }
 
 ##############################################################################
@@ -705,8 +703,8 @@ function ssl() {
 #   None
 ##############################################################################
 function upgrade_prereq() {
-  sudo -i -u ubuntu << "EOF"
-  cd sumo-chatwoot
+  sudo -i -u chatwoot << "EOF"
+  cd chatwoot
   git update-index --refresh
   git diff-index --quiet HEAD --
   if [ "$?" -eq 1 ]; then
@@ -752,7 +750,7 @@ function upgrade_redis() {
 
   echo "Upgrading Redis to v7+ for Rails 7 support(Chatwoot v2.17+)"
 
-  curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor --yes -o /usr/share/keyrings/redis-archive-keyring.gpg
+  curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
   echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
   apt update -y
   apt upgrade redis-server -y
@@ -785,7 +783,7 @@ function upgrade_node() {
 
   echo "Upgrading Node.js version to v20.x"
   mkdir -p /etc/apt/keyrings
-  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor --yes -o /etc/apt/keyrings/nodesource.gpg
+  curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
   NODE_MAJOR=20
   echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
 
@@ -812,8 +810,8 @@ function get_pnpm() {
   echo "pnpm is not installed. Installing pnpm..."
   npm install -g pnpm
   echo "Cleaning up existing node_modules directory..."
-  sudo -i -u ubuntu << "EOF"
-  cd sumo-chatwoot
+  sudo -i -u chatwoot << "EOF"
+  cd chatwoot
   rm -rf node_modules
 EOF
 }
@@ -836,10 +834,10 @@ function upgrade() {
   upgrade_redis
   upgrade_node
   get_pnpm
-  sudo -i -u ubuntu << "EOF"
+  sudo -i -u chatwoot << "EOF"
 
   # Navigate to the Chatwoot directory
-  cd sumo-chatwoot
+  cd chatwoot
 
   # Pull the latest version of the master branch
   git checkout master && git pull
@@ -863,11 +861,11 @@ function upgrade() {
 EOF
 
   # Copy the updated targets
-  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot-web.1.service /etc/systemd/system/chatwoot-web.1.service
-  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot-worker.1.service /etc/systemd/system/chatwoot-worker.1.service
-  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot.target /etc/systemd/system/chatwoot.target
+  cp /home/chatwoot/chatwoot/deployment/chatwoot-web.1.service /etc/systemd/system/chatwoot-web.1.service
+  cp /home/chatwoot/chatwoot/deployment/chatwoot-worker.1.service /etc/systemd/system/chatwoot-worker.1.service
+  cp /home/chatwoot/chatwoot/deployment/chatwoot.target /etc/systemd/system/chatwoot.target
 
-  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot /etc/sudoers.d/chatwoot
+  cp /home/chatwoot/chatwoot/deployment/chatwoot /etc/sudoers.d/chatwoot
   # TODO:(@vn) handle cwctl updates
 
   systemctl daemon-reload
@@ -951,8 +949,8 @@ function get_installation_identifier() {
 
   local installation_identifier
 
-  installation_identifier=$(sudo -i -u ubuntu << "EOF"
-  cd sumo-chatwoot
+  installation_identifier=$(sudo -i -u chatwoot << "EOF"
+  cd chatwoot
   RAILS_ENV=production bundle exec rake instance_id:get_installation_identifier
 EOF
 )

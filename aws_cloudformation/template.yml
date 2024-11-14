@@ -445,43 +445,40 @@ Resources:
           SubnetId: !Ref SumoChatwootPublicSubnet1
           GroupSet:
             - !Ref SumoChatwootLoadBalancerSG
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash
-          # Update and upgrade system packages
-          apt-get update -y
-          apt-get upgrade -y
+      # UserData:
+      #   Fn::Base64: !Sub |
+      #     #!/bin/bash
+      #     # Update and upgrade system packages
+      #     apt-get update -y
+      #     apt-get upgrade -y
 
-          # Install necessary utilities
-          apt-get install -y git
+      #     # Install necessary utilities
+      #     apt-get install -y git
 
-          # Define environment variables
-          export POSTGRES_HOST=${SumoChatwootRDSDBInstance.Endpoint.Address}
-          export POSTGRES_USERNAME=${SumoChatwootDBMasterUsername}
-          export POSTGRES_PASSWORD=${SumoChatwootDBMasterUserPassword}
-          export REDIS_HOST=${SumoChatwootRedisCluster.PrimaryEndPoint.Address}
-          export RAILS_ENV='production'
+      #     # Define environment variables
+      #     export POSTGRES_HOST=${SumoChatwootRDSDBInstance.Endpoint.Address}
+      #     export POSTGRES_USERNAME=${SumoChatwootDBMasterUsername}
+      #     export POSTGRES_PASSWORD=${SumoChatwootDBMasterUserPassword}
+      #     export REDIS_HOST=${SumoChatwootRedisCluster.PrimaryEndPoint.Address}
+      #     export RAILS_ENV='production'
 
-          # Define the directory where the repository will be cloned
-          REPO_DIR=/home/ubuntu/sumo-chatwoot
-          # Configure Git with the GitHub token for authentication
-          export GIT_ASKPASS=echo
-          # Check if the directory exists
-          if [ -d "$REPO_DIR" ]; then
-            echo "Directory exists. Pulling latest changes."
-            cd $REPO_DIR
-            git pull || echo "Failed to pull latest changes"
-          else
-            echo "Directory does not exist. Cloning repository."
-            git clone https://${GithubToken}@github.com/sunshine-2-me/chatwoot.git "$REPO_DIR"
-            cd "$REPO_DIR" || exit
-          fi
-          chmod 777 install.sh
-          sudo ./install.sh --install 
+      #     # Define the directory where the repository will be cloned
+      #     REPO_DIR=/home/ubuntu/sumo-chatwoot
+      #     # Configure Git with the GitHub token for authentication
+      #     export GIT_ASKPASS=echo
+      #     # Check if the directory exists
+      #     if [ -d "$REPO_DIR" ]; then
+      #       echo "Directory exists. Pulling latest changes."
+      #       cd $REPO_DIR
+      #       git pull || echo "Failed to pull latest changes"
+      #     else
+      #       echo "Directory does not exist. Cloning repository."
+      #       git clone https://${GithubToken}@github.com/sunshine-2-me/chatwoot.git "$REPO_DIR"
+      #       cd "$REPO_DIR" || exit
+      #     fi
+      #     chmod 777 install.sh
+      #     sudo ./install.sh --install 
           
-          EOF
-
-
   # SumoChatwootLaunchConfiguration:
   #   Type: AWS::AutoScaling::LaunchConfiguration
   #   Properties:
