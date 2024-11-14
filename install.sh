@@ -341,18 +341,17 @@ function setup_chatwoot() {
 
   # git clone https://github.com/SUMO-Scheduler/sumo-chatwoot.git
   cd sumo-chatwoot
-  git checkout "$BRANCH"
+  # git checkout "$BRANCH"
   bundle
   pnpm i
 
   cp .env.example .env
   sed -i -e "/SECRET_KEY_BASE/ s/=.*/=$secret/" .env
-  sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/$REDIS_HOST:6379/' .env
-  sed -i -e '/POSTGRES_HOST/ s/=.*/=$POSTGRES_HOST/' .env
-  sed -i -e '/POSTGRES_USERNAME/ s/=.*/=$POSTGRES_USERNAME/' .env
-  sed -i -e "/POSTGRES_PASSWORD/ s/=.*/=$POSTGRES_PASSWORD/" .env
+  sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/localhost:6379/' .env
+  sed -i -e '/POSTGRES_HOST/ s/=.*/=localhost/' .env
+  sed -i -e '/POSTGRES_USERNAME/ s/=.*/=chatwoot/' .env
+  sed -i -e "/POSTGRES_PASSWORD/ s/=.*/=$pg_pass/" .env
   sed -i -e '/RAILS_ENV/ s/=.*/=$RAILS_ENV/' .env
-
   echo -en "\nINSTALLATION_ENV=linux_script" >> ".env"
 
   rake assets:precompile RAILS_ENV=production NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
@@ -507,7 +506,7 @@ EOF
 
   echo -en "\n"
 #  read -rp 'Would you like to install Postgres and Redis? (Answer no if you plan to use external services)(yes or no): ' install_pg_redis
-  install_pg_redis="no"
+  install_pg_redis="yes"
 
   echo -en "\n➥ 1/9 Installing dependencies. This takes a while.\n"
   install_dependencies &>> "${LOG_FILE}"

@@ -103,16 +103,21 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            export POSTGRES_HOST=${{ env.POSTGRES_HOST }}
-            export POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
-            export POSTGRES_PASSWORD=${{ secrets.RDS_MASTER_PASSWORD }}
-            export REDIS_HOST=${{ env.REDIS_HOST }}
-            export RAILS_ENV='production'
+            POSTGRES_HOST=${{ env.POSTGRES_HOST }}
+            POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
+            POSTGRES_PASSWORD=${{ secrets.RDS_MASTER_PASSWORD }}
+            REDIS_HOST=${{ env.REDIS_HOST }}
+            RAILS_ENV='production'
 
             cd /home/ubuntu/sumo-chatwoot
             git pull origin develop
             chmod 777 install.sh
-            sudo -E ./install.sh --install
+            sudo ./install.sh --install
+
+            sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/$REDIS_HOST:6379/' .env
+            sed -i -e '/POSTGRES_HOST/ s/=.*/=$POSTGRES_HOST/' .env
+            sed -i -e '/POSTGRES_USERNAME/ s/=.*/=$POSTGRES_USERNAME/' .env
+            sed -i -e "/POSTGRES_PASSWORD/ s/=.*/=$POSTGRES_PASSWORD/" .env
 
             RAILS_ENV=production bundle exec rake db:prepare
             sudo cwctl --restart
