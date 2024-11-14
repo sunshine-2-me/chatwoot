@@ -85,15 +85,15 @@ jobs:
           --output text)
           echo "REDIS_HOST=${RedisPrimaryEndpoint}" >> $GITHUB_ENV
 
-      - name: Upload Source Code to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ env.EC2_PUBLIC_IP }}
-          username: ubuntu
-          key: ${{ secrets.SSH_KEY }}
-          overwrite: true
-          source: './*'
-          target: '/home/ubuntu/sumo-chatwoot'
+      # - name: Upload Source Code to EC2
+      #   uses: appleboy/scp-action@v0.1.7
+      #   with:
+      #     host: ${{ env.EC2_PUBLIC_IP }}
+      #     username: ubuntu
+      #     key: ${{ secrets.SSH_KEY }}
+      #     overwrite: true
+      #     source: './*'
+      #     target: '/home/ubuntu/sumo-chatwoot'
                   
       - name: Update EC2 with new source code
         uses: appleboy/ssh-action@v0.1.3
