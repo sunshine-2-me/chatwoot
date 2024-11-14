@@ -1,35 +1,35 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'CloudFormation template for Redis ElastiCache setup for Chatwoot'
 
-Parameters:
-  SumoChatwootVPCId:
-    Description: 'VPC ID where the RDS instance will be deployed'
-    Type: 'AWS::EC2::VPC::Id'
+# Parameters:
+#   SumoChatwootVPCId:
+#     Description: 'VPC ID'
+#     Type: 'AWS::EC2::VPC::Id'
 
-  SumoChatwootPrivateSubnet1Id:
-    Description: 'Private Subnet 1 ID'
-    Type: 'AWS::EC2::Subnet::Id'
+#   SumoChatwootPrivateSubnet1Id:
+#     Description: 'Private Subnet 1 ID'
+#     Type: 'AWS::EC2::Subnet::Id'
 
-  SumoChatwootPrivateSubnet2Id:
-    Description: 'Private Subnet 2 ID'
-    Type: 'AWS::EC2::Subnet::Id'
+#   SumoChatwootPrivateSubnet2Id:
+#     Description: 'Private Subnet 2 ID'
+#     Type: 'AWS::EC2::Subnet::Id'
 
-  SumoChatwootLoadBalancerSGId:
-    Description: 'SumoChatwootLoadBalancerSG ID'
-    Type: 'AWS::EC2::SecurityGroup::Id'
+#   SumoChatwootLoadBalancerSGId:
+#     Description: 'SumoChatwootLoadBalancerSG ID'
+#     Type: 'AWS::EC2::SecurityGroup::Id'
 
 Resources:
   # Security Group for Redis
   SumoChatwootRedisSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !Ref SumoChatwootVPCId
+      VpcId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
       GroupDescription: Security group for Chatwoot Redis
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 6379
           ToPort: 6379
-          SourceSecurityGroupId: !Ref SumoChatwootLoadBalancerSGId
+          SourceSecurityGroupId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
       Tags:
         - Key: Name
           Value: sumo-chatwoot-redis-sg
@@ -40,8 +40,8 @@ Resources:
     Properties:
       Description: Subnet group for Chatwoot Redis
       SubnetIds:
-        - !Ref SumoChatwootPrivateSubnet1Id
-        - !Ref SumoChatwootPrivateSubnet2Id
+        - !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet1Id
+        - !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet2Id
       Tags:
         - Key: Name
           Value: sumo-chatwoot-redis-group
@@ -67,7 +67,11 @@ Outputs:
   SumoChatwootRedisPrimaryEndpointAddress:
     Description: 'Primary endpoint address for the Redis cluster'
     Value: !GetAtt SumoChatwootRedisCluster.PrimaryEndPoint.Address
+    Export:
+      Name: SumoChatwootStack-SumoChatwootRedisPrimaryEndpointAddress
 
   SumoChatwootRedisPrimaryEndpointPort:
     Description: 'Primary endpoint port for the Redis cluster'
     Value: !GetAtt SumoChatwootRedisCluster.PrimaryEndPoint.Port
+    Export:
+      Name: SumoChatwootStack-SumoChatwootRedisPrimaryEndpointPort

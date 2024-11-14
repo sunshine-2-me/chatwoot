@@ -2,17 +2,17 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'CloudFormation template for Chatwoot Application Load Balancer'
 
 Parameters:
-  SumoChatwootVPCId:
-    Description: 'VPC ID where the load balancer will be deployed'
-    Type: 'AWS::EC2::VPC::Id'
+  # SumoChatwootVPCId:
+  #   Description: 'VPC ID'
+  #   Type: 'AWS::EC2::VPC::Id'
 
-  SumoChatwootPublicSubnet1Id:
-    Description: 'Public Subnet 1 ID'
-    Type: 'AWS::EC2::Subnet::Id'
+  # SumoChatwootPublicSubnet1Id:
+  #   Description: 'Public Subnet 1 ID'
+  #   Type: 'AWS::EC2::Subnet::Id'
 
-  SumoChatwootPublicSubnet2Id:
-    Description: 'Public Subnet 2 ID'
-    Type: 'AWS::EC2::Subnet::Id'
+  # SumoChatwootPublicSubnet2Id:
+  #   Description: 'Public Subnet 2 ID'
+  #   Type: 'AWS::EC2::Subnet::Id'
 
   SumoChatwootCertificateArn:
     Description: Certificate ARN
@@ -23,7 +23,7 @@ Resources:
   SumoChatwootLoadBalancerSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !Ref SumoChatwootVPCId
+      VpcId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
       GroupDescription: Security group for Chatwoot ALB
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -53,8 +53,8 @@ Resources:
       Name: sumo-chatwoot-loadbalancer
       Scheme: internet-facing
       Subnets:
-        - !Ref SumoChatwootPublicSubnet1Id
-        - !Ref SumoChatwootPublicSubnet2Id
+        - !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet1Id
+        - !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet2Id
       SecurityGroups:
         - !Ref SumoChatwootLoadBalancerSG
       IpAddressType: ipv4
@@ -67,7 +67,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Name: sumo-chatwoot-tg
-      VpcId: !Ref SumoChatwootVPCId
+      VpcId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
       Protocol: HTTP
       Port: 3000
       TargetType: instance
@@ -108,7 +108,11 @@ Outputs:
   SumoChatwootLoadBalancerDNSName:
     Description: 'DNS name of the load balancer'
     Value: !GetAtt SumoChatwootLoadBalancer.DNSName
+    Export:
+      Name: SumoChatwootStack-SumoChatwootLoadBalancerDNSName
 
   SumoChatwootLoadBalancerSGId:
     Description: 'The ID of the the load balancer'
     Value: !Ref SumoChatwootLoadBalancerSG
+    Export:
+      Name: SumoChatwootStack-SumoChatwootLoadBalancerSGId
