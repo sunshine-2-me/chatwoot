@@ -237,9 +237,9 @@ function install_webserver() {
 #   None
 ##############################################################################
 function create_cw_user() {
-  # if ! id -u "chatwoot"; then
-  #   adduser --disabled-password --gecos "" chatwoot
-  # fi
+  if ! id -u "chatwoot"; then
+    adduser --disabled-password --gecos "" chatwoot
+  fi
 }
 
 ##############################################################################
@@ -252,7 +252,7 @@ function create_cw_user() {
 #   None
 ##############################################################################
 function configure_rvm() {
-  create_cw_user
+  # create_cw_user
 
   gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
   gpg2 --keyserver hkp://keyserver.ubuntu.com --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
