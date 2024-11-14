@@ -104,14 +104,6 @@ while true; do
     esac
 done
 
-# Example of using these variables
-echo "POSTGRES_HOST: $POSTGRES_HOST"
-echo "POSTGRES_USERNAME: $POSTGRES_USERNAME"
-echo "POSTGRES_PASSWORD: $POSTGRES_PASSWORD"
-echo "REDIS_HOST: $REDIS_HOST"
-echo "RAILS_ENV: $RAILS_ENV"
-
-
 # log if debug flag set
 if [ "$d" == "y" ]; then
   echo "console: $c, debug: $d, help: $h, install: $i, Install: $I, BRANCH: $BRANCH, \
@@ -393,12 +385,12 @@ EOF
 #   None
 ##############################################################################
 function configure_systemd_services() {
-  cp /home/chatwoot/chatwoot/deployment/chatwoot-web.1.service /etc/systemd/system/chatwoot-web.1.service
-  cp /home/chatwoot/chatwoot/deployment/chatwoot-worker.1.service /etc/systemd/system/chatwoot-worker.1.service
-  cp /home/chatwoot/chatwoot/deployment/chatwoot.target /etc/systemd/system/chatwoot.target
+  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot-web.1.service /etc/systemd/system/chatwoot-web.1.service
+  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot-worker.1.service /etc/systemd/system/chatwoot-worker.1.service
+  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot.target /etc/systemd/system/chatwoot.target
 
-  cp /home/chatwoot/chatwoot/deployment/chatwoot /etc/sudoers.d/chatwoot
-  cp /home/chatwoot/chatwoot/deployment/setup_20.04.sh /usr/local/bin/cwctl
+  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot /etc/sudoers.d/chatwoot
+  cp /home/ubuntu/sumo-chatwoot/deployment/setup_20.04.sh /usr/local/bin/cwctl
   chmod +x /usr/local/bin/cwctl
 
   systemctl enable chatwoot.target
@@ -872,11 +864,11 @@ function upgrade() {
 EOF
 
   # Copy the updated targets
-  cp /home/chatwoot/chatwoot/deployment/chatwoot-web.1.service /etc/systemd/system/chatwoot-web.1.service
-  cp /home/chatwoot/chatwoot/deployment/chatwoot-worker.1.service /etc/systemd/system/chatwoot-worker.1.service
-  cp /home/chatwoot/chatwoot/deployment/chatwoot.target /etc/systemd/system/chatwoot.target
+  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot-web.1.service /etc/systemd/system/chatwoot-web.1.service
+  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot-worker.1.service /etc/systemd/system/chatwoot-worker.1.service
+  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot.target /etc/systemd/system/chatwoot.target
 
-  cp /home/chatwoot/chatwoot/deployment/chatwoot /etc/sudoers.d/chatwoot
+  cp /home/ubuntu/sumo-chatwoot/deployment/chatwoot /etc/sudoers.d/chatwoot
   # TODO:(@vn) handle cwctl updates
 
   systemctl daemon-reload
