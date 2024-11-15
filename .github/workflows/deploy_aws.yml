@@ -152,7 +152,7 @@ jobs:
           script: |
             echo "${{ secrets.SSH_KEY }}" > ${{ secrets.KEY_NAME }}.pem
             chmod 600 ${{ secrets.KEY_NAME }}.pem
-            scp -i ${{ secrets.KEY_NAME }}.pem ./chatwoot ubuntu@${{ env.SumoChatwootInstancePrivateIP }}:/home/ubuntu
+            scp -i ${{ secrets.KEY_NAME }}.pem -r /home/ubuntu/chatwoot ubuntu@${{ env.SumoChatwootInstancePrivateIP }}:/home/ubuntu
 
       # - name: Create chatwoot user to Chatwoot EC2
       #   uses: appleboy/ssh-action@v1.1.0
