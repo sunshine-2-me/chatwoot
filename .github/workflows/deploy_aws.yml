@@ -122,16 +122,16 @@ jobs:
           SumoChatwootInstancePrivateIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePrivateIP'].OutputValue" --output text)
           echo "SumoChatwootInstancePrivateIP=${SumoChatwootInstancePrivateIP}" >> $GITHUB_ENV
 
-      - name: Deploy Route53
-        run: |
-          STACK_NAME=sumo-chatwoot-route-stack
-          aws cloudformation deploy \
-            --template-file aws_cloudformation/route.yml \
-            --stack-name $STACK_NAME \
-            --capabilities CAPABILITY_NAMED_IAM
+      # - name: Deploy Route53
+      #   run: |
+      #     STACK_NAME=sumo-chatwoot-route-stack
+      #     aws cloudformation deploy \
+      #       --template-file aws_cloudformation/route.yml \
+      #       --stack-name $STACK_NAME \
+      #       --capabilities CAPABILITY_NAMED_IAM
 
-          echo "CloudFormation Outputs:"
-          aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
+      #     echo "CloudFormation Outputs:"
+      #     aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
       - name: Upload Source Code to Bastion-A
         uses: appleboy/scp-action@v0.1.7
