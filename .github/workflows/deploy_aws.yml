@@ -113,6 +113,17 @@ jobs:
           SumoChatwootInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePublicIP'].OutputValue" --output text)
           echo "SumoChatwootInstancePublicIP=${SumoChatwootInstancePublicIP}" >> $GITHUB_ENV
 
+      - name: Deploy Chatwoot EC2
+        run: |
+          STACK_NAME=sumo-chatwoot-route-stack
+          aws cloudformation deploy \
+            --template-file aws_cloudformation/route.yml \
+            --stack-name $STACK_NAME \
+            --capabilities CAPABILITY_NAMED_IAM
+
+          echo "CloudFormation Outputs:"
+          aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
+
       - name: Upload Source Code to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -158,7 +169,7 @@ jobs:
             
             sudo -i -u chatwoot << EOF
             cd chatwoot
-            
+
             sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/$REDIS_HOST:6379/' .env
             sed -i -e '/POSTGRES_HOST/ s/=.*/=$POSTGRES_HOST/' .env
             sed -i -e '/POSTGRES_USERNAME/ s/=.*/=$POSTGRES_USERNAME/' .env
@@ -170,13 +181,26 @@ jobs:
             
       - name: Print CloudFormation Outputs
         run: |
-          echo "CloudFormation Outputs:"
+          echo "CloudFormation Outputs(sumo-chatwoot-network-stack):"
           aws cloudformation describe-stacks --stack-name sumo-chatwoot-network-stack --query 'Stacks[0].Outputs' --output table
+          
+          echo "CloudFormation Outputs(sumo-chatwoot-alb-stack):"
           aws cloudformation describe-stacks --stack-name sumo-chatwoot-alb-stack --query 'Stacks[0].Outputs' --output table
+          
+          echo "CloudFormation Outputs(sumo-chatwoot-postgre-stack):"
           aws cloudformation describe-stacks --stack-name sumo-chatwoot-postgre-stack --query 'Stacks[0].Outputs' --output table
+          
+          echo "CloudFormation Outputs(sumo-chatwoot-redis-stack):"
           aws cloudformation describe-stacks --stack-name sumo-chatwoot-redis-stack --query 'Stacks[0].Outputs' --output table
+          
+          echo "CloudFormation Outputs(sumo-chatwoot-bastion-stack):"
           aws cloudformation describe-stacks --stack-name sumo-chatwoot-bastion-stack --query 'Stacks[0].Outputs' --output table
+          
+          echo "CloudFormation Outputs(sumo-chatwoot-instance-stack):"
           aws cloudformation describe-stacks --stack-name sumo-chatwoot-instance-stack --query 'Stacks[0].Outputs' --output table
+          
+          echo "CloudFormation Outputs(sumo-chatwoot-route-stack):"
+          aws cloudformation describe-stacks --stack-name sumo-chatwoot-route-stack --query 'Stacks[0].Outputs' --output table
 
       # - name: Create the AMI
       #   run: |
