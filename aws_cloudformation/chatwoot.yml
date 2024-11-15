@@ -38,6 +38,14 @@ Resources:
           apt-get update -y
           apt-get upgrade -y
 
+  # Target Group Attachment
+  SumoChatwootTargetGroupAttachment:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroupAttachment'
+    Properties:
+      TargetGroupArn: !ImportValue SumoChatwootStack-SumoChatwootTargetGroupArn
+      TargetId: !Ref SumoChatwootInstance
+      Port: 3000
+
 Outputs:
   SumoChatwootInstanceId:
     Description: 'The ID of the Chatwoot EC2 instance'

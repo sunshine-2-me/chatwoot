@@ -100,7 +100,13 @@ Outputs:
       Name: SumoChatwootStack-SumoChatwootLoadBalancerDNSName
 
   SumoChatwootLoadBalancerSGId:
-    Description: 'The ID of the the load balancer'
+    Description: 'The ID of the load balancer'
     Value: !Ref SumoChatwootLoadBalancerSG
     Export:
       Name: SumoChatwootStack-SumoChatwootLoadBalancerSGId
+
+  SumoChatwootTargetGroupArn:
+    Description: 'The Arn of the TargetGroup'
+    Value: !Ref SumoChatwootTargetGroup
+    Export:
+      Name: SumoChatwootStack-SumoChatwootTargetGroupArn
