@@ -147,7 +147,7 @@ jobs:
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ env.SumoChatwootInstancePublicIP }}
-          username: chatwoot
+          username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           overwrite: true
           rm: true
