@@ -97,6 +97,12 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
+          SumoChatwootBastionHostAPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostAPublicIP'].OutputValue" --output text)
+          echo "SumoChatwootBastionHostAPublicIP=${SumoChatwootBastionHostAPublicIP}" >> $GITHUB_ENV
+
+          SumoChatwootBastionHostBPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostBPublicIP'].OutputValue" --output text)
+          echo "SumoChatwootBastionHostBPublicIP=${SumoChatwootBastionHostBPublicIP}" >> $GITHUB_ENV
+
       - name: Deploy Chatwoot EC2
         run: |
           STACK_NAME=sumo-chatwoot-instance-stack
@@ -127,87 +133,88 @@ jobs:
       - name: Upload Source Code to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ env.SumoChatwootInstancePublicIP }}
+          host: ${{ env.SumoChatwootBastionHostAPublicIP }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           overwrite: true
           source: './*'
           target: '/home/ubuntu/chatwoot'
 
-      - name: Create chatwoot user to Chatwoot EC2
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ env.SumoChatwootInstancePublicIP }}
-          username: ubuntu
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            if ! id -u "chatwoot"; then
-              sudo adduser --disabled-password --gecos "" chatwoot
-            fi
-
-            sudo -i -u chatwoot << "EOF"
-            if [ ! -d "chatwoot" ]; then
-              mkdir chatwoot
-            else
-              echo "Directory chatwoot already exists."
-            fi
-            EOF
-
-            sudo cp -ri /home/ubuntu/chatwoot /home/chatwoot
-            sudo chown -R chatwoot:chatwoot /home/chatwoot/chatwoot
+      # - name: Create chatwoot user to Chatwoot EC2
+      #   uses: appleboy/ssh-action@v1.1.0
+      #   with:
+      #     host: ${{ env.SumoChatwootBastionHostAPublicIP }}
+      #     username: ubuntu
+      #     key: ${{ secrets.SSH_KEY }}
+      #     script: |
             
-      - name: Install Chatwoot in Chatwoot EC2
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ env.SumoChatwootInstancePublicIP }}
-          username: ubuntu
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            cd /home/ubuntu/chatwoot
-            chmod 777 install.sh
-            sudo ./install.sh --install
+      #       if ! id -u "chatwoot"; then
+      #         sudo adduser --disabled-password --gecos "" chatwoot
+      #       fi
+
+      #       sudo -i -u chatwoot << "EOF"
+      #       if [ ! -d "chatwoot" ]; then
+      #         mkdir chatwoot
+      #       else
+      #         echo "Directory chatwoot already exists."
+      #       fi
+      #       EOF
+
+      #       sudo cp -ri /home/ubuntu/chatwoot /home/chatwoot
+      #       sudo chown -R chatwoot:chatwoot /home/chatwoot/chatwoot
             
-            sudo -i -u chatwoot << EOF
-            cd chatwoot
-
-            sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/$REDIS_HOST:6379/' .env
-            sed -i -e '/POSTGRES_HOST/ s/=.*/=$POSTGRES_HOST/' .env
-            sed -i -e '/POSTGRES_USERNAME/ s/=.*/=$POSTGRES_USERNAME/' .env
-            sed -i -e "/POSTGRES_PASSWORD/ s/=.*/=$POSTGRES_PASSWORD/" .env
-
-            RAILS_ENV=production bundle exec rake db:prepare
-            sudo cwctl --restart
-            EOF
+      # - name: Install Chatwoot in Chatwoot EC2
+      #   uses: appleboy/ssh-action@v1.1.0
+      #   with:
+      #     host: ${{ env.SumoChatwootInstancePublicIP }}
+      #     username: ubuntu
+      #     key: ${{ secrets.SSH_KEY }}
+      #     script: |
+      #       cd /home/ubuntu/chatwoot
+      #       chmod 777 install.sh
+      #       sudo ./install.sh --install
             
-      - name: Print CloudFormation Outputs
-        run: |
-          echo "CloudFormation Outputs(sumo-chatwoot-network-stack):"
-          aws cloudformation describe-stacks --stack-name sumo-chatwoot-network-stack --query 'Stacks[0].Outputs' --output table
-          
-          echo "CloudFormation Outputs(sumo-chatwoot-alb-stack):"
-          aws cloudformation describe-stacks --stack-name sumo-chatwoot-alb-stack --query 'Stacks[0].Outputs' --output table
-          
-          echo "CloudFormation Outputs(sumo-chatwoot-postgre-stack):"
-          aws cloudformation describe-stacks --stack-name sumo-chatwoot-postgre-stack --query 'Stacks[0].Outputs' --output table
-          
-          echo "CloudFormation Outputs(sumo-chatwoot-redis-stack):"
-          aws cloudformation describe-stacks --stack-name sumo-chatwoot-redis-stack --query 'Stacks[0].Outputs' --output table
-          
-          echo "CloudFormation Outputs(sumo-chatwoot-bastion-stack):"
-          aws cloudformation describe-stacks --stack-name sumo-chatwoot-bastion-stack --query 'Stacks[0].Outputs' --output table
-          
-          echo "CloudFormation Outputs(sumo-chatwoot-instance-stack):"
-          aws cloudformation describe-stacks --stack-name sumo-chatwoot-instance-stack --query 'Stacks[0].Outputs' --output table
-          
-          echo "CloudFormation Outputs(sumo-chatwoot-route-stack):"
-          aws cloudformation describe-stacks --stack-name sumo-chatwoot-route-stack --query 'Stacks[0].Outputs' --output table
+      #       sudo -i -u chatwoot << EOF
+      #       cd chatwoot
 
-      # - name: Create the AMI
+      #       sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/$REDIS_HOST:6379/' .env
+      #       sed -i -e '/POSTGRES_HOST/ s/=.*/=$POSTGRES_HOST/' .env
+      #       sed -i -e '/POSTGRES_USERNAME/ s/=.*/=$POSTGRES_USERNAME/' .env
+      #       sed -i -e "/POSTGRES_PASSWORD/ s/=.*/=$POSTGRES_PASSWORD/" .env
+
+      #       RAILS_ENV=production bundle exec rake db:prepare
+      #       sudo cwctl --restart
+      #       EOF
+            
+      # - name: Print CloudFormation Outputs
       #   run: |
-      #     echo "Create the AMI"
-      #     INSTANCE_ID=$(aws cloudformation describe-stacks --stack-name YourStackName --query 'Stacks[0].Outputs[?OutputKey==`ChatwootInstanceId`].OutputValue' --output text)
-      #     aws ec2 create-image --instance-id $INSTANCE_ID --name "chatwoot-base-ami" --description "Base AMI for Chatwoot application" --no-reboot
+      #     echo "CloudFormation Outputs(sumo-chatwoot-network-stack):"
+      #     aws cloudformation describe-stacks --stack-name sumo-chatwoot-network-stack --query 'Stacks[0].Outputs' --output table
+          
+      #     echo "CloudFormation Outputs(sumo-chatwoot-alb-stack):"
+      #     aws cloudformation describe-stacks --stack-name sumo-chatwoot-alb-stack --query 'Stacks[0].Outputs' --output table
+          
+      #     echo "CloudFormation Outputs(sumo-chatwoot-postgre-stack):"
+      #     aws cloudformation describe-stacks --stack-name sumo-chatwoot-postgre-stack --query 'Stacks[0].Outputs' --output table
+          
+      #     echo "CloudFormation Outputs(sumo-chatwoot-redis-stack):"
+      #     aws cloudformation describe-stacks --stack-name sumo-chatwoot-redis-stack --query 'Stacks[0].Outputs' --output table
+          
+      #     echo "CloudFormation Outputs(sumo-chatwoot-bastion-stack):"
+      #     aws cloudformation describe-stacks --stack-name sumo-chatwoot-bastion-stack --query 'Stacks[0].Outputs' --output table
+          
+      #     echo "CloudFormation Outputs(sumo-chatwoot-instance-stack):"
+      #     aws cloudformation describe-stacks --stack-name sumo-chatwoot-instance-stack --query 'Stacks[0].Outputs' --output table
+          
+      #     echo "CloudFormation Outputs(sumo-chatwoot-route-stack):"
+      #     aws cloudformation describe-stacks --stack-name sumo-chatwoot-route-stack --query 'Stacks[0].Outputs' --output table
 
-      - name: Post-deployment script
-        run: |
-          echo "Deployment complete!"
+      # # - name: Create the AMI
+      # #   run: |
+      # #     echo "Create the AMI"
+      # #     INSTANCE_ID=$(aws cloudformation describe-stacks --stack-name YourStackName --query 'Stacks[0].Outputs[?OutputKey==`ChatwootInstanceId`].OutputValue' --output text)
+      # #     aws ec2 create-image --instance-id $INSTANCE_ID --name "chatwoot-base-ami" --description "Base AMI for Chatwoot application" --no-reboot
+
+      # - name: Post-deployment script
+      #   run: |
+      #     echo "Deployment complete!"
