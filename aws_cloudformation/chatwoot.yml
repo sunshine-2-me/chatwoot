@@ -51,8 +51,8 @@ Outputs:
     Export:
       Name: SumoChatwootStack-SumoChatwootInstancePrivateIP
 
-  SumoChatwootInstancePublicIP:
-    Description: 'Public IP address of the Chatwoot EC2 instance'
-    Value: !GetAtt SumoChatwootInstance.PublicIp    
-    Export:
-      Name: SumoChatwootStack-SumoChatwootInstancePublicIP
+  # SumoChatwootInstancePublicIP:
+  #   Description: 'Public IP address of the Chatwoot EC2 instance'
+  #   Value: !GetAtt SumoChatwootInstance.PublicIp    
+  #   Export:
+  #     Name: SumoChatwootStack-SumoChatwootInstancePublicIP
