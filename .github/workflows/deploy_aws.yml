@@ -133,6 +133,14 @@ jobs:
             if ! id -u "chatwoot"; then
               sudo adduser --disabled-password --gecos "" chatwoot
             fi
+
+            sudo -i -u chatwoot
+
+            if [ ! -d "chatwoot" ]; then
+              mkdir chatwoot
+            else
+              echo "Directory chatwoot already exists."
+            fi            
       
       - name: Upload Source Code to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -143,7 +151,7 @@ jobs:
           overwrite: true
           rm: true
           source: './*'
-          target: '~/chatwoot'
+          target: '/home/chatwoot/chatwoot'
 
       - name: Install Chatwoot in Chatwoot EC2
         uses: appleboy/ssh-action@v1.1.0
