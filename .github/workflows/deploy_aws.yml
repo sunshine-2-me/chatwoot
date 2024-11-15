@@ -68,9 +68,6 @@ jobs:
             --template-file aws_cloudformation/application_load_balancer.yml \
             --stack-name $STACK_NAME \
             --parameter-overrides \
-              # SumoChatwootVPCId=${{ env.SumoChatwootVPCId }} \
-              # SumoChatwootPublicSubnet1Id=${{ env.SumoChatwootPublicSubnet1Id }} \
-              # SumoChatwootPublicSubnet2Id=${{ env.SumoChatwootPublicSubnet2Id}} \
               SumoChatwootCertificateArn=${{ secrets.ACM_CERTIFICATE_ARN }} \
             --capabilities CAPABILITY_NAMED_IAM
 
@@ -90,10 +87,6 @@ jobs:
             --template-file aws_cloudformation/postgresql.yml \
             --stack-name $STACK_NAME \
             --parameter-overrides \
-              # SumoChatwootVPCId=${{ env.SumoChatwootVPCId }} \
-              # SumoChatwootPrivateSubnet1Id=${{ env.SumoChatwootPrivateSubnet1Id }} \
-              # SumoChatwootPrivateSubnet2Id=${{ env.SumoChatwootPrivateSubnet2Id }} \
-              # SumoChatwootLoadBalancerSGId=${{ env.SumoChatwootLoadBalancerSGId }} \
               SumoChatwootDBUsername=${{ secrets.RDS_MASTER_USERNAME }} \
               SumoChatwootDBPassword=${{ secrets.RDS_MASTER_PASSWORD }} \
             --capabilities CAPABILITY_NAMED_IAM
@@ -113,11 +106,6 @@ jobs:
           aws cloudformation deploy \
             --template-file aws_cloudformation/redis.yml \
             --stack-name $STACK_NAME \
-            # --parameter-overrides \
-            #   SumoChatwootVPCId=${{ env.SumoChatwootVPCId }} \
-            #   SumoChatwootPrivateSubnet1Id=${{ env.SumoChatwootPrivateSubnet1Id }} \
-            #   SumoChatwootPrivateSubnet2Id=${{ env.SumoChatwootPrivateSubnet2Id }} \
-            #   SumoChatwootLoadBalancerSGId=${{ env.SumoChatwootLoadBalancerSGId }} \
             --capabilities CAPABILITY_NAMED_IAM
 
           echo "CloudFormation Outputs:"
@@ -136,9 +124,6 @@ jobs:
             --template-file aws_cloudformation/bastion.yml \
             --stack-name $STACK_NAME \
             --parameter-overrides \
-              # SumoChatwootVPCId=${{ env.SumoChatwootVPCId }} \
-              # SumoChatwootPublicSubnet1Id=${{ env.SumoChatwootPublicSubnet1Id }} \
-              # SumoChatwootPublicSubnet2Id=${{ env.SumoChatwootPublicSubnet2Id }} \
               KeyPairName=${{ secrets.KEY_NAME }} \
             --capabilities CAPABILITY_NAMED_IAM
 
@@ -158,9 +143,6 @@ jobs:
             --template-file aws_cloudformation/chatwoot.yml \
             --stack-name $STACK_NAME \
             --parameter-overrides \
-              # SumoChatwootPublicSubnet1Id=${{ env.SumoChatwootPublicSubnet1Id }} \
-              # SumoChatwootPrivateSubnet1Id=${{ env.SumoChatwootPrivateSubnet1Id }} \
-              # SumoChatwootLoadBalancerSGId=${{ env.SumoChatwootLoadBalancerSGId }} \
               KeyPairName=${{ secrets.KEY_NAME }} \
             --capabilities CAPABILITY_NAMED_IAM
 
