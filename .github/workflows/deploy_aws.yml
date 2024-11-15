@@ -153,7 +153,11 @@ jobs:
             cd /home/ubuntu
             echo "${{ secrets.SSH_KEY }}" > ${{ secrets.KEY_NAME }}.pem
             chmod 600 ${{ secrets.KEY_NAME }}.pem
-            set -e
+
+            ssh -i ${{ secrets.KEY_NAME }}.pem ubuntu@${{ env.SumoChatwootInstancePrivateIP }} << 'EOF'
+            sudo rm -rf /home/ubuntu/chatwoot
+            EOF
+            
             scp -i ${{ secrets.KEY_NAME }}.pem -r /home/ubuntu/chatwoot ubuntu@${{ env.SumoChatwootInstancePrivateIP }}:/home/ubuntu
 
       - name: Create chatwoot user to Chatwoot EC2
