@@ -423,6 +423,7 @@ function setup_ssl() {
   sudo sed -i "s/chatwoot.domain.com/$domain_name/g" /etc/nginx/sites-available/nginx_chatwoot.conf
   if [-e "/etc/nginx/sites-enabled/nginx_chatwoot.conf"]; then
     sudo rm /etc/nginx/sites-enabled/nginx_chatwoot.conf
+  fi
   sudo ln -s /etc/nginx/sites-available/nginx_chatwoot.conf /etc/nginx/sites-enabled/nginx_chatwoot.conf
   sudo systemctl restart nginx
   sudo -i -u chatwoot << EOF
