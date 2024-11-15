@@ -154,28 +154,29 @@ jobs:
             chmod 600 ${{ secrets.KEY_NAME }}.pem
             scp -i ${{ secrets.KEY_NAME }}.pem -r /home/ubuntu/chatwoot ubuntu@${{ env.SumoChatwootInstancePrivateIP }}:/home/ubuntu
 
-      # - name: Create chatwoot user to Chatwoot EC2
-      #   uses: appleboy/ssh-action@v1.1.0
-      #   with:
-      #     host: ${{ env.SumoChatwootBastionHostAPublicIP }}
-      #     username: ubuntu
-      #     key: ${{ secrets.SSH_KEY }}
-      #     script: |
-            
-      #       if ! id -u "chatwoot"; then
-      #         sudo adduser --disabled-password --gecos "" chatwoot
-      #       fi
+      - name: Create chatwoot user to Chatwoot EC2
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ env.SumoChatwootBastionHostAPublicIP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            ssh -i ${{ secrets.KEY_NAME }}.pem ubuntu@${{ env.SumoChatwootInstancePrivateIP }} << 'EOF'
+            if ! id -u "chatwoot"; then
+              sudo adduser --disabled-password --gecos "" chatwoot
+            fi
 
-      #       sudo -i -u chatwoot << "EOF"
-      #       if [ ! -d "chatwoot" ]; then
-      #         mkdir chatwoot
-      #       else
-      #         echo "Directory chatwoot already exists."
-      #       fi
-      #       EOF
+            sudo -i -u chatwoot << "EOF"
+            if [ ! -d "chatwoot" ]; then
+              mkdir chatwoot
+            else
+              echo "Directory chatwoot already exists."
+            fi
+            EOF
 
-      #       sudo cp -ri /home/ubuntu/chatwoot /home/chatwoot
-      #       sudo chown -R chatwoot:chatwoot /home/chatwoot/chatwoot
+            sudo cp -ri /home/ubuntu/chatwoot /home/chatwoot
+            sudo chown -R chatwoot:chatwoot /home/chatwoot/chatwoot
+            EOF
             
       # - name: Install Chatwoot in Chatwoot EC2
       #   uses: appleboy/ssh-action@v1.1.0
