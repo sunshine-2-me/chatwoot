@@ -157,7 +157,7 @@ jobs:
             ssh -i ${{ secrets.KEY_NAME }}.pem ubuntu@${{ env.SumoChatwootInstancePrivateIP }} << 'EOF'
             sudo rm -rf /home/ubuntu/chatwoot
             EOF
-            
+
             scp -i ${{ secrets.KEY_NAME }}.pem -r /home/ubuntu/chatwoot ubuntu@${{ env.SumoChatwootInstancePrivateIP }}:/home/ubuntu
 
       - name: Create chatwoot user to Chatwoot EC2
@@ -189,7 +189,7 @@ jobs:
       - name: Install Chatwoot in Chatwoot EC2
         uses: appleboy/ssh-action@v1.1.0
         with:
-          host: ${{ env.SumoChatwootInstancePublicIP }}
+          host: ${{ env.SumoChatwootBastionHostAPublicIP }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
