@@ -340,7 +340,7 @@ function setup_chatwoot() {
 
   # git clone https://github.com/chatwoot/chatwoot.git
   cd chatwoot
-  git checkout "$BRANCH"
+  # git checkout "$BRANCH"
   bundle
   pnpm i
 
@@ -840,7 +840,7 @@ function upgrade() {
   cd chatwoot
 
   # Pull the latest version of the master branch
-  git checkout master && git pull
+  # git checkout master && git pull
 
   # Ensure the ruby version is upto date
   # Parse the latest ruby version
