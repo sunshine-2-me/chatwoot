@@ -116,8 +116,11 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-          SumoChatwootInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePublicIP'].OutputValue" --output text)
-          echo "SumoChatwootInstancePublicIP=${SumoChatwootInstancePublicIP}" >> $GITHUB_ENV
+          # SumoChatwootInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePublicIP'].OutputValue" --output text)
+          # echo "SumoChatwootInstancePublicIP=${SumoChatwootInstancePublicIP}" >> $GITHUB_ENV
+
+          SumoChatwootInstancePrivateIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePrivateIP'].OutputValue" --output text)
+          echo "SumoChatwootInstancePrivateIP=${SumoChatwootInstancePrivateIP}" >> $GITHUB_ENV
 
       - name: Deploy Route53
         run: |
@@ -149,7 +152,7 @@ jobs:
           script: |
             echo ${{ secrets.SSH_KEY }} > ${{ secrets.KEY_NAME }}.pem
             chmod 600 ${{ secrets.KEY_NAME }}.pem
-            scp -i ${{ secrets.KEY_NAME }}.pem ./chatwoot ubuntu@${{ env.SumoChatwootBastionHostAPublicIP }}:/home/ubuntu
+            scp -i ${{ secrets.KEY_NAME }}.pem ./chatwoot ubuntu@${{ env.SumoChatwootInstancePrivateIP }}:/home/ubuntu
 
       # - name: Create chatwoot user to Chatwoot EC2
       #   uses: appleboy/ssh-action@v1.1.0
