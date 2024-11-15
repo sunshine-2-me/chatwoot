@@ -2,18 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'CloudFormation template for Chatwoot Application Load Balancer'
 
 Parameters:
-  # SumoChatwootVPCId:
-  #   Description: 'VPC ID'
-  #   Type: 'AWS::EC2::VPC::Id'
-
-  # SumoChatwootPublicSubnet1Id:
-  #   Description: 'Public Subnet 1 ID'
-  #   Type: 'AWS::EC2::Subnet::Id'
-
-  # SumoChatwootPublicSubnet2Id:
-  #   Description: 'Public Subnet 2 ID'
-  #   Type: 'AWS::EC2::Subnet::Id'
-
   SumoChatwootCertificateArn:
     Description: Certificate ARN
     Type: String

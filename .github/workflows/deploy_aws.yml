@@ -152,6 +152,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
+            cd /home/ubuntu/chatwoot
             chmod 777 install.sh
             sudo ./install.sh --install
             

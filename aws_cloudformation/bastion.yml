@@ -2,18 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'CloudFormation template for setting up Bastion Hosts'
 
 Parameters:
-  # SumoChatwootVPCId:
-  #   Description: 'VPC ID'
-  #   Type: 'AWS::EC2::VPC::Id'
-
-  # SumoChatwootPublicSubnet1Id:
-  #   Description: 'Public Subnet 1 ID'
-  #   Type: 'AWS::EC2::Subnet::Id'
-
-  # SumoChatwootPublicSubnet2Id:
-  #   Description: 'Public Subnet 2 ID'
-  #   Type: 'AWS::EC2::Subnet::Id'
-
   KeyPairName:
     Description: 'Name of an existing EC2 KeyPair to enable SSH access to the instances'
     Type: 'AWS::EC2::KeyPair::KeyName'

@@ -2,22 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'CloudFormation template for PostgreSQL RDS setup for Chatwoot'
 
 Parameters:
-  # SumoChatwootVPCId:
-  #   Description: 'VPC ID'
-  #   Type: 'AWS::EC2::VPC::Id'
-
-  # SumoChatwootPrivateSubnet1Id:
-  #   Description: 'Private Subnet 1 ID'
-  #   Type: 'AWS::EC2::Subnet::Id'
-
-  # SumoChatwootPrivateSubnet2Id:
-  #   Description: 'Private Subnet 2 ID'
-  #   Type: 'AWS::EC2::Subnet::Id'
-
-  # SumoChatwootLoadBalancerSGId:
-  #   Description: 'SumoChatwootLoadBalancerSG ID'
-  #   Type: 'AWS::EC2::SecurityGroup::Id'
-
   SumoChatwootDBUsername:
     Description: 'The database admin account username'
     NoEcho: true

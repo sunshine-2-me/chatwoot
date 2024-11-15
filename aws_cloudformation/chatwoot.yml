@@ -2,18 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'CloudFormation template for deploying Chatwoot on an EC2 instance'
 
 Parameters:
-  # SumoChatwootPublicSubnet1Id:
-  #   Description: 'Public Subnet 1 ID'
-  #   Type: 'AWS::EC2::Subnet::Id'
-
-  # SumoChatwootPrivateSubnet1Id:
-  #   Description: 'Private Subnet 1 ID'
-  #   Type: 'AWS::EC2::Subnet::Id'
-
-  # SumoChatwootLoadBalancerSGId:
-  #   Description: 'SumoChatwootLoadBalancerSG ID'
-  #   Type: 'AWS::EC2::SecurityGroup::Id'
-
   KeyPairName:
     Description: 'Name of an existing EC2 KeyPair to enable SSH access to the instances'
     Type: 'AWS::EC2::KeyPair::KeyName'
