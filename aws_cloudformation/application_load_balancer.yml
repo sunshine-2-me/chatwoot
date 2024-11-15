@@ -107,6 +107,6 @@ Outputs:
 
   SumoChatwootTargetGroupArn:
     Description: 'The Arn of the TargetGroup'
-    Value: !Ref SumoChatwootTargetGroup
+    Value: !GetAtt  SumoChatwootTargetGroup.TargetGroupArn
     Export:
       Name: SumoChatwootStack-SumoChatwootTargetGroupArn
