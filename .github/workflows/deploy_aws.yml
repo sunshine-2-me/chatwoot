@@ -113,7 +113,7 @@ jobs:
           SumoChatwootInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePublicIP'].OutputValue" --output text)
           echo "SumoChatwootInstancePublicIP=${SumoChatwootInstancePublicIP}" >> $GITHUB_ENV
 
-      - name: Deploy Chatwoot EC2
+      - name: Deploy Route53
         run: |
           STACK_NAME=sumo-chatwoot-route-stack
           aws cloudformation deploy \
