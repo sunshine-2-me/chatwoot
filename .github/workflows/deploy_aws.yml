@@ -120,7 +120,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           overwrite: true
-          source: './install.sh'
+          source: './*'
           target: '/home/ubuntu/chatwoot'
 
       - name: Create chatwoot user to Chatwoot EC2
@@ -143,7 +143,7 @@ jobs:
             fi
             EOF
 
-            sudo cp -ri /home/ubuntu/chatwoot /home/chatwoot/chatwoot
+            sudo cp -ri /home/ubuntu/chatwoot /home/chatwoot
       
       # - name: Install Chatwoot in Chatwoot EC2
       #   uses: appleboy/ssh-action@v1.1.0
