@@ -131,7 +131,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             if ! id -u "chatwoot"; then
-              adduser --disabled-password --gecos "" chatwoot
+              sudo adduser --disabled-password --gecos "" chatwoot
             fi
       
       # - name: Upload Source Code to EC2
