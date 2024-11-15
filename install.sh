@@ -146,8 +146,10 @@ function exit_handler() {
 #   None
 ##############################################################################
 function get_domain_info() {
-  read -rp 'Enter the domain/subdomain for Chatwoot (e.g., chatwoot.domain.com): ' domain_name
-  read -rp 'Enter an email address for LetsEncrypt to send reminders when your SSL certificate is up for renewal: ' le_email
+  # read -rp 'Enter the domain/subdomain for Chatwoot (e.g., chatwoot.domain.com): ' domain_name
+  domain_name='chat.sumoscheduler.com'
+  # read -rp 'Enter an email address for LetsEncrypt to send reminders when your SSL certificate is up for renewal: ' le_email
+  le_email='givemesunshine110@gmail.com'
   cat << EOF
 
 This script will generate SSL certificates via LetsEncrypt and
@@ -155,7 +157,8 @@ serve Chatwoot at https://$domain_name.
 Proceed further once you have pointed your DNS to the IP of the instance.
 
 EOF
-  read -rp 'Do you wish to proceed? (yes or no): ' exit_true
+  # read -rp 'Do you wish to proceed? (yes or no): ' exit_true
+  exit_true='yes'
   if [ "$exit_true" == "no" ]; then
     exit 1
   fi
@@ -498,7 +501,7 @@ EOF
 
   sleep 3
   # read -rp 'Would you like to configure a domain and SSL for Chatwoot?(yes or no): ' configure_webserver
-  configure_webserver='no'
+  configure_webserver='yes'
 
   if [ "$configure_webserver" == "yes" ]; then
     get_domain_info
