@@ -421,6 +421,7 @@ function setup_ssl() {
   cp nginx_chatwoot.conf /etc/nginx/sites-available/nginx_chatwoot.conf
   sudo certbot certonly --non-interactive --agree-tos --nginx -m "$le_email" -d "$domain_name"
   sudo sed -i "s/chatwoot.domain.com/$domain_name/g" /etc/nginx/sites-available/nginx_chatwoot.conf
+  sudo sed -i "s/http:\/\/backend/http:\/\/$public_ip:3000/g" /etc/nginx/sites-available/nginx_chatwoot.conf
   if [ -e "/etc/nginx/sites-enabled/nginx_chatwoot.conf" ]; then
     sudo rm /etc/nginx/sites-enabled/nginx_chatwoot.conf
   fi
