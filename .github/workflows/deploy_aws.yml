@@ -46,21 +46,6 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-          # SumoChatwootVPCId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootVPCId'].OutputValue" --output text)
-          # echo "SumoChatwootVPCId=${SumoChatwootVPCId}" >> $GITHUB_ENV
-
-          # SumoChatwootPublicSubnet1Id=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootPublicSubnet1Id'].OutputValue" --output text)
-          # echo "SumoChatwootPublicSubnet1Id=${SumoChatwootPublicSubnet1Id}" >> $GITHUB_ENV
-
-          # SumoChatwootPublicSubnet2Id=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootPublicSubnet2Id'].OutputValue" --output text)
-          # echo "SumoChatwootPublicSubnet2Id=${SumoChatwootPublicSubnet2Id}" >> $GITHUB_ENV
-
-          # SumoChatwootPrivateSubnet1Id=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootPrivateSubnet1Id'].OutputValue" --output text)
-          # echo "SumoChatwootPrivateSubnet1Id=${SumoChatwootPrivateSubnet1Id}" >> $GITHUB_ENV
-
-          # SumoChatwootPrivateSubnet2Id=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootPrivateSubnet2Id'].OutputValue" --output text)
-          # echo "SumoChatwootPrivateSubnet2Id=${SumoChatwootPrivateSubnet2Id}" >> $GITHUB_ENV
-
       - name: Deploy Application Load Balancer Cloudformation
         run: |
           STACK_NAME=sumo-chatwoot-alb-stack
@@ -74,12 +59,6 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-          # SumoChatwootLoadBalancerDNSName=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootLoadBalancerDNSName'].OutputValue" --output text)
-          # echo "SumoChatwootLoadBalancerDNSName=${SumoChatwootLoadBalancerDNSName}" >> $GITHUB_ENV
-
-          # SumoChatwootLoadBalancerSGId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootLoadBalancerSGId'].OutputValue" --output text)
-          # echo "SumoChatwootLoadBalancerSGId=${SumoChatwootLoadBalancerSGId}" >> $GITHUB_ENV
-          
       - name: Deploy Postgresql
         run: |
           STACK_NAME=sumo-chatwoot-postgre-stack
@@ -94,12 +73,6 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-          # SumoChatwootRDSInstanceEndpoint=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootRDSInstanceEndpoint'].OutputValue" --output text)
-          # echo "SumoChatwootRDSInstanceEndpoint=${SumoChatwootRDSInstanceEndpoint}" >> $GITHUB_ENV
-
-          # SumoChatwootRDSInstancePort=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootRDSInstancePort'].OutputValue" --output text)
-          # echo "SumoChatwootRDSInstancePort=${SumoChatwootRDSInstancePort}" >> $GITHUB_ENV
-
       - name: Deploy Redis
         run: |
           STACK_NAME=sumo-chatwoot-redis-stack
@@ -110,12 +83,6 @@ jobs:
 
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
-
-          # SumoChatwootRedisPrimaryEndpointAddress=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootRedisPrimaryEndpointAddress'].OutputValue" --output text)
-          # echo "SumoChatwootRedisPrimaryEndpointAddress=${SumoChatwootRedisPrimaryEndpointAddress}" >> $GITHUB_ENV
-
-          # SumoChatwootRedisPrimaryEndpointPort=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootRedisPrimaryEndpointPort'].OutputValue" --output text)
-          # echo "SumoChatwootRedisPrimaryEndpointPort=${SumoChatwootRedisPrimaryEndpointPort}" >> $GITHUB_ENV
 
       - name: Deploy Bastion
         run: |
@@ -130,12 +97,6 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-          # SumoChatwootBastionHostAPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostAPublicIP'].OutputValue" --output text)
-          # echo "SumoChatwootBastionHostAPublicIP=${SumoChatwootBastionHostAPublicIP}" >> $GITHUB_ENV
-
-          # SumoChatwootBastionHostBPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostBPublicIP'].OutputValue" --output text)
-          # echo "SumoChatwootBastionHostBPublicIP=${SumoChatwootBastionHostBPublicIP}" >> $GITHUB_ENV
-
       - name: Deploy Chatwoot EC2
         run: |
           STACK_NAME=sumo-chatwoot-instance-stack
@@ -149,14 +110,8 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-          # SumoChatwootInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstanceId'].OutputValue" --output text)
-          # echo "SumoChatwootInstanceId=${SumoChatwootInstanceId}" >> $GITHUB_ENV
-
           SumoChatwootInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePublicIP'].OutputValue" --output text)
           echo "SumoChatwootInstancePublicIP=${SumoChatwootInstancePublicIP}" >> $GITHUB_ENV
-
-          # SumoChatwootInstancePrivateIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePrivateIP'].OutputValue" --output text)
-          # echo "SumoChatwootInstancePrivateIP=${SumoChatwootInstancePrivateIP}" >> $GITHUB_ENV
 
       - name: Upload install.sh to Chatwoot EC2
         uses: appleboy/scp-action@v0.1.7
