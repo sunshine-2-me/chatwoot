@@ -134,34 +134,34 @@ jobs:
               adduser --disabled-password --gecos "" chatwoot
             fi
       
-      - name: Upload Source Code to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ env.SumoChatwootInstancePublicIP }}
-          username: chatwoot
-          key: ${{ secrets.SSH_KEY }}
-          overwrite: true
-          rm: true
-          source: './*'
-          target: '~/chatwoot'
+      # - name: Upload Source Code to EC2
+      #   uses: appleboy/scp-action@v0.1.7
+      #   with:
+      #     host: ${{ env.SumoChatwootInstancePublicIP }}
+      #     username: chatwoot
+      #     key: ${{ secrets.SSH_KEY }}
+      #     overwrite: true
+      #     rm: true
+      #     source: './*'
+      #     target: '~/chatwoot'
 
-      - name: Install Chatwoot in Chatwoot EC2
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ env.SumoChatwootInstancePublicIP }}
-          username: ubuntu
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            chmod 777 install.sh
-            sudo ./install.sh --install
+      # - name: Install Chatwoot in Chatwoot EC2
+      #   uses: appleboy/ssh-action@v1.1.0
+      #   with:
+      #     host: ${{ env.SumoChatwootInstancePublicIP }}
+      #     username: ubuntu
+      #     key: ${{ secrets.SSH_KEY }}
+      #     script: |
+      #       chmod 777 install.sh
+      #       sudo ./install.sh --install
             
-            # sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/$REDIS_HOST:6379/' .env
-            # sed -i -e '/POSTGRES_HOST/ s/=.*/=$POSTGRES_HOST/' .env
-            # sed -i -e '/POSTGRES_USERNAME/ s/=.*/=$POSTGRES_USERNAME/' .env
-            # sed -i -e "/POSTGRES_PASSWORD/ s/=.*/=$POSTGRES_PASSWORD/" .env
+      #       # sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/$REDIS_HOST:6379/' .env
+      #       # sed -i -e '/POSTGRES_HOST/ s/=.*/=$POSTGRES_HOST/' .env
+      #       # sed -i -e '/POSTGRES_USERNAME/ s/=.*/=$POSTGRES_USERNAME/' .env
+      #       # sed -i -e "/POSTGRES_PASSWORD/ s/=.*/=$POSTGRES_PASSWORD/" .env
 
-            # RAILS_ENV=production bundle exec rake db:prepare
-            # sudo cwctl --restart
+      #       # RAILS_ENV=production bundle exec rake db:prepare
+      #       # sudo cwctl --restart
             
       - name: Print CloudFormation Outputs
         run: |
