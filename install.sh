@@ -497,14 +497,16 @@ For more verbose logs, open up a second terminal and follow along using,
 EOF
 
   sleep 3
-  read -rp 'Would you like to configure a domain and SSL for Chatwoot?(yes or no): ' configure_webserver
+  # read -rp 'Would you like to configure a domain and SSL for Chatwoot?(yes or no): ' configure_webserver
+  configure_webserver='no'
 
   if [ "$configure_webserver" == "yes" ]; then
     get_domain_info
   fi
 
   echo -en "\n"
-  read -rp 'Would you like to install Postgres and Redis? (Answer no if you plan to use external services)(yes or no): ' install_pg_redis
+  # read -rp 'Would you like to install Postgres and Redis? (Answer no if you plan to use external services)(yes or no): ' install_pg_redis
+  install_pg_redis='yes'
 
   echo -en "\n➥ 1/9 Installing dependencies. This takes a while.\n"
   install_dependencies &>> "${LOG_FILE}"
