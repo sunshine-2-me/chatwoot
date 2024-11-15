@@ -134,13 +134,14 @@ jobs:
               sudo adduser --disabled-password --gecos "" chatwoot
             fi
 
-            sudo -i -u chatwoot
+            sudo -i -u chatwoot << "EOF"
 
             if [ ! -d "chatwoot" ]; then
               mkdir chatwoot
             else
               echo "Directory chatwoot already exists."
-            fi            
+            fi
+            EOF 
       
       - name: Upload Source Code to EC2
         uses: appleboy/scp-action@v0.1.7
