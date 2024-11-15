@@ -135,7 +135,6 @@ jobs:
             fi
 
             sudo -i -u chatwoot << "EOF"
-
             if [ ! -d "chatwoot" ]; then
               mkdir chatwoot
             else
@@ -144,7 +143,8 @@ jobs:
             EOF
 
             sudo cp -ri /home/ubuntu/chatwoot /home/chatwoot
-      
+            sudo chown -R chatwoot:chatwoot /home/chatwoot/chatwoot
+            
       - name: Install Chatwoot in Chatwoot EC2
         uses: appleboy/ssh-action@v1.1.0
         with:
