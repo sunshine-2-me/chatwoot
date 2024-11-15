@@ -150,7 +150,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            echo ${{ secrets.SSH_KEY }} > ${{ secrets.KEY_NAME }}.pem
+            echo "${{ secrets.SSH_KEY }}" > ${{ secrets.KEY_NAME }}.pem
             chmod 600 ${{ secrets.KEY_NAME }}.pem
             scp -i ${{ secrets.KEY_NAME }}.pem ./chatwoot ubuntu@${{ env.SumoChatwootInstancePrivateIP }}:/home/ubuntu
 
