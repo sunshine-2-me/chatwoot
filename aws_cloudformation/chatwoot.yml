@@ -43,6 +43,12 @@ Resources:
           SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet1Id
           GroupSet:
             - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # Update and upgrade system packages
+          apt-get update -y
+          apt-get upgrade -y
 
 Outputs:
   SumoChatwootInstanceId:
