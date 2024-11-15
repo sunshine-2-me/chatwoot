@@ -24,7 +24,7 @@ Resources:
             VolumeType: gp2
       Tags:
         - Key: Name
-          Value: sumo-chatwoot
+          Value: sumo-chatwoot-instance
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
           DeviceIndex: 0
@@ -37,14 +37,6 @@ Resources:
           # Update and upgrade system packages
           apt-get update -y
           apt-get upgrade -y
-
-  # Target Group Attachment
-  SumoChatwootTargetGroupAttachment:
-    Type: 'AWS::ElasticLoadBalancingV2::TargetGroupAttachment'
-    Properties:
-      TargetGroupArn: !ImportValue SumoChatwootStack-SumoChatwootTargetGroupArn
-      TargetId: !Ref SumoChatwootInstance
-      Port: 3000
 
 Outputs:
   SumoChatwootInstanceId:
