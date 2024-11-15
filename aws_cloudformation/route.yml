@@ -22,15 +22,15 @@ Resources:
         Comment: 'Hosted zone for sumoscheduler.com'
 
   # Create an A Record in the Hosted Zone
-  SumoChatwootARecord:
+  SumoChatwootDNSRecord:
     Type: 'AWS::Route53::RecordSet'
     Properties:
       HostedZoneId: !Ref SumoChatwootRoute53HostedZone
       Name: !Sub "${SubdomainName}.${DomainName}"
       Type: 'A'
-      TTL: '300'  # Time to live in seconds
-      ResourceRecords:
-        - !ImportValue  SumoChatwootStack-SumoChatwootInstancePublicIP
+      AliasTarget:
+           DNSName: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerDNSName
+           HostedZoneId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
 
 Outputs:
   HostedZoneId:

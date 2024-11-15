@@ -14,9 +14,9 @@ Resources:
       InstanceType: c5.xlarge
       KeyName: !Ref KeyPairName
       ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
-      SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet1Id
-      SecurityGroupIds:
-        - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
+      # SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet1Id
+      # SecurityGroupIds:
+      #   - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
@@ -25,18 +25,26 @@ Resources:
       Tags:
         - Key: Name
           Value: sumo-chatwoot-instance
-      # NetworkInterfaces:
-      #   - AssociatePublicIpAddress: true
-      #     DeviceIndex: 0
-      #     SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet1Id
-      #     GroupSet:
-      #       - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: false
+          DeviceIndex: 0
+          SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet1Id
+          GroupSet:
+            - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
           # Update and upgrade system packages
           apt-get update -y
           apt-get upgrade -y
+
+  # Target Group Attachment
+  ChatwootTargetGroupAttachment:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroupAttachment'
+    Properties:
+      TargetGroupArn: !ImportValue  SumoChatwootStack-SumoChatwootTargetGroupArn
+      TargetId: !Ref SumoChatwootInstance
+      Port: 3000
 
 Outputs:
   SumoChatwootInstanceId:
