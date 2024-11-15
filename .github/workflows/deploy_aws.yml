@@ -193,7 +193,7 @@ jobs:
             chmod 777 install.sh
             sudo ./install.sh --install
             
-            sudo -i -u chatwoot << EOF
+            sudo -i -u chatwoot << "EOF"
             cd chatwoot
 
             sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/$REDIS_HOST:6379/' .env
