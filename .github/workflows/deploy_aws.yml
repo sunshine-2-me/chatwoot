@@ -166,7 +166,12 @@ jobs:
       - name: Print CloudFormation Outputs
         run: |
           echo "CloudFormation Outputs:"
-          aws cloudformation describe-stacks --stack-name sumo-chatwoot-stack --query 'Stacks[0].Outputs' --output table
+          aws cloudformation describe-stacks --stack-name sumo-chatwoot-network-stack --query 'Stacks[0].Outputs' --output table
+          aws cloudformation describe-stacks --stack-name sumo-chatwoot-alb-stack --query 'Stacks[0].Outputs' --output table
+          aws cloudformation describe-stacks --stack-name sumo-chatwoot-postgre-stack --query 'Stacks[0].Outputs' --output table
+          aws cloudformation describe-stacks --stack-name sumo-chatwoot-redis-stack --query 'Stacks[0].Outputs' --output table
+          aws cloudformation describe-stacks --stack-name sumo-chatwoot-bastion-stack --query 'Stacks[0].Outputs' --output table
+          aws cloudformation describe-stacks --stack-name sumo-chatwoot-instance-stack --query 'Stacks[0].Outputs' --output table
 
       # - name: Create the AMI
       #   run: |
