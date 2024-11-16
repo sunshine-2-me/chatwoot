@@ -12,14 +12,22 @@ Parameters:
     Type: 'String'
     Default: 'chat'
 
+  Region:
+    Description: 'The region'
+    Type: 'String'
+    Default: 'us-east-1'
+
 Resources:
   # Create a Route 53 Hosted Zone
   SumoChatwootRoute53HostedZone:
     Type: 'AWS::Route53::HostedZone'
     Properties:
       Name: !Ref DomainName
+      VPCs:
+        - VPCId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
+          VPCRegion: !Ref Region
       HostedZoneConfig:
-        Comment: 'Hosted zone for sumoscheduler.com'
+        Comment: 'Private hosted zone for sumoscheduler.com'
 
   # Create an A Record in the Hosted Zone
   SumoChatwootDNSRecord:
@@ -28,9 +36,8 @@ Resources:
       HostedZoneId: !Ref SumoChatwootRoute53HostedZone
       Name: !Sub "${SubdomainName}.${DomainName}"
       Type: 'A'
-      AliasTarget:
-           DNSName: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerDNSName
-           HostedZoneId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
+      ResourceRecords: 
+        - !ImportValue SumoChatwootStack-SumoChatwootInstancePrivateIP
 
 Outputs:
   HostedZoneId:
