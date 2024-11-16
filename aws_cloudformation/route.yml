@@ -36,6 +36,7 @@ Resources:
       HostedZoneId: !Ref SumoChatwootRoute53HostedZone
       Name: !Sub "${SubdomainName}.${DomainName}"
       Type: 'A'
+      TTL: '300'  # Set TTL to 300 seconds
       ResourceRecords: 
         - !ImportValue SumoChatwootStack-SumoChatwootInstancePrivateIP
 
