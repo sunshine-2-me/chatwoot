@@ -12,6 +12,11 @@ Parameters:
     Type: 'String'
     Default: 'chat'
 
+  SubdomainName1:
+    Description: 'The subdomain for the A record (e.g., chat.sumoscheduler.com)'
+    Type: 'String'
+    Default: 'chatting'
+
   Region:
     Description: 'The region'
     Type: 'String'
@@ -29,22 +34,29 @@ Resources:
       HostedZoneConfig:
         Comment: 'Private hosted zone for sumoscheduler.com'
 
-  # # Create an A Record in the Hosted Zone
-  # SumoChatwootDNSRecord:
-  #   Type: 'AWS::Route53::RecordSet'
-  #   Properties:
-  #     HostedZoneId: !Ref SumoChatwootRoute53HostedZone
-  #     Name: !Sub "${SubdomainName}.${DomainName}"
-  #     Type: 'A'
-  #     TTL: '300'  # Set TTL to 300 seconds
-  #     ResourceRecords: 
-  #       - !ImportValue SumoChatwootStack-SumoChatwootInstancePrivateIP
-
-  SumoChatwootPublicDNSRecord:
+  # Create an A Record in the Hosted Zone
+  SumoChatwootDNSRecord:
     Type: 'AWS::Route53::RecordSet'
     Properties:
       HostedZoneId: !Ref SumoChatwootRoute53HostedZone
       Name: !Sub "${SubdomainName}.${DomainName}"
+      Type: 'A'
+      TTL: '300'  # Set TTL to 300 seconds
+      ResourceRecords: 
+        - !ImportValue SumoChatwootStack-SumoChatwootInstancePrivateIP
+
+  SumoChatwootRoute53HostedZone1:
+    Type: 'AWS::Route53::HostedZone'
+    Properties:
+      Name: !Ref DomainName
+      HostedZoneConfig:
+        Comment: Public hosted zone for sumoscheduler.com
+
+  SumoChatwootPublicDNSRecord:
+    Type: 'AWS::Route53::RecordSet'
+    Properties:
+      HostedZoneId: !Ref SumoChatwootRoute53HostedZone1
+      Name: !Sub "${SubdomainName1}.${DomainName}"
       Type: 'A'
       TTL: '300'  # Set TTL to 300 seconds
       ResourceRecords: 
