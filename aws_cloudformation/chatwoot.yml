@@ -58,7 +58,7 @@ Resources:
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
           DeviceIndex: 0
-          SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet1
+          SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet1Id
           GroupSet:
             - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
       UserData:
