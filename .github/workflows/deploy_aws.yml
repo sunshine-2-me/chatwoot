@@ -122,6 +122,9 @@ jobs:
           SumoChatwootInstancePrivateIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePrivateIP'].OutputValue" --output text)
           echo "SumoChatwootInstancePrivateIP=${SumoChatwootInstancePrivateIP}" >> $GITHUB_ENV
 
+          SumoChatwootPublicInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootPublicInstancePublicIP'].OutputValue" --output text)
+          echo "SumoChatwootPublicInstancePublicIP=${SumoChatwootPublicInstancePublicIP}" >> $GITHUB_ENV
+
       - name: Deploy Route53
         run: |
           STACK_NAME=sumo-chatwoot-route-stack
@@ -212,6 +215,62 @@ jobs:
             EOF
 
             EOT
+
+      - name: Upload Source Code to public instance
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ env.SumoChatwootPublicInstancePublicIP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          overwrite: true
+          source: './*'
+          target: '/home/ubuntu/chatwoot'
+
+      - name: Create chatwoot user to public instance
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ env.SumoChatwootPublicInstancePublicIP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            if ! id -u "chatwoot"; then
+              sudo adduser --disabled-password --gecos "" chatwoot
+            fi
+
+            sudo -i -u chatwoot << "EOF"
+            if [ ! -d "chatwoot" ]; then
+              mkdir chatwoot
+            else
+              echo "Directory chatwoot already exists."
+            fi
+            EOF
+
+            sudo cp -ri /home/ubuntu/chatwoot /home/chatwoot
+            sudo chown -R chatwoot:chatwoot /home/chatwoot/chatwoot
+
+      - name: Install Chatwoot in public instance
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ env.SumoChatwootPublicInstancePublicIP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /home/ubuntu/chatwoot
+            chmod 777 install.sh
+            sudo ./install.sh --install
+            
+            sudo -i -u chatwoot << "EOF"
+            cd chatwoot
+
+            sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/$REDIS_HOST:6379/' .env
+            sed -i -e '/POSTGRES_HOST/ s/=.*/=$POSTGRES_HOST/' .env
+            sed -i -e '/POSTGRES_USERNAME/ s/=.*/=$POSTGRES_USERNAME/' .env
+            sed -i -e "/POSTGRES_PASSWORD/ s/=.*/=$POSTGRES_PASSWORD/" .env
+
+            RAILS_ENV=production bundle exec rake db:prepare
+            sudo cwctl --restart
+            EOF
+
             
       # - name: Print CloudFormation Outputs
       #   run: |
