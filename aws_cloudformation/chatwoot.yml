@@ -38,6 +38,37 @@ Resources:
           apt-get update -y
           apt-get upgrade -y
 
+  SumoChatwootPublicInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: c5.xlarge
+      KeyName: !Ref KeyPairName
+      ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
+      # SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet1Id
+      # SecurityGroupIds:
+      #   - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 60
+            VolumeType: gp2
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-public-instance
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet1
+          GroupSet:
+            - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # Update and upgrade system packages
+          apt-get update -y
+          apt-get upgrade -y
+
+
 Outputs:
   SumoChatwootInstanceId:
     Description: 'The ID of the Chatwoot EC2 instance'
@@ -51,8 +82,8 @@ Outputs:
     Export:
       Name: SumoChatwootStack-SumoChatwootInstancePrivateIP
 
-  # SumoChatwootInstancePublicIP:
-  #   Description: 'Public IP address of the Chatwoot EC2 instance'
-  #   Value: !GetAtt SumoChatwootInstance.PublicIp    
-  #   Export:
-  #     Name: SumoChatwootStack-SumoChatwootInstancePublicIP
+  SumoChatwootPublicInstancePublicIP:
+    Description: 'Public IP address of the Chatwoot EC2 instance'
+    Value: !GetAtt SumoChatwootPublicInstance.PublicIp    
+    Export:
+      Name: SumoChatwootStack-SumoChatwootPublicInstancePublicIP

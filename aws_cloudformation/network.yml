@@ -78,7 +78,7 @@ Resources:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: sumochatwoot-eip-nat-1
+          Value: sumo-chatwoot-eip-nat-1
 
   SumoChatwootNATGateway1:
     Type: AWS::EC2::NatGateway
@@ -96,7 +96,7 @@ Resources:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: sumochatwoot-eip-nat-2
+          Value: sumo-chatwoot-eip-nat-2
 
   SumoChatwootNATGateway2:
     Type: AWS::EC2::NatGateway
