@@ -257,7 +257,7 @@ jobs:
           script: |
             cd /home/ubuntu/chatwoot
             chmod 777 install.sh
-            sed -i "s/domain_name='chat.sumo.com'/domain_name='chatting.sumo.com'/g" install.sh
+            sed -i "s/domain_name='chat.sumos.com'/domain_name='chatting.sumos.com'/g" install.sh
             sudo ./install.sh --install
             
             sudo -i -u chatwoot << "EOF"
