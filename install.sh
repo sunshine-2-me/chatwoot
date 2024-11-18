@@ -147,7 +147,7 @@ function exit_handler() {
 ##############################################################################
 function get_domain_info() {
   # read -rp 'Enter the domain/subdomain for Chatwoot (e.g., chatwoot.domain.com): ' domain_name
-  domain_name='chat.sumoscheduler.com'
+  domain_name='chat.sumo.com'
   # read -rp 'Enter an email address for LetsEncrypt to send reminders when your SSL certificate is up for renewal: ' le_email
   le_email='givemesunshine110@gmail.com'
   cat << EOF
