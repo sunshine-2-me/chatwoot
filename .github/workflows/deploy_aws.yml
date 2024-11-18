@@ -157,7 +157,7 @@ jobs:
             echo "${{ secrets.SSH_KEY }}" > ${{ secrets.KEY_NAME }}.pem
             chmod 600 ${{ secrets.KEY_NAME }}.pem
 
-            ssh -i ${{ secrets.KEY_NAME }}.pem ubuntu@${{ env.SumoChatwootInstancePrivateIP }} << 'EOF'
+            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.SumoChatwootInstancePrivateIP }} << 'EOF'
             sudo rm -rf /home/ubuntu/chatwoot
             EOF
 
@@ -170,7 +170,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            ssh -i ${{ secrets.KEY_NAME }}.pem ubuntu@${{ env.SumoChatwootInstancePrivateIP }} << 'EOT'
+            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.SumoChatwootInstancePrivateIP }} << 'EOT'
 
             if ! id -u "chatwoot"; then
               sudo adduser --disabled-password --gecos "" chatwoot
@@ -196,7 +196,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            ssh -i ${{ secrets.KEY_NAME }}.pem ubuntu@${{ env.SumoChatwootInstancePrivateIP }} << 'EOT'
+            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.SumoChatwootInstancePrivateIP }} << 'EOT'
 
             cd /home/ubuntu/chatwoot
             chmod 777 install.sh
