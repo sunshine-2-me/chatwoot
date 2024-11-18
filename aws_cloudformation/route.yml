@@ -3,17 +3,17 @@ Description: 'CloudFormation template to create a Route 53 hosted zone and an A 
 
 Parameters:
   DomainName:
-    Description: 'The domain name for which the hosted zone will be created (e.g., sumos.com)'
+    Description: 'The domain name for which the hosted zone will be created (e.g., sumoscheduler.com)'
     Type: 'String'
-    Default: 'sumos.com'
+    Default: 'sumoscheduler.com'
 
   SubdomainName:
-    Description: 'The subdomain for the A record (e.g., chat.sumos.com)'
+    Description: 'The subdomain for the A record (e.g., chat.sumoscheduler.com)'
     Type: 'String'
     Default: 'chat'
 
   SubdomainName1:
-    Description: 'The subdomain for the A record (e.g., chat.sumos.com)'
+    Description: 'The subdomain for the A record (e.g., chat.sumoscheduler.com)'
     Type: 'String'
     Default: 'chatting'
 
@@ -32,7 +32,7 @@ Resources:
         - VPCId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
           VPCRegion: !Ref Region
       HostedZoneConfig:
-        Comment: 'Private hosted zone for sumos.com'
+        Comment: 'Private hosted zone for sumoscheduler.com'
 
   # Create an A Record in the Hosted Zone
   SumoChatwootDNSRecord:
@@ -50,7 +50,7 @@ Resources:
     Properties:
       Name: !Ref DomainName
       HostedZoneConfig:
-        Comment: Public hosted zone for sumos.com
+        Comment: Public hosted zone for sumoscheduler.com
 
   SumoChatwootPublicDNSRecord:
     Type: 'AWS::Route53::RecordSet'
