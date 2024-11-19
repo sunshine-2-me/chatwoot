@@ -8,37 +8,7 @@ Parameters:
 
 
 Resources:
-  # SumoChatwootInstance:
-  #   Type: AWS::EC2::Instance
-  #   Properties:
-  #     InstanceType: c5.xlarge
-  #     KeyName: !Ref KeyPairName
-  #     ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
-  #     # SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet1Id
-  #     # SecurityGroupIds:
-  #     #   - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
-  #     BlockDeviceMappings:
-  #       - DeviceName: /dev/sda1
-  #         Ebs:
-  #           VolumeSize: 60
-  #           VolumeType: gp2
-  #     Tags:
-  #       - Key: Name
-  #         Value: sumo-chatwoot-instance
-  #     NetworkInterfaces:
-  #       - AssociatePublicIpAddress: false
-  #         DeviceIndex: 0
-  #         SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet1Id
-  #         GroupSet:
-  #           - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
-  #     UserData:
-  #       Fn::Base64: !Sub |
-  #         #!/bin/bash
-  #         # Update and upgrade system packages
-  #         apt-get update -y
-  #         apt-get upgrade -y
-
-  SumoChatwootInstance:
+  SumoChatwootProdInstance:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: c5.xlarge
@@ -54,7 +24,7 @@ Resources:
             VolumeType: gp2
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-public-instance
+          Value: sumo-chatwoot-prod-instance
       NetworkInterfaces:
         - AssociatePublicIpAddress: true
           DeviceIndex: 0
@@ -68,22 +38,57 @@ Resources:
           apt-get update -y
           apt-get upgrade -y
 
+  SumoChatwootDevInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: c5.xlarge
+      KeyName: !Ref KeyPairName
+      ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
+      # SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet1Id
+      # SecurityGroupIds:
+      #   - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 60
+            VolumeType: gp2
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-dev-instance
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: 0
+          SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet1Id
+          GroupSet:
+            - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # Update and upgrade system packages
+          apt-get update -y
+          apt-get upgrade -y
 
 Outputs:
-  SumoChatwootInstanceId:
+  SumoChatwootProdInstanceId:
     Description: 'The ID of the Chatwoot EC2 instance'
-    Value: !Ref SumoChatwootInstance
+    Value: !Ref SumoChatwootProdInstance
     Export:
-      Name: SumoChatwootStack-SumoChatwootInstanceId
+      Name: SumoChatwootStack-SumoChatwootProdInstanceId
 
-  # SumoChatwootInstancePrivateIP:
-  #   Description: 'Private IP address of the Chatwoot EC2 instance'
-  #   Value: !GetAtt SumoChatwootInstance.PrivateIp
-  #   Export:
-  #     Name: SumoChatwootStack-SumoChatwootInstancePrivateIP
-
-  SumoChatwootInstancePublicIP:
+  SumoChatwootProdInstancePublicIP:
     Description: 'Public IP address of the Chatwoot EC2 instance'
-    Value: !GetAtt SumoChatwootInstance.PublicIp    
+    Value: !GetAtt SumoChatwootProdInstance.PublicIp    
     Export:
-      Name: SumoChatwootStack-SumoChatwootInstancePublicIP
+      Name: SumoChatwootStack-SumoChatwootProdInstancePublicIP
+
+  SumoChatwootDevInstanceId:
+    Description: 'The ID of the Chatwoot EC2 instance'
+    Value: !Ref SumoChatwootDevInstance
+    Export:
+      Name: SumoChatwootStack-SumoChatwootDevInstanceId
+
+  SumoChatwootDevInstancePublicIP:
+    Description: 'Public IP address of the Chatwoot EC2 instance'
+    Value: !GetAtt SumoChatwootDevInstance.PublicIp    
+    Export:
+      Name: SumoChatwootStack-SumoChatwootDevInstancePublicIP

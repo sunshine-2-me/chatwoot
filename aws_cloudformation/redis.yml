@@ -29,12 +29,12 @@ Resources:
         - Key: Name
           Value: sumo-chatwoot-redis-group
 
-  # Redis Cluster
-  SumoChatwootRedisCluster:
+  # Redis Cluster for production
+  SumoChatwootProdRedisCluster:
     Type: AWS::ElastiCache::ReplicationGroup
     Properties:
       ReplicationGroupDescription: Chatwoot Redis cluster
-      ReplicationGroupId: sumo-chatwoot-redis
+      ReplicationGroupId: sumo-chatwoot-prod-redis
       Engine: redis
       CacheNodeType: cache.t3.micro
       NumCacheClusters: 2
@@ -44,17 +44,46 @@ Resources:
       CacheSubnetGroupName: !Ref SumoChatwootRedisSubnetGroup
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-redis
+          Value: sumo-chatwoot-prod-redis
+
+  # Redis Cluster for production
+  SumoChatwootDevRedisCluster:
+    Type: AWS::ElastiCache::ReplicationGroup
+    Properties:
+      ReplicationGroupDescription: Chatwoot Redis cluster
+      ReplicationGroupId: sumo-chatwoot-dev-redis
+      Engine: redis
+      CacheNodeType: cache.t3.micro
+      NumCacheClusters: 2
+      AutomaticFailoverEnabled: true
+      SecurityGroupIds:
+        - !Ref SumoChatwootRedisSecurityGroup
+      CacheSubnetGroupName: !Ref SumoChatwootRedisSubnetGroup
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-dev-redis
 
 Outputs:
-  SumoChatwootRedisPrimaryEndpointAddress:
+  SumoChatwootProdRedisEndpointAddress:
     Description: 'Primary endpoint address for the Redis cluster'
-    Value: !GetAtt SumoChatwootRedisCluster.PrimaryEndPoint.Address
+    Value: !GetAtt SumoChatwootProdRedisCluster.PrimaryEndPoint.Address
     Export:
-      Name: SumoChatwootStack-SumoChatwootRedisPrimaryEndpointAddress
+      Name: SumoChatwootStack-SumoChatwootProdRedisEndpointAddress
 
-  SumoChatwootRedisPrimaryEndpointPort:
+  SumoChatwootProdRedisEndpointPort:
     Description: 'Primary endpoint port for the Redis cluster'
-    Value: !GetAtt SumoChatwootRedisCluster.PrimaryEndPoint.Port
+    Value: !GetAtt SumoChatwootProdRedisCluster.PrimaryEndPoint.Port
     Export:
-      Name: SumoChatwootStack-SumoChatwootRedisPrimaryEndpointPort
+      Name: SumoChatwootStack-SumoChatwootProdRedisEndpointPort
+
+  SumoChatwootDevRedisEndpointAddress:
+    Description: 'Primary endpoint address for the Redis cluster'
+    Value: !GetAtt SumoChatwootDevRedisCluster.PrimaryEndPoint.Address
+    Export:
+      Name: SumoChatwootStack-SumoChatwootDevRedisEndpointAddress
+
+  SumoChatwootDevRedisEndpointPort:
+    Description: 'Primary endpoint port for the Redis cluster'
+    Value: !GetAtt SumoChatwootDevRedisCluster.PrimaryEndPoint.Port
+    Export:
+      Name: SumoChatwootStack-SumoChatwootDevRedisEndpointPort

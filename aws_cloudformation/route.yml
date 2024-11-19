@@ -52,7 +52,7 @@ Resources:
       Type: 'A'
       TTL: '60'  # Set TTL to 300 seconds
       ResourceRecords: 
-        - !ImportValue SumoChatwootStack-SumoChatwootInstancePublicIP
+        - !ImportValue SumoChatwootStack-SumoChatwootProdInstancePublicIP
 
   SumoChatwootDevDNSRecord:
     Type: 'AWS::Route53::RecordSet'
@@ -62,7 +62,7 @@ Resources:
       Type: 'A'
       TTL: '60'  # Set TTL to 300 seconds
       ResourceRecords: 
-        - !ImportValue SumoChatwootStack-SumoChatwootInstancePublicIP
+        - !ImportValue SumoChatwootStack-SumoChatwootDevInstancePublicIP
 
   # SumoChatwootRoute53HostedZone1:
   #   Type: 'AWS::Route53::HostedZone'

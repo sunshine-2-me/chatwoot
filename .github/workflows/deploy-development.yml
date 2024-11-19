@@ -74,6 +74,12 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
+          # SumoChatwootProdRDSInstanceEndpoint=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootProdRDSInstanceEndpoint'].OutputValue" --output text)
+          # echo "POSTGRES_HOST=${SumoChatwootProdRDSInstanceEndpoint}" >> $GITHUB_ENV
+
+          SumoChatwootDevRDSInstanceEndpoint=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevRDSInstanceEndpoint'].OutputValue" --output text)
+          echo "POSTGRES_HOST=${SumoChatwootDevRDSInstanceEndpoint}" >> $GITHUB_ENV
+
       - name: Deploy Redis
         run: |
           STACK_NAME=sumo-chatwoot-redis-stack
@@ -84,6 +90,12 @@ jobs:
 
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
+
+          # SumoChatwootProdRedisEndpointAddress=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootProdRedisEndpointAddress'].OutputValue" --output text)
+          # echo "REDIS_HOST=${SumoChatwootProdRedisEndpointAddress}" >> $GITHUB_ENV
+
+          SumoChatwootDevRedisEndpointAddress=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevRedisEndpointAddress'].OutputValue" --output text)
+          echo "REDIS_HOST=${SumoChatwootDevRedisEndpointAddress}" >> $GITHUB_ENV
 
       - name: Deploy Bastion
         run: |
@@ -117,8 +129,11 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-          SumoChatwootInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePublicIP'].OutputValue" --output text)
-          echo "SumoChatwootInstancePublicIP=${SumoChatwootInstancePublicIP}" >> $GITHUB_ENV
+          # SumoChatwootProdInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootProdInstancePublicIP'].OutputValue" --output text)
+          # echo "EC2_IP=${SumoChatwootProdInstancePublicIP}" >> $GITHUB_ENV
+
+          SumoChatwootDevInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevInstancePublicIP'].OutputValue" --output text)
+          echo "EC2_IP=${SumoChatwootDevInstancePublicIP}" >> $GITHUB_ENV
 
       - name: Deploy Route53
         run: |
@@ -216,7 +231,7 @@ jobs:
       - name: Upload Source Code to public instance
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ env.SumoChatwootInstancePublicIP }}
+          host: ${{ env.EC2_IP }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           overwrite: true
@@ -226,7 +241,7 @@ jobs:
       - name: Create chatwoot user to public instance
         uses: appleboy/ssh-action@v1.1.0
         with:
-          host: ${{ env.SumoChatwootInstancePublicIP }}
+          host: ${{ env.EC2_IP }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
@@ -248,10 +263,15 @@ jobs:
       - name: Install Chatwoot in public instance
         uses: appleboy/ssh-action@v1.1.0
         with:
-          host: ${{ env.SumoChatwootInstancePublicIP }}
+          host: ${{ env.EC2_IP }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
+            POSTGRES_HOST=${{ env.POSTGRES_HOST }}
+            POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
+            POSTGRES_PASSWORD=${{ secrets.RDS_MASTER_PASSWORD }}
+            REDIS_HOST=${{ env.REDIS_HOST }}
+
             cd /home/ubuntu/chatwoot
             echo "Wait for creating chat.sumoscheduler.com record"
             sleep 60
