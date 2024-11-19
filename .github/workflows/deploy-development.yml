@@ -217,7 +217,8 @@ jobs:
         run: |
           echo "Create the AMI"
           STACK_NAME=sumo-chatwoot-instance-stack
-          INSTANCE_ID=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`SumoChatwootProdInstance`].OutputValue' --output text)
+          # INSTANCE_ID=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`SumoChatwootProdInstanceId`].OutputValue' --output text)
+          INSTANCE_ID=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`SumoChatwootDevInstanceId`].OutputValue' --output text)
           AMI_ID=$(aws ec2 create-image --instance-id $INSTANCE_ID --name "chatwoot-base-ami" --description "Base AMI for Chatwoot application" --no-reboot --query 'ImageId' --output text)
           echo "AMI created with ID: $AMI_ID"
           echo "AMI_ID=${AMI_ID}" >> $GITHUB_ENV
