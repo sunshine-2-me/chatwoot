@@ -110,11 +110,11 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-          SumoChatwootBastionHostAPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostAPublicIP'].OutputValue" --output text)
-          echo "SumoChatwootBastionHostAPublicIP=${SumoChatwootBastionHostAPublicIP}" >> $GITHUB_ENV
+          # SumoChatwootBastionHostAPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostAPublicIP'].OutputValue" --output text)
+          # echo "SumoChatwootBastionHostAPublicIP=${SumoChatwootBastionHostAPublicIP}" >> $GITHUB_ENV
 
-          SumoChatwootBastionHostBPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostBPublicIP'].OutputValue" --output text)
-          echo "SumoChatwootBastionHostBPublicIP=${SumoChatwootBastionHostBPublicIP}" >> $GITHUB_ENV
+          # SumoChatwootBastionHostBPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostBPublicIP'].OutputValue" --output text)
+          # echo "SumoChatwootBastionHostBPublicIP=${SumoChatwootBastionHostBPublicIP}" >> $GITHUB_ENV
 
       - name: Deploy Chatwoot EC2
         run: |
