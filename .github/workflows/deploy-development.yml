@@ -1,4 +1,4 @@
-name: Deploy Sumo Chatwoot Infrastructure
+name: Deploy Sumo Chatwoot Infrastructure for Development
 
 on:
   push:

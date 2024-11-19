@@ -418,14 +418,19 @@ function setup_ssl() {
   fi
   curl https://ssl-config.mozilla.org/ffdhe4096.txt >> /etc/ssl/dhparam
   wget https://raw.githubusercontent.com/chatwoot/chatwoot/develop/deployment/nginx_chatwoot.conf
-  cp nginx_chatwoot.conf /etc/nginx/sites-available/nginx_chatwoot.conf
-  sudo certbot certonly --non-interactive --agree-tos --nginx -m "$le_email" -d "$domain_name"
-  sudo sed -i "s/chatwoot.domain.com/$domain_name/g" /etc/nginx/sites-available/nginx_chatwoot.conf
   if [ -e "/etc/nginx/sites-enabled/nginx_chatwoot.conf" ]; then
     sudo rm /etc/nginx/sites-enabled/nginx_chatwoot.conf
   fi
+  if [ -e "/etc/nginx/sites-available/nginx_chatwoot.conf" ]; then
+    sudo rm /etc/nginx/sites-available/nginx_chatwoot.conf
+  fi
+
+  cp nginx_chatwoot.conf /etc/nginx/sites-available/nginx_chatwoot.conf
+  sudo sed -i "s/chatwoot.domain.com/$domain_name/g" /etc/nginx/sites-available/nginx_chatwoot.conf
+  sudo certbot certonly --non-interactive --agree-tos --nginx -m "$le_email" -d "$domain_name"
   sudo ln -s /etc/nginx/sites-available/nginx_chatwoot.conf /etc/nginx/sites-enabled/nginx_chatwoot.conf
   sudo systemctl restart nginx
+  
   sudo -i -u chatwoot << EOF
   cd chatwoot
   sed -i "s/http:\/\/0.0.0.0:3000/https:\/\/$domain_name/g" .env
