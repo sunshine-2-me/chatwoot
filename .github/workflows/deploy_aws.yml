@@ -116,14 +116,8 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-          # SumoChatwootInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePublicIP'].OutputValue" --output text)
-          # echo "SumoChatwootInstancePublicIP=${SumoChatwootInstancePublicIP}" >> $GITHUB_ENV
-
-          SumoChatwootInstancePrivateIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePrivateIP'].OutputValue" --output text)
-          echo "SumoChatwootInstancePrivateIP=${SumoChatwootInstancePrivateIP}" >> $GITHUB_ENV
-
-          SumoChatwootPublicInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootPublicInstancePublicIP'].OutputValue" --output text)
-          echo "SumoChatwootPublicInstancePublicIP=${SumoChatwootPublicInstancePublicIP}" >> $GITHUB_ENV
+          SumoChatwootInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstancePublicIP'].OutputValue" --output text)
+          echo "SumoChatwootInstancePublicIP=${SumoChatwootInstancePublicIP}" >> $GITHUB_ENV
 
       - name: Deploy Route53
         run: |
@@ -221,7 +215,7 @@ jobs:
       - name: Upload Source Code to public instance
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ env.SumoChatwootPublicInstancePublicIP }}
+          host: ${{ env.SumoChatwootInstancePublicIP }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           overwrite: true
@@ -231,7 +225,7 @@ jobs:
       - name: Create chatwoot user to public instance
         uses: appleboy/ssh-action@v1.1.0
         with:
-          host: ${{ env.SumoChatwootPublicInstancePublicIP }}
+          host: ${{ env.SumoChatwootInstancePublicIP }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
@@ -253,7 +247,7 @@ jobs:
       - name: Install Chatwoot in public instance
         uses: appleboy/ssh-action@v1.1.0
         with:
-          host: ${{ env.SumoChatwootPublicInstancePublicIP }}
+          host: ${{ env.SumoChatwootInstancePublicIP }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
