@@ -229,10 +229,12 @@ jobs:
             # Also, delete associated snapshots
             snapshot_ids=$(aws ec2 describe-images --image-ids $existing_ami_id --query 'Images[0].BlockDeviceMappings[*].Ebs.SnapshotId' --output text)
             echo "snapshot_ids=$snapshot_ids"
-            for snapshot_id in $snapshot_ids; do
-              echo "Deleting snapshot $snapshot_id"
-              aws ec2 delete-snapshot --snapshot-id $snapshot_id
-            done
+            if [ "$snapshot_ids" != "None" ]; then
+              for snapshot_id in $snapshot_ids; do
+                echo "Deleting snapshot $snapshot_id"
+                aws ec2 delete-snapshot --snapshot-id $snapshot_id
+              done
+            fi
           else
             echo "No existing AMI found with the name $BASE_AMI_NAME."
           fi          
