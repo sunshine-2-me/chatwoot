@@ -6,10 +6,15 @@ Parameters:
     Description: 'The ID of the existing Route 53 hosted zone'
     Type: 'AWS::Route53::HostedZone::Id'
 
-  DomainName:
+  ProdDomainName:
     Description: 'The fully qualified domain name for the DNS record (e.g., chat.sumoscheduler.com)'
     Type: 'String'
     Default: 'chat.sumoscheduler.com'
+
+  DevDomainName:
+    Description: 'The fully qualified domain name for the DNS record (e.g., chat.sumoscheduler.com)'
+    Type: 'String'
+    Default: 'dev.chat.sumoscheduler.com'
 
   # SubdomainName:
   #   Description: 'The subdomain for the A record (e.g., chat.sumoscheduler.com)'
@@ -39,11 +44,21 @@ Resources:
   #       Comment: 'Private hosted zone for sumoscheduler.com'
 
   # Create an A Record in the Hosted Zone
-  SumoChatwootDNSRecord:
+  SumoChatwootProdDNSRecord:
     Type: 'AWS::Route53::RecordSet'
     Properties:
       HostedZoneId: !Ref HostedZoneId
-      Name: !Ref DomainName
+      Name: !Ref ProdDomainName
+      Type: 'A'
+      TTL: '60'  # Set TTL to 300 seconds
+      ResourceRecords: 
+        - !ImportValue SumoChatwootStack-SumoChatwootInstancePublicIP
+
+  SumoChatwootDevDNSRecord:
+    Type: 'AWS::Route53::RecordSet'
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DevDomainName
       Type: 'A'
       TTL: '60'  # Set TTL to 300 seconds
       ResourceRecords: 
@@ -71,8 +86,11 @@ Outputs:
   #   Description: 'The ID of the hosted zone created'
   #   Value: !Ref SumoChatwootRoute53HostedZone
 
-  RecordSetName:
+  ProdRecordSetName:
     Description: 'The name of the DNS record set created'
-    Value: !Ref DomainName
+    Value: !Ref ProdDomainName
 
-  
+  DevRecordSetName:
+    Description: 'The name of the DNS record set created'
+    Value: !Ref DevDomainName
+

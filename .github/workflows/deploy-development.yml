@@ -256,6 +256,7 @@ jobs:
             sleep 60
 
             echo "run install.sh"
+            sed -i "s/domain_name='chat.sumoscheduler.com'/domain_name='dev.chat.sumoscheduler.com'/" install.sh
             chmod 777 install.sh
             sudo ./install.sh --install
             
