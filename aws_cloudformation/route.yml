@@ -47,7 +47,7 @@ Resources:
       Type: 'A'
       TTL: '60'  # Set TTL to 300 seconds
       ResourceRecords: 
-        - !ImportValue SumoChatwootStack-SumoChatwootPublicInstancePublicIP
+        - !ImportValue SumoChatwootStack-SumoChatwootInstancePublicIP
 
   # SumoChatwootRoute53HostedZone1:
   #   Type: 'AWS::Route53::HostedZone'
