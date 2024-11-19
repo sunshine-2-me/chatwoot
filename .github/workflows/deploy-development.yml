@@ -131,15 +131,13 @@ jobs:
 
           # SumoChatwootProdInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootProdInstancePublicIP'].OutputValue" --output text)
           # echo "EC2_IP=${SumoChatwootProdInstancePublicIP}" >> $GITHUB_ENV
-
-          SumoChatwootDevInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevInstancePublicIP'].OutputValue" --output text)
-          echo "EC2_IP=${SumoChatwootDevInstancePublicIP}" >> $GITHUB_ENV
-
           # SumoChatwootProdInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootProdInstanceId'].OutputValue" --output text)
           # echo "EC2_ID=${SumoChatwootProdInstanceId}" >> $GITHUB_ENV
           # echo "Start instance: ${SumoChatwootProdInstanceId}"
           # aws ec2 start-instances --instance-ids ${SumoChatwootProdInstanceId}
 
+          SumoChatwootDevInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevInstancePublicIP'].OutputValue" --output text)
+          echo "EC2_IP=${SumoChatwootDevInstancePublicIP}" >> $GITHUB_ENV
           SumoChatwootDevInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevInstanceId'].OutputValue" --output text)
           echo "EC2_ID=${SumoChatwootDevInstanceId}" >> $GITHUB_ENV
           echo "Start instance: ${SumoChatwootDevInstanceId}"
@@ -157,6 +155,9 @@ jobs:
 
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
+
+          echo "Wait for creating chat.sumoscheduler.com record"
+          sleep 60
 
       - name: Upload Source Code to public instance
         uses: appleboy/scp-action@v0.1.7
@@ -197,9 +198,6 @@ jobs:
             REDIS_HOST=${{ env.REDIS_HOST }}
 
             cd /home/ubuntu/chatwoot
-            echo "Wait for creating chat.sumoscheduler.com record"
-            sleep 60
-
             echo "run install.sh"
             sed -i "s/domain_name='chat.sumoscheduler.com'/domain_name='dev.chat.sumoscheduler.com'/" install.sh
             chmod 777 install.sh
@@ -251,6 +249,7 @@ jobs:
 
       - name: Auto Scaling-Cloudformation
         run: |
+          # STACK_NAME=sumo-chatwoot-auto-scaling-dev-stack
           STACK_NAME=sumo-chatwoot-auto-scaling-stack
           aws cloudformation deploy \
             --template-file aws_cloudformation/auto_scaling.yml \
@@ -266,6 +265,9 @@ jobs:
           echo "Stop instance: ${{ env.EC2_ID }}"
           aws ec2 stop-instances --instance-ids ${{ env.EC2_ID }}
 
-      # - name: Post-deployment script
-      #   run: |
-      #     echo "Deployment complete!"
+      - name: Post-deployment script
+        run: |
+          STACK_NAME=sumo-chatwoot-route-stack
+          # DomainName=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='ProdRecordSetName'].OutputValue" --output text)
+          DomainName=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='DevRecordSetName'].OutputValue" --output text)
+          echo "Deployment complete!\n Check the url: https://${DomainName}"
