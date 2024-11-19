@@ -198,7 +198,7 @@ jobs:
 
             scp -i ${{ secrets.KEY_NAME }}.pem -r /home/ubuntu/chatwoot ubuntu@${{ env.EC2_IP }}:/home/ubuntu
 
-      - name: Install Chatwoot in instance
+      - name: Create chatwoot user
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ env.SumoChatwootBastionHostAPublicIP }}
