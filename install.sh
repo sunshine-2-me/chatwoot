@@ -417,7 +417,6 @@ function setup_ssl() {
     echo "debug: letsencrypt email: $le_email"
   fi
   curl https://ssl-config.mozilla.org/ffdhe4096.txt >> /etc/ssl/dhparam
-  wget https://raw.githubusercontent.com/chatwoot/chatwoot/develop/deployment/nginx_chatwoot.conf
   if [ -e "/etc/nginx/sites-enabled/nginx_chatwoot.conf" ]; then
     sudo rm /etc/nginx/sites-enabled/nginx_chatwoot.conf
   fi
@@ -425,8 +424,10 @@ function setup_ssl() {
     sudo rm /etc/nginx/sites-available/nginx_chatwoot.conf
   fi
 
-  cp nginx_chatwoot.conf /etc/nginx/sites-available/nginx_chatwoot.conf
+  wget https://raw.githubusercontent.com/chatwoot/chatwoot/develop/deployment/nginx_chatwoot.conf
+  sudo cp nginx_chatwoot.conf /etc/nginx/sites-available/nginx_chatwoot.conf
   sudo sed -i "s/chatwoot.domain.com/$domain_name/g" /etc/nginx/sites-available/nginx_chatwoot.conf
+
   sudo certbot certonly --non-interactive --agree-tos --nginx -m "$le_email" -d "$domain_name"
   sudo ln -s /etc/nginx/sites-available/nginx_chatwoot.conf /etc/nginx/sites-enabled/nginx_chatwoot.conf
   sudo systemctl restart nginx
