@@ -256,6 +256,9 @@ jobs:
               KeyPairName=${{ secrets.KEY_NAME }} \
             --capabilities CAPABILITY_NAMED_IAM
 
+          echo "CloudFormation Outputs:"
+          aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
+          
       # - name: Post-deployment script
       #   run: |
       #     echo "Deployment complete!"
