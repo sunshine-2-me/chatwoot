@@ -259,8 +259,8 @@ jobs:
           script: |
             cd /home/ubuntu/chatwoot
             echo "Wait for creating chat.sumoscheduler.com record"
-            sleed 60
-            
+            sleep 60
+
             echo "run install.sh"
             chmod 777 install.sh
             sudo ./install.sh --install
