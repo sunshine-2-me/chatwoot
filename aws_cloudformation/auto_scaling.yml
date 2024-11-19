@@ -18,12 +18,12 @@ Resources:
         ImageId: !Ref ChatwootAMI
         InstanceType: c5.xlarge
         KeyName: !Ref KeyPairName
-        SecurityGroupIds:
-          - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
         NetworkInterfaces:
           - AssociatePublicIpAddress: false
             DeviceIndex: 0
             SubnetId: !ImportValue  SumoChatwootStack-SumoChatwootPublicSubnet1Id
+            Groups:
+              - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
         BlockDeviceMappings:
           - DeviceName: /dev/sda1
             Ebs:
