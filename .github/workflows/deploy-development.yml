@@ -217,6 +217,25 @@ jobs:
         run: |
           echo "Create the AMI"
           STACK_NAME=sumo-chatwoot-instance-stack
+          
+          # Retrieve existing AMIs with a similar name
+          BASE_AMI_NAME="chatwoot-base-ami"
+          existing_ami_id=$(aws ec2 describe-images --owners self --filters "Name=name,Values=BASE_AMI_NAME" --query 'Images[0].Name' --output text)
+
+          if [ "$existing_ami_id" != "None" ]; then
+            echo "Found existing AMI with ID: $existing_ami_id. Deregistering..."
+            aws ec2 deregister-image --image-id $existing_ami_id
+
+            # Also, delete associated snapshots
+            snapshot_ids=$(aws ec2 describe-images --image-ids $existing_ami_id --query 'Images[0].BlockDeviceMappings[*].Ebs.SnapshotId' --output text)
+            for snapshot_id in $snapshot_ids; do
+              echo "Deleting snapshot $snapshot_id"
+              aws ec2 delete-snapshot --snapshot-id $snapshot_id
+            done
+          else
+            echo "No existing AMI found with the name $BASE_AMI_NAME."
+          fi          
+
           # INSTANCE_ID=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`SumoChatwootProdInstanceId`].OutputValue' --output text)
           INSTANCE_ID=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`SumoChatwootDevInstanceId`].OutputValue' --output text)
           AMI_ID=$(aws ec2 create-image --instance-id $INSTANCE_ID --name "chatwoot-base-ami" --description "Base AMI for Chatwoot application" --no-reboot --query 'ImageId' --output text)
