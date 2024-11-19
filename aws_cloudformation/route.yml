@@ -52,7 +52,7 @@ Resources:
       Type: 'A'
       TTL: '60'  # Set TTL to 60 seconds
       ResourceRecords: 
-        - !ImportValue SumoChatwootStack-SumoChatwootProdInstancePublicIP
+        - !ImportValue SumoChatwootStack-SumoChatwootProdInstanceIP
       # AliasTarget: 
       #   DNSName: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerDNSName
       #   HostedZoneId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
@@ -65,7 +65,7 @@ Resources:
       Type: 'A'
       TTL: '60'  # Set TTL to 60 seconds
       ResourceRecords: 
-        - !ImportValue SumoChatwootStack-SumoChatwootDevInstancePublicIP
+        - !ImportValue SumoChatwootStack-SumoChatwootDevInstanceIP
       # AliasTarget: 
       #   DNSName: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerDNSName
       #   HostedZoneId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId

@@ -133,13 +133,13 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-          # SumoChatwootProdInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootProdInstancePublicIP'].OutputValue" --output text)
-          # echo "EC2_IP=${SumoChatwootProdInstancePublicIP}" >> $GITHUB_ENV
+          # SumoChatwootProdInstanceIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootProdInstanceIP'].OutputValue" --output text)
+          # echo "SumoChatwootInstanceIP=${SumoChatwootProdInstanceIP}" >> $GITHUB_ENV
           # SumoChatwootProdInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootProdInstanceId'].OutputValue" --output text)
           # echo "EC2_ID=${SumoChatwootProdInstanceId}" >> $GITHUB_ENV
 
-          SumoChatwootDevInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevInstancePublicIP'].OutputValue" --output text)
-          echo "EC2_IP=${SumoChatwootDevInstancePublicIP}" >> $GITHUB_ENV
+          SumoChatwootDevInstanceIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevInstanceIP'].OutputValue" --output text)
+          echo "SumoChatwootInstanceIP=${SumoChatwootDevInstanceIP}" >> $GITHUB_ENV
           SumoChatwootDevInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevInstanceId'].OutputValue" --output text)
           echo "EC2_ID=${SumoChatwootDevInstanceId}" >> $GITHUB_ENV
           
@@ -159,16 +159,16 @@ jobs:
           echo "Wait for creating chat.sumoscheduler.com record"
           sleep 60
 
-      - name: Upload Source Code to public instance
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ env.EC2_IP }}
-          username: ubuntu
-          key: ${{ secrets.SSH_KEY }}
-          overwrite: true
-          timeout: 150s
-          source: './*'
-          target: '/home/ubuntu/chatwoot'
+      # - name: Upload Source Code to public instance
+      #   uses: appleboy/scp-action@v0.1.7
+      #   with:
+      #     host: ${{ env.EC2_IP }}
+      #     username: ubuntu
+      #     key: ${{ secrets.SSH_KEY }}
+      #     overwrite: true
+      #     timeout: 150s
+      #     source: './*'
+      #     target: '/home/ubuntu/chatwoot'
 
       - name: Upload Source Code to Bastion-A
         uses: appleboy/scp-action@v0.1.7
@@ -177,6 +177,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           overwrite: true
+          timeout: 150s
           source: './*'
           target: '/home/ubuntu/chatwoot'
 
@@ -191,20 +192,20 @@ jobs:
             echo "${{ secrets.SSH_KEY }}" > ${{ secrets.KEY_NAME }}.pem
             chmod 600 ${{ secrets.KEY_NAME }}.pem
 
-            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.SumoChatwootInstancePrivateIP }} << 'EOF'
+            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.SumoChatwootInstanceIP }} << 'EOF'
             sudo rm -rf /home/ubuntu/chatwoot
             EOF
 
-            scp -i ${{ secrets.KEY_NAME }}.pem -r /home/ubuntu/chatwoot ubuntu@${{ env.SumoChatwootInstancePrivateIP }}:/home/ubuntu
+            scp -i ${{ secrets.KEY_NAME }}.pem -r /home/ubuntu/chatwoot ubuntu@${{ env.SumoChatwootInstanceIP }}:/home/ubuntu
 
-      - name: Install Chatwoot in public instance
+      - name: Install Chatwoot in instance
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ env.SumoChatwootBastionHostAPublicIP }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.SumoChatwootInstancePrivateIP }} << 'EOT'
+            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.SumoChatwootInstanceIP }} << 'EOT'
 
             if ! id -u "chatwoot"; then
               sudo adduser --disabled-password --gecos "" chatwoot

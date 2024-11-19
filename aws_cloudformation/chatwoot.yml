@@ -28,7 +28,7 @@ Resources:
       NetworkInterfaces:
         - AssociatePublicIpAddress: false
           DeviceIndex: 0
-          SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet1Id
+          SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet1Id
           GroupSet:
             - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
       UserData:
@@ -58,7 +58,7 @@ Resources:
       NetworkInterfaces:
         - AssociatePublicIpAddress: false
           DeviceIndex: 0
-          SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet1Id
+          SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet1Id
           GroupSet:
             - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
       UserData:
@@ -75,11 +75,17 @@ Outputs:
     Export:
       Name: SumoChatwootStack-SumoChatwootProdInstanceId
 
-  SumoChatwootProdInstancePublicIP:
+  # SumoChatwootProdInstanceIP:
+  #   Description: 'Public IP address of the Chatwoot EC2 instance'
+  #   Value: !GetAtt SumoChatwootProdInstance.PublicIp    
+  #   Export:
+  #     Name: SumoChatwootStack-SumoChatwootProdInstanceIP
+
+  SumoChatwootProdInstanceIP:
     Description: 'Public IP address of the Chatwoot EC2 instance'
-    Value: !GetAtt SumoChatwootProdInstance.PublicIp    
+    Value: !GetAtt SumoChatwootProdInstance.PrivateIp    
     Export:
-      Name: SumoChatwootStack-SumoChatwootProdInstancePublicIP
+      Name: SumoChatwootStack-SumoChatwootProdInstanceIP
 
   SumoChatwootDevInstanceId:
     Description: 'The ID of the Chatwoot EC2 instance'
@@ -87,8 +93,14 @@ Outputs:
     Export:
       Name: SumoChatwootStack-SumoChatwootDevInstanceId
 
-  SumoChatwootDevInstancePublicIP:
+  # SumoChatwootDevInstanceIP:
+  #   Description: 'Public IP address of the Chatwoot EC2 instance'
+  #   Value: !GetAtt SumoChatwootDevInstance.PublicIp    
+  #   Export:
+  #     Name: SumoChatwootStack-SumoChatwootDevInstanceIP
+
+  SumoChatwootDevInstanceIP:
     Description: 'Public IP address of the Chatwoot EC2 instance'
-    Value: !GetAtt SumoChatwootDevInstance.PublicIp    
+    Value: !GetAtt SumoChatwootDevInstance.PrivateIp    
     Export:
-      Name: SumoChatwootStack-SumoChatwootDevInstancePublicIP
+      Name: SumoChatwootStack-SumoChatwootDevInstanceIP
