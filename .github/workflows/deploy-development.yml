@@ -137,8 +137,8 @@ jobs:
 
           # SumoChatwootProdInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootProdInstanceId'].OutputValue" --output text)
           # echo "EC2_ID=${SumoChatwootProdInstanceId}" >> $GITHUB_ENV
-          echo "Start instance: ${SumoChatwootProdInstanceId}"
-          aws ec2 start-instances --instance-ids ${SumoChatwootProdInstanceId}
+          # echo "Start instance: ${SumoChatwootProdInstanceId}"
+          # aws ec2 start-instances --instance-ids ${SumoChatwootProdInstanceId}
 
           SumoChatwootDevInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevInstanceId'].OutputValue" --output text)
           echo "EC2_ID=${SumoChatwootDevInstanceId}" >> $GITHUB_ENV
