@@ -347,7 +347,7 @@ function setup_chatwoot() {
   bundle
   pnpm i
 
-  cp .env.example .env
+  cp -f .env.example .env
   sed -i -e "/SECRET_KEY_BASE/ s/=.*/=$secret/" .env
   sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/localhost:6379/' .env
   sed -i -e '/POSTGRES_HOST/ s/=.*/=localhost/' .env
@@ -386,12 +386,12 @@ EOF
 #   None
 ##############################################################################
 function configure_systemd_services() {
-  cp /home/chatwoot/chatwoot/deployment/chatwoot-web.1.service /etc/systemd/system/chatwoot-web.1.service
-  cp /home/chatwoot/chatwoot/deployment/chatwoot-worker.1.service /etc/systemd/system/chatwoot-worker.1.service
-  cp /home/chatwoot/chatwoot/deployment/chatwoot.target /etc/systemd/system/chatwoot.target
+  sudo cp -f /home/chatwoot/chatwoot/deployment/chatwoot-web.1.service /etc/systemd/system/chatwoot-web.1.service
+  sudo cp -f /home/chatwoot/chatwoot/deployment/chatwoot-worker.1.service /etc/systemd/system/chatwoot-worker.1.service
+  sudo cp -f /home/chatwoot/chatwoot/deployment/chatwoot.target /etc/systemd/system/chatwoot.target
 
-  cp /home/chatwoot/chatwoot/deployment/chatwoot /etc/sudoers.d/chatwoot
-  cp /home/chatwoot/chatwoot/deployment/setup_20.04.sh /usr/local/bin/cwctl
+  sudo cp -f /home/chatwoot/chatwoot/deployment/chatwoot /etc/sudoers.d/chatwoot
+  sudo cp -f /home/chatwoot/chatwoot/deployment/setup_20.04.sh /usr/local/bin/cwctl
   chmod +x /usr/local/bin/cwctl
 
   systemctl enable chatwoot.target
@@ -425,7 +425,7 @@ function setup_ssl() {
   fi
 
   # wget https://raw.githubusercontent.com/chatwoot/chatwoot/develop/deployment/nginx_chatwoot.conf
-  sudo cp /home/ubuntu/chatwoot/deployment/nginx_chatwoot.conf /etc/nginx/sites-available/nginx_chatwoot.conf
+  sudo cp -f /home/ubuntu/chatwoot/deployment/nginx_chatwoot.conf /etc/nginx/sites-available/nginx_chatwoot.conf
   sudo sed -i "s/chatwoot.domain.com/$domain_name/g" /etc/nginx/sites-available/nginx_chatwoot.conf
 
   sudo certbot certonly --non-interactive --agree-tos --nginx -m "$le_email" -d "$domain_name"
@@ -875,11 +875,11 @@ function upgrade() {
 EOF
 
   # Copy the updated targets
-  cp /home/chatwoot/chatwoot/deployment/chatwoot-web.1.service /etc/systemd/system/chatwoot-web.1.service
-  cp /home/chatwoot/chatwoot/deployment/chatwoot-worker.1.service /etc/systemd/system/chatwoot-worker.1.service
-  cp /home/chatwoot/chatwoot/deployment/chatwoot.target /etc/systemd/system/chatwoot.target
+  sudo cp -f /home/chatwoot/chatwoot/deployment/chatwoot-web.1.service /etc/systemd/system/chatwoot-web.1.service
+  sudo cp -f /home/chatwoot/chatwoot/deployment/chatwoot-worker.1.service /etc/systemd/system/chatwoot-worker.1.service
+  sudo cp -f /home/chatwoot/chatwoot/deployment/chatwoot.target /etc/systemd/system/chatwoot.target
 
-  cp /home/chatwoot/chatwoot/deployment/chatwoot /etc/sudoers.d/chatwoot
+  sudo cp -f /home/chatwoot/chatwoot/deployment/chatwoot /etc/sudoers.d/chatwoot
   # TODO:(@vn) handle cwctl updates
 
   systemctl daemon-reload
