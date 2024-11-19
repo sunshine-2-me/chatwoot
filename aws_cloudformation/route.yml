@@ -50,9 +50,13 @@ Resources:
       HostedZoneId: !Ref HostedZoneId
       Name: !Ref ProdDomainName
       Type: 'A'
-      TTL: '60'  # Set TTL to 300 seconds
-      ResourceRecords: 
-        - !ImportValue SumoChatwootStack-SumoChatwootProdInstancePublicIP
+      # TTL: '60'  # Set TTL to 60 seconds
+      # ResourceRecords: 
+      #   - !ImportValue SumoChatwootStack-SumoChatwootProdInstancePublicIP
+      AliasTarget: 
+        DNSName: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerDNSName
+        EvaluateTargetHealth: false
+        HostedZoneId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
 
   SumoChatwootDevDNSRecord:
     Type: 'AWS::Route53::RecordSet'
@@ -60,9 +64,13 @@ Resources:
       HostedZoneId: !Ref HostedZoneId
       Name: !Ref DevDomainName
       Type: 'A'
-      TTL: '60'  # Set TTL to 300 seconds
-      ResourceRecords: 
-        - !ImportValue SumoChatwootStack-SumoChatwootDevInstancePublicIP
+      # TTL: '60'  # Set TTL to 60 seconds
+      # ResourceRecords: 
+      #   - !ImportValue SumoChatwootStack-SumoChatwootDevInstancePublicIP
+      AliasTarget: 
+        DNSName: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerDNSName
+        EvaluateTargetHealth: false
+        HostedZoneId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
 
   # SumoChatwootRoute53HostedZone1:
   #   Type: 'AWS::Route53::HostedZone'

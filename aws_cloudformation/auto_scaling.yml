@@ -41,6 +41,7 @@ Resources:
     Properties:
       VPCZoneIdentifier: 
         - !ImportValue  SumoChatwootStack-SumoChatwootPublicSubnet1Id
+        - !ImportValue  SumoChatwootStack-SumoChatwootPublicSubnet2Id
       LaunchTemplate:
         LaunchTemplateId: !Ref SumoChatwootChatwootLaunchTemplate
         Version: !GetAtt SumoChatwootChatwootLaunchTemplate.LatestVersionNumber
