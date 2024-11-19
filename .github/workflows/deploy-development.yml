@@ -250,7 +250,7 @@ jobs:
         run: |
           TARGET_GROUP_ARN=${{ env.TARGET_GROUP_ARN }}
           INSTANCE_ID=${{ env.EC2_ID }}
-          aws elbv3 register-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=$INSTANCE_ID
+          aws elbv2 register-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=$INSTANCE_ID
 
       - name: Create the AMI
         run: |
