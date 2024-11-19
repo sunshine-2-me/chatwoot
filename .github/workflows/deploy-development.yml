@@ -220,7 +220,7 @@ jobs:
           
           # Retrieve existing AMIs with a similar name
           BASE_AMI_NAME="chatwoot-base-ami"
-          existing_ami_id=$(aws ec2 describe-images --owners self --filters "Name=name,Values=BASE_AMI_NAME" --query 'Images[0].Name' --output text)
+          existing_ami_id=$(aws ec2 describe-images --owners self --filters "Name=name,Values=$BASE_AMI_NAME" --query 'Images[0].Name' --output text)
 
           if [ "$existing_ami_id" != "None" ]; then
             echo "Found existing AMI with ID: $existing_ami_id. Deregistering..."
