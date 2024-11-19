@@ -231,6 +231,7 @@ jobs:
             --stack-name $STACK_NAME \
             --parameter-overrides \
               ChatwootAMI=${{ env.AMI_ID }} \
+              KeyPairName=${{ secrets.KEY_NAME }} \
             --capabilities CAPABILITY_NAMED_IAM
 
       # - name: Post-deployment script
