@@ -135,6 +135,12 @@ jobs:
           SumoChatwootDevInstancePublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevInstancePublicIP'].OutputValue" --output text)
           echo "EC2_IP=${SumoChatwootDevInstancePublicIP}" >> $GITHUB_ENV
 
+          # SumoChatwootProdInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootProdInstanceId'].OutputValue" --output text)
+          # echo "EC2_ID=${SumoChatwootProdInstanceId}" >> $GITHUB_ENV
+
+          SumoChatwootDevInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevInstanceId'].OutputValue" --output text)
+          echo "EC2_ID=${SumoChatwootDevInstanceId}" >> $GITHUB_ENV
+
       - name: Deploy Route53
         run: |
           STACK_NAME=sumo-chatwoot-route-stack
@@ -245,7 +251,7 @@ jobs:
           echo "AMI created with ID: $AMI_ID"
           echo "AMI_ID=${AMI_ID}" >> $GITHUB_ENV
 
-      - name: Auto scaling
+      - name: Auto scaling and terminate earlier instance.
         run: |
           STACK_NAME=sumo-chatwoot-auto-scaling-stack
           aws cloudformation deploy \
@@ -259,6 +265,9 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
           
+          echo "Terminate instance: ${{ env.EC2_ID }}"
+          aws ec2 terminate-instances --instance-ids ${{ env.EC2_ID }}
+
       # - name: Post-deployment script
       #   run: |
       #     echo "Deployment complete!"
