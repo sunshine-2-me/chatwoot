@@ -55,7 +55,6 @@ Resources:
       #   - !ImportValue SumoChatwootStack-SumoChatwootProdInstancePublicIP
       AliasTarget: 
         DNSName: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerDNSName
-        EvaluateTargetHealth: false
         HostedZoneId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
 
   SumoChatwootDevDNSRecord:
@@ -69,7 +68,6 @@ Resources:
       #   - !ImportValue SumoChatwootStack-SumoChatwootDevInstancePublicIP
       AliasTarget: 
         DNSName: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerDNSName
-        EvaluateTargetHealth: false
         HostedZoneId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
 
   # SumoChatwootRoute53HostedZone1:
