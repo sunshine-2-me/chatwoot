@@ -134,12 +134,12 @@ jobs:
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
           # SumoChatwootProdInstanceIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootProdInstanceIP'].OutputValue" --output text)
-          # echo "SumoChatwootInstanceIP=${SumoChatwootProdInstanceIP}" >> $GITHUB_ENV
+          # echo "EC2_IP=${SumoChatwootProdInstanceIP}" >> $GITHUB_ENV
           # SumoChatwootProdInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootProdInstanceId'].OutputValue" --output text)
           # echo "EC2_ID=${SumoChatwootProdInstanceId}" >> $GITHUB_ENV
 
           SumoChatwootDevInstanceIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevInstanceIP'].OutputValue" --output text)
-          echo "SumoChatwootInstanceIP=${SumoChatwootDevInstanceIP}" >> $GITHUB_ENV
+          echo "EC2_IP=${SumoChatwootDevInstanceIP}" >> $GITHUB_ENV
           SumoChatwootDevInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevInstanceId'].OutputValue" --output text)
           echo "EC2_ID=${SumoChatwootDevInstanceId}" >> $GITHUB_ENV
           
@@ -192,11 +192,11 @@ jobs:
             echo "${{ secrets.SSH_KEY }}" > ${{ secrets.KEY_NAME }}.pem
             chmod 600 ${{ secrets.KEY_NAME }}.pem
 
-            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.SumoChatwootInstanceIP }} << 'EOF'
+            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.EC2_IP }} << 'EOF'
             sudo rm -rf /home/ubuntu/chatwoot
             EOF
 
-            scp -i ${{ secrets.KEY_NAME }}.pem -r /home/ubuntu/chatwoot ubuntu@${{ env.SumoChatwootInstanceIP }}:/home/ubuntu
+            scp -i ${{ secrets.KEY_NAME }}.pem -r /home/ubuntu/chatwoot ubuntu@${{ env.EC2_IP }}:/home/ubuntu
 
       - name: Install Chatwoot in instance
         uses: appleboy/ssh-action@v1.1.0
@@ -205,7 +205,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.SumoChatwootInstanceIP }} << 'EOT'
+            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.EC2_IP }} << 'EOT'
 
             if ! id -u "chatwoot"; then
               sudo adduser --disabled-password --gecos "" chatwoot
@@ -246,10 +246,11 @@ jobs:
             EOF
 
             EOT
-
-            TARGET_GROUP_ARN=${{ env.TARGET_GROUP_ARN }}
-            INSTANCE_ID=${{ env.EC2_ID }}
-            aws elbv3 register-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=$INSTANCE_ID
+      - name: Add instance to the target group attached to the alb
+        run: |
+          TARGET_GROUP_ARN=${{ env.TARGET_GROUP_ARN }}
+          INSTANCE_ID=${{ env.EC2_ID }}
+          aws elbv3 register-targets --target-group-arn $TARGET_GROUP_ARN --targets Id=$INSTANCE_ID
 
       - name: Create the AMI
         run: |
