@@ -6,10 +6,10 @@ Parameters:
     Description: 'The ID of the existing Route 53 hosted zone'
     Type: 'AWS::Route53::HostedZone::Id'
 
-  DomainName:
-    Description: 'The subdomain for the A record (e.g., chat.sumoscheduler.com)'
-    Type: 'String'
-    Default: 'sumoscheduler.com'
+  # DomainName:
+  #   Description: 'The subdomain for the A record (e.g., chat.sumoscheduler.com)'
+  #   Type: 'String'
+  #   Default: 'sumoscheduler.com'
 
   ProdDomainName:
     Description: 'The fully qualified domain name for the DNS record (e.g., chat.sumoscheduler.com)'
@@ -26,49 +26,49 @@ Parameters:
   #   Type: 'String'
   #   Default: 'chatting'
 
-  Region:
-    Description: 'The region'
-    Type: 'String'
-    Default: 'us-east-1'
+  # Region:
+  #   Description: 'The region'
+  #   Type: 'String'
+  #   Default: 'us-east-1'
 
 Resources:
-  # Create a Route 53 Hosted Zone
-  SumoChatwootRoute53HostedZone:
-    Type: 'AWS::Route53::HostedZone'
-    Properties:
-      Name: !Ref DomainName
-      VPCs:
-        - VPCId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
-          VPCRegion: !Ref Region
-      HostedZoneConfig:
-        Comment: 'Private hosted zone for sumoscheduler.com'
+  # # Create a Route 53 Hosted Zone
+  # SumoChatwootRoute53HostedZone:
+  #   Type: 'AWS::Route53::HostedZone'
+  #   Properties:
+  #     Name: !Ref DomainName
+  #     VPCs:
+  #       - VPCId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
+  #         VPCRegion: !Ref Region
+  #     HostedZoneConfig:
+  #       Comment: 'Private hosted zone for sumoscheduler.com'
 
   # Create an A Record in the Hosted Zone
   SumoChatwootProdDNSRecord:
     Type: 'AWS::Route53::RecordSet'
     Properties:
-      HostedZoneId: !Ref SumoChatwootRoute53HostedZone
+      HostedZoneId: !Ref HostedZoneId
       Name: !Ref ProdDomainName
       Type: 'A'
-      TTL: '60'  # Set TTL to 60 seconds
-      ResourceRecords: 
-        - !ImportValue SumoChatwootStack-SumoChatwootProdInstanceIP
-      # AliasTarget: 
-      #   DNSName: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerDNSName
-      #   HostedZoneId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
+      # TTL: '60'  # Set TTL to 60 seconds
+      # ResourceRecords: 
+      #   - !ImportValue SumoChatwootStack-SumoChatwootProdInstanceIP
+      AliasTarget: 
+        DNSName: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerDNSName
+        HostedZoneId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
 
   SumoChatwootDevDNSRecord:
     Type: 'AWS::Route53::RecordSet'
     Properties:
-      HostedZoneId: !Ref SumoChatwootRoute53HostedZone
+      HostedZoneId: !Ref HostedZoneId
       Name: !Ref DevDomainName
       Type: 'A'
-      TTL: '60'  # Set TTL to 60 seconds
-      ResourceRecords: 
-        - !ImportValue SumoChatwootStack-SumoChatwootDevInstanceIP
-      # AliasTarget: 
-      #   DNSName: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerDNSName
-      #   HostedZoneId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
+      # TTL: '60'  # Set TTL to 60 seconds
+      # ResourceRecords: 
+      #   - !ImportValue SumoChatwootStack-SumoChatwootDevInstanceIP
+      AliasTarget: 
+        DNSName: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerDNSName
+        HostedZoneId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
 
   # SumoChatwootRoute53HostedZone1:
   #   Type: 'AWS::Route53::HostedZone'
