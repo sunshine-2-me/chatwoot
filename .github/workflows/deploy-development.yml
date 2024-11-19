@@ -114,11 +114,11 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-          # SumoChatwootBastionHostAPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostAPublicIP'].OutputValue" --output text)
-          # echo "SumoChatwootBastionHostAPublicIP=${SumoChatwootBastionHostAPublicIP}" >> $GITHUB_ENV
+          SumoChatwootBastionHostAPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostAPublicIP'].OutputValue" --output text)
+          echo "SumoChatwootBastionHostAPublicIP=${SumoChatwootBastionHostAPublicIP}" >> $GITHUB_ENV
 
-          # SumoChatwootBastionHostBPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostBPublicIP'].OutputValue" --output text)
-          # echo "SumoChatwootBastionHostBPublicIP=${SumoChatwootBastionHostBPublicIP}" >> $GITHUB_ENV
+          SumoChatwootBastionHostBPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostBPublicIP'].OutputValue" --output text)
+          echo "SumoChatwootBastionHostBPublicIP=${SumoChatwootBastionHostBPublicIP}" >> $GITHUB_ENV
 
       - name: Chatwoot EC2-Cloudformation
         run: |
@@ -170,13 +170,42 @@ jobs:
           source: './*'
           target: '/home/ubuntu/chatwoot'
 
-      - name: Install Chatwoot in public instance
+      - name: Upload Source Code to Bastion-A
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ env.SumoChatwootBastionHostAPublicIP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          overwrite: true
+          source: './*'
+          target: '/home/ubuntu/chatwoot'
+
+      - name: Upload ssh key to Bastion-A
         uses: appleboy/ssh-action@v1.1.0
         with:
-          host: ${{ env.EC2_IP }}
+          host: ${{ env.SumoChatwootBastionHostAPublicIP }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
+            cd /home/ubuntu
+            echo "${{ secrets.SSH_KEY }}" > ${{ secrets.KEY_NAME }}.pem
+            chmod 600 ${{ secrets.KEY_NAME }}.pem
+
+            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.SumoChatwootInstancePrivateIP }} << 'EOF'
+            sudo rm -rf /home/ubuntu/chatwoot
+            EOF
+
+            scp -i ${{ secrets.KEY_NAME }}.pem -r /home/ubuntu/chatwoot ubuntu@${{ env.SumoChatwootInstancePrivateIP }}:/home/ubuntu
+
+      - name: Install Chatwoot in public instance
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ env.SumoChatwootBastionHostAPublicIP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.SumoChatwootInstancePrivateIP }} << 'EOT'
+
             if ! id -u "chatwoot"; then
               sudo adduser --disabled-password --gecos "" chatwoot
             fi
@@ -214,6 +243,8 @@ jobs:
             RAILS_ENV=production bundle exec rake db:prepare
             sudo cwctl --restart
             EOF
+
+            EOT
 
             TARGET_GROUP_ARN=${{ env.TARGET_GROUP_ARN }}
             INSTANCE_ID=${{ env.EC2_ID }}
