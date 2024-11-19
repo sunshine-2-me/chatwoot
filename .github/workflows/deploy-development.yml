@@ -161,6 +161,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           overwrite: true
+          timeout: 150s
           source: './*'
           target: '/home/ubuntu/chatwoot'
 
