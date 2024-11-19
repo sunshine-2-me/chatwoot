@@ -131,6 +131,8 @@ jobs:
           aws cloudformation deploy \
             --template-file aws_cloudformation/route.yml \
             --stack-name $STACK_NAME \
+            --parameter-overrides \
+              HostedZoneId=${{ secrets.ROUTE_HZ_ID }} \
             --capabilities CAPABILITY_NAMED_IAM
 
           echo "CloudFormation Outputs:"

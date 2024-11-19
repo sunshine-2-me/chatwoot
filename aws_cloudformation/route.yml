@@ -2,73 +2,77 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'CloudFormation template to create a Route 53 hosted zone and an A record'
 
 Parameters:
+  HostedZoneId:
+    Description: 'The ID of the existing Route 53 hosted zone'
+    Type: 'AWS::Route53::HostedZone::Id'
+
   DomainName:
-    Description: 'The domain name for which the hosted zone will be created (e.g., sumoscheduler.com)'
+    Description: 'The fully qualified domain name for the DNS record (e.g., chat.sumoscheduler.com)'
     Type: 'String'
-    Default: 'sumoscheduler.com'
+    Default: 'chat.sumoscheduler.com'
 
-  SubdomainName:
-    Description: 'The subdomain for the A record (e.g., chat.sumoscheduler.com)'
-    Type: 'String'
-    Default: 'chat'
+  # SubdomainName:
+  #   Description: 'The subdomain for the A record (e.g., chat.sumoscheduler.com)'
+  #   Type: 'String'
+  #   Default: 'chat'
 
-  SubdomainName1:
-    Description: 'The subdomain for the A record (e.g., chat.sumoscheduler.com)'
-    Type: 'String'
-    Default: 'chatting'
+  # SubdomainName1:
+  #   Description: 'The subdomain for the A record (e.g., chat.sumoscheduler.com)'
+  #   Type: 'String'
+  #   Default: 'chatting'
 
-  Region:
-    Description: 'The region'
-    Type: 'String'
-    Default: 'us-east-1'
+  # Region:
+  #   Description: 'The region'
+  #   Type: 'String'
+  #   Default: 'us-east-1'
 
 Resources:
   # Create a Route 53 Hosted Zone
-  SumoChatwootRoute53HostedZone:
-    Type: 'AWS::Route53::HostedZone'
-    Properties:
-      Name: !Ref DomainName
-      VPCs:
-        - VPCId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
-          VPCRegion: !Ref Region
-      HostedZoneConfig:
-        Comment: 'Private hosted zone for sumoscheduler.com'
+  # SumoChatwootRoute53HostedZone:
+  #   Type: 'AWS::Route53::HostedZone'
+  #   Properties:
+  #     Name: !Ref DomainName
+  #     VPCs:
+  #       - VPCId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
+  #         VPCRegion: !Ref Region
+  #     HostedZoneConfig:
+  #       Comment: 'Private hosted zone for sumoscheduler.com'
 
   # Create an A Record in the Hosted Zone
   SumoChatwootDNSRecord:
     Type: 'AWS::Route53::RecordSet'
     Properties:
-      HostedZoneId: !Ref SumoChatwootRoute53HostedZone
-      Name: !Sub "${SubdomainName}.${DomainName}"
-      Type: 'A'
-      TTL: '300'  # Set TTL to 300 seconds
-      ResourceRecords: 
-        - !ImportValue SumoChatwootStack-SumoChatwootInstancePrivateIP
-
-  SumoChatwootRoute53HostedZone1:
-    Type: 'AWS::Route53::HostedZone'
-    Properties:
+      HostedZoneId: !Ref HostedZoneId
       Name: !Ref DomainName
-      HostedZoneConfig:
-        Comment: Public hosted zone for sumoscheduler.com
-
-  SumoChatwootPublicDNSRecord:
-    Type: 'AWS::Route53::RecordSet'
-    Properties:
-      HostedZoneId: !Ref SumoChatwootRoute53HostedZone1
-      Name: !Sub "${SubdomainName1}.${DomainName}"
       Type: 'A'
       TTL: '300'  # Set TTL to 300 seconds
       ResourceRecords: 
         - !ImportValue SumoChatwootStack-SumoChatwootPublicInstancePublicIP
 
+  # SumoChatwootRoute53HostedZone1:
+  #   Type: 'AWS::Route53::HostedZone'
+  #   Properties:
+  #     Name: !Ref DomainName
+  #     HostedZoneConfig:
+  #       Comment: Public hosted zone for sumoscheduler.com
+
+  # SumoChatwootPublicDNSRecord:
+  #   Type: 'AWS::Route53::RecordSet'
+  #   Properties:
+  #     HostedZoneId: !Ref SumoChatwootRoute53HostedZone1
+  #     Name: !Sub "${SubdomainName1}.${DomainName}"
+  #     Type: 'A'
+  #     TTL: '300'  # Set TTL to 300 seconds
+  #     ResourceRecords: 
+  #       - !ImportValue SumoChatwootStack-SumoChatwootPublicInstancePublicIP
+
 Outputs:
-  HostedZoneId:
-    Description: 'The ID of the hosted zone created'
-    Value: !Ref SumoChatwootRoute53HostedZone
+  # HostedZoneId:
+  #   Description: 'The ID of the hosted zone created'
+  #   Value: !Ref SumoChatwootRoute53HostedZone
 
   RecordSetName:
     Description: 'The name of the DNS record set created'
-    Value: !Sub "${SubdomainName}.${DomainName}"
+    Value: !Ref DomainName
 
   
