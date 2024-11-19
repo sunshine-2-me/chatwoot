@@ -1,8 +1,8 @@
 name: Deploy Sumo Chatwoot Infrastructure for Development
 
 on:
-  # push:
-  pull_request:
+  push:
+  # pull_request:
     branches:
       - develop
 
