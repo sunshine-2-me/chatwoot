@@ -137,12 +137,13 @@ jobs:
 
           # SumoChatwootProdInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootProdInstanceId'].OutputValue" --output text)
           # echo "EC2_ID=${SumoChatwootProdInstanceId}" >> $GITHUB_ENV
+          echo "Start instance: $SumoChatwootProdInstanceId"
+          aws ec2 start-instances --instance-ids $SumoChatwootProdInstanceId
 
           SumoChatwootDevInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevInstanceId'].OutputValue" --output text)
           echo "EC2_ID=${SumoChatwootDevInstanceId}" >> $GITHUB_ENV
-
-          echo "Start instance: ${{ env.EC2_ID }}"
-          aws ec2 start-instances --instance-ids ${{ env.EC2_ID }}
+          echo "Start instance: $SumoChatwootDevInstanceId"
+          aws ec2 start-instances --instance-ids $SumoChatwootDevInstanceId
           
       - name: Route53-Cloudformation
         run: |
