@@ -156,7 +156,7 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-          echo "Wait for creating chat.sumoscheduler.com record"
+          echo "Wait for creating domain"
           sleep 60
 
       # - name: Upload Source Code to public instance
@@ -221,6 +221,16 @@ jobs:
 
             sudo cp -ri /home/ubuntu/chatwoot /home/chatwoot
             sudo chown -R chatwoot:chatwoot /home/chatwoot/chatwoot
+
+            EOT
+      - name: Install Chatwoot in Chatwoot EC2
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ env.SumoChatwootBastionHostAPublicIP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.EC2_IP }} << 'EOT'
 
             POSTGRES_HOST=${{ env.POSTGRES_HOST }}
             POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
