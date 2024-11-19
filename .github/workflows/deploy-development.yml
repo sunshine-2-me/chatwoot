@@ -36,7 +36,7 @@ jobs:
           aws cloudformation validate-template \
             --template-body file://aws_cloudformation/chatwoot.yml
       
-      - name: Deploy Network Cloudformation
+      - name: Network-Cloudformation
         run: |
           STACK_NAME=sumo-chatwoot-network-stack
           aws cloudformation deploy \
@@ -47,7 +47,7 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-      - name: Deploy Application Load Balancer Cloudformation
+      - name: Application Load Balancer-Cloudformation
         run: |
           STACK_NAME=sumo-chatwoot-alb-stack
           aws cloudformation deploy \
@@ -60,7 +60,7 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-      - name: Deploy Postgresql
+      - name: Postgresql-Cloudformation
         run: |
           STACK_NAME=sumo-chatwoot-postgre-stack
           aws cloudformation deploy \
@@ -80,7 +80,7 @@ jobs:
           SumoChatwootDevRDSInstanceEndpoint=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevRDSInstanceEndpoint'].OutputValue" --output text)
           echo "POSTGRES_HOST=${SumoChatwootDevRDSInstanceEndpoint}" >> $GITHUB_ENV
 
-      - name: Deploy Redis
+      - name: Redis-Cloudformation
         run: |
           STACK_NAME=sumo-chatwoot-redis-stack
           aws cloudformation deploy \
@@ -97,7 +97,7 @@ jobs:
           SumoChatwootDevRedisEndpointAddress=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevRedisEndpointAddress'].OutputValue" --output text)
           echo "REDIS_HOST=${SumoChatwootDevRedisEndpointAddress}" >> $GITHUB_ENV
 
-      - name: Deploy Bastion
+      - name: Bastion-Cloudformation
         run: |
           STACK_NAME=sumo-chatwoot-bastion-stack
           aws cloudformation deploy \
@@ -116,7 +116,7 @@ jobs:
           # SumoChatwootBastionHostBPublicIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootBastionHostBPublicIP'].OutputValue" --output text)
           # echo "SumoChatwootBastionHostBPublicIP=${SumoChatwootBastionHostBPublicIP}" >> $GITHUB_ENV
 
-      - name: Deploy Chatwoot EC2
+      - name: Chatwoot EC2-Cloudformation
         run: |
           STACK_NAME=sumo-chatwoot-instance-stack
           aws cloudformation deploy \
@@ -141,7 +141,10 @@ jobs:
           SumoChatwootDevInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootDevInstanceId'].OutputValue" --output text)
           echo "EC2_ID=${SumoChatwootDevInstanceId}" >> $GITHUB_ENV
 
-      - name: Deploy Route53
+          echo "Start instance: ${{ env.EC2_ID }}"
+          aws ec2 start-instances --instance-ids ${{ env.EC2_ID }}
+          
+      - name: Route53-Cloudformation
         run: |
           STACK_NAME=sumo-chatwoot-route-stack
           aws cloudformation deploy \
@@ -165,7 +168,7 @@ jobs:
           source: './*'
           target: '/home/ubuntu/chatwoot'
 
-      - name: Create chatwoot user to public instance
+      - name: Install Chatwoot in public instance
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ env.EC2_IP }}
@@ -187,13 +190,6 @@ jobs:
             sudo cp -ri /home/ubuntu/chatwoot /home/chatwoot
             sudo chown -R chatwoot:chatwoot /home/chatwoot/chatwoot
 
-      - name: Install Chatwoot in public instance
-        uses: appleboy/ssh-action@v1.1.0
-        with:
-          host: ${{ env.EC2_IP }}
-          username: ubuntu
-          key: ${{ secrets.SSH_KEY }}
-          script: |
             POSTGRES_HOST=${{ env.POSTGRES_HOST }}
             POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
             POSTGRES_PASSWORD=${{ secrets.RDS_MASTER_PASSWORD }}
@@ -252,7 +248,7 @@ jobs:
           echo "AMI created with ID: $AMI_ID"
           echo "AMI_ID=${AMI_ID}" >> $GITHUB_ENV
 
-      - name: Auto scaling and terminate earlier instance.
+      - name: Auto Scaling-Cloudformation
         run: |
           STACK_NAME=sumo-chatwoot-auto-scaling-stack
           aws cloudformation deploy \
@@ -266,8 +262,8 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
           
-          echo "Terminate instance: ${{ env.EC2_ID }}"
-          aws ec2 terminate-instances --instance-ids ${{ env.EC2_ID }}
+          echo "Stop instance: ${{ env.EC2_ID }}"
+          aws ec2 stop-instances --instance-ids ${{ env.EC2_ID }}
 
       # - name: Post-deployment script
       #   run: |
