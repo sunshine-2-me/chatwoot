@@ -20,7 +20,7 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-bastion-sg
+          Value: sumo-chatwoot-bastion-sg-prod
 
   # Bastion Host in Public Subnet 1
   SumoChatwootBastionHostA:
@@ -34,7 +34,7 @@ Resources:
         - !Ref SumoChatwootBastionSecurityGroup
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-bastion-a
+          Value: sumo-chatwoot-bastion-a-prod
 
   # Bastion Host in Public Subnet 2
   SumoChatwootBastionHostB:
@@ -48,7 +48,7 @@ Resources:
         - !Ref SumoChatwootBastionSecurityGroup
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-bastion-b
+          Value: sumo-chatwoot-bastion-b-prod
 
 Outputs:
   SumoChatwootBastionHostAPublicIP:

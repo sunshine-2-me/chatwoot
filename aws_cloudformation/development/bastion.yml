@@ -1,0 +1,64 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for setting up Bastion Hosts'
+
+Parameters:
+  KeyPairName:
+    Description: 'Name of an existing EC2 KeyPair to enable SSH access to the instances'
+    Type: 'AWS::EC2::KeyPair::KeyName'
+
+Resources:
+  # Security Group for Bastion Hosts
+  SumoChatwootBastionSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
+      GroupDescription: Security group for Bastion hosts
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-bastion-sg-dev
+
+  # Bastion Host in Public Subnet 1
+  SumoChatwootBastionHostA:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.micro
+      KeyName: !Ref KeyPairName
+      SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet1Id
+      ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
+      SecurityGroupIds:
+        - !Ref SumoChatwootBastionSecurityGroup
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-bastion-a-dev
+
+  # Bastion Host in Public Subnet 2
+  SumoChatwootBastionHostB:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.micro
+      KeyName: !Ref KeyPairName
+      SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet2Id
+      ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
+      SecurityGroupIds:
+        - !Ref SumoChatwootBastionSecurityGroup
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-bastion-b-dev
+
+Outputs:
+  SumoChatwootBastionHostAPublicIP:
+    Description: 'Public IP address of Bastion Host A'
+    Value: !GetAtt SumoChatwootBastionHostA.PublicIp
+    Export:
+      Name: SumoChatwootStack-SumoChatwootBastionHostAPublicIP
+
+  SumoChatwootBastionHostBPublicIP:
+    Description: 'Public IP address of Bastion Host B'
+    Value: !GetAtt SumoChatwootBastionHostB.PublicIp
+    Export:
+      Name: SumoChatwootStack-SumoChatwootBastionHostBPublicIP

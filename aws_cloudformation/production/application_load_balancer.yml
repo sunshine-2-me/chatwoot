@@ -32,13 +32,13 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-loadbalancer-sg
+          Value: sumo-chatwoot-loadbalancer-sg-prod
 
   # Application Load Balancer
   SumoChatwootLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Name: sumo-chatwoot-loadbalancer
+      Name: sumo-chatwoot-loadbalancer-prod
       Scheme: internet-facing
       Subnets:
         - !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet1Id
@@ -48,13 +48,13 @@ Resources:
       IpAddressType: ipv4
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-loadbalancer
+          Value: sumo-chatwoot-loadbalancer-prod
 
   # Target Group for Chatwoot Instances
   SumoChatwootTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      Name: sumo-chatwoot-tg
+      Name: sumo-chatwoot-tg-prod
       VpcId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
       Protocol: HTTP
       Port: 3000
@@ -90,9 +90,15 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref SumoChatwootTargetGroup
       Certificates:
-        - CertificateArn: !Ref SumoChatwootCertificateArn          
+        - CertificateArn: !Ref SumoChatwootCertificateArn  
 
 Outputs:
+  SumoChatwootLoadBalancerSGId:
+    Description: 'The ID of the load balancer'
+    Value: !Ref SumoChatwootLoadBalancerSG
+    Export:
+      Name: SumoChatwootStack-SumoChatwootLoadBalancerSGId
+
   SumoChatwootLoadBalancerDNSName:
     Description: 'DNS name of the load balancer'
     Value: !GetAtt SumoChatwootLoadBalancer.DNSName
@@ -104,12 +110,6 @@ Outputs:
     Value: !GetAtt SumoChatwootLoadBalancer.CanonicalHostedZoneID
     Export:
       Name: SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
-
-  SumoChatwootLoadBalancerSGId:
-    Description: 'The ID of the load balancer'
-    Value: !Ref SumoChatwootLoadBalancerSG
-    Export:
-      Name: SumoChatwootStack-SumoChatwootLoadBalancerSGId
 
   SumoChatwootTargetGroupArn:
     Description: 'The Arn of the TargetGroup'

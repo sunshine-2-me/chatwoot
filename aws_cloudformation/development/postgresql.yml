@@ -34,7 +34,7 @@ Resources:
           SourceSecurityGroupId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-rds-sg
+          Value: sumo-chatwoot-rds-sg-dev
 
   # RDS Subnet Group
   SumoChatwootRDSSubnetGroup:
@@ -46,13 +46,13 @@ Resources:
         - !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet2Id
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-rds-group
+          Value: sumo-chatwoot-rds-group-dev
 
   # RDS Instance
-  SumoChatwootProdRDSDBInstance:
+  SumoChatwootRDSDBInstance:
     Type: AWS::RDS::DBInstance
     Properties:
-      DBInstanceIdentifier: sumo-chatwoot-prod-db
+      DBInstanceIdentifier: sumo-chatwoot-db-dev
       DBInstanceClass: db.t3.micro
       Engine: postgres
       MasterUsername: !Ref SumoChatwootDBUsername
@@ -66,48 +66,17 @@ Resources:
       StorageType: gp2
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-prod-postgres
-
-  SumoChatwootDevRDSDBInstance:
-    Type: AWS::RDS::DBInstance
-    Properties:
-      DBInstanceIdentifier: sumo-chatwoot-dev-db
-      DBInstanceClass: db.t3.micro
-      Engine: postgres
-      MasterUsername: !Ref SumoChatwootDBUsername
-      MasterUserPassword: !Ref SumoChatwootDBPassword
-      DBSubnetGroupName: !Ref SumoChatwootRDSSubnetGroup
-      VPCSecurityGroups:
-        - !Ref SumoChatwootRDSDBSecurityGroup
-      MultiAZ: true
-      PubliclyAccessible: false
-      AllocatedStorage: 20
-      StorageType: gp2
-      Tags:
-        - Key: Name
-          Value: sumo-chatwoot-dev-postgres
+          Value: sumo-chatwoot-postgres-dev
 
 Outputs:
-  SumoChatwootProdRDSInstanceEndpoint:
+  SumoChatwootRDSInstanceEndpoint:
     Description: 'The connection endpoint for the RDS instance'
-    Value: !GetAtt SumoChatwootProdRDSDBInstance.Endpoint.Address
+    Value: !GetAtt SumoChatwootRDSDBInstance.Endpoint.Address
     Export:
-      Name: SumoChatwootStack-SumoChatwootProdRDSInstanceEndpoint
+      Name: SumoChatwootStack-SumoChatwootRDSInstanceEndpoint
 
-  SumoChatwootProdRDSInstancePort:
+  SumoChatwootRDSInstancePort:
     Description: 'The port of the RDS instance'
-    Value: !GetAtt SumoChatwootProdRDSDBInstance.Endpoint.Port
+    Value: !GetAtt SumoChatwootRDSDBInstance.Endpoint.Port
     Export:
-      Name: SumoChatwootStack-SumoChatwootProdRDSInstancePort
-
-  SumoChatwootDevRDSInstanceEndpoint:
-    Description: 'The connection endpoint for the RDS instance'
-    Value: !GetAtt SumoChatwootDevRDSDBInstance.Endpoint.Address
-    Export:
-      Name: SumoChatwootStack-SumoChatwootDevRDSInstanceEndpoint
-
-  SumoChatwootDevRDSInstancePort:
-    Description: 'The port of the RDS instance'
-    Value: !GetAtt SumoChatwootDevRDSDBInstance.Endpoint.Port
-    Export:
-      Name: SumoChatwootStack-SumoChatwootDevRDSInstancePort
+      Name: SumoChatwootStack-SumoChatwootRDSInstancePort

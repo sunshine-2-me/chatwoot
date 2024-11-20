@@ -1,0 +1,118 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for Chatwoot Application Load Balancer'
+
+Parameters:
+  SumoChatwootCertificateArn:
+    Description: Certificate ARN
+    Type: String
+
+Resources:
+  # Security Group for ALB
+  SumoChatwootLoadBalancerSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
+      GroupDescription: Security group for Chatwoot ALB
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3000
+          ToPort: 3000
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-loadbalancer-sg-dev
+
+  # Application Load Balancer
+  SumoChatwootLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: sumo-chatwoot-loadbalancer-dev
+      Scheme: internet-facing
+      Subnets:
+        - !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet1Id
+        - !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet2Id
+      SecurityGroups:
+        - !Ref SumoChatwootLoadBalancerSG
+      IpAddressType: ipv4
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-loadbalancer-dev
+
+  # Target Group for Chatwoot Instances
+  SumoChatwootTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: sumo-chatwoot-tg-dev
+      VpcId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
+      Protocol: HTTP
+      Port: 3000
+      TargetType: instance
+      HealthCheckProtocol: HTTP
+      HealthCheckPort: 3000
+      HealthCheckPath: /api
+      Matcher:
+        HttpCode: 200
+
+  # Listener for HTTP
+  SumoChatwootHTTPListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref SumoChatwootLoadBalancer
+      Protocol: HTTP
+      Port: 80
+      DefaultActions:
+        - Type: redirect
+          RedirectConfig:
+            Protocol: HTTPS
+            Port: "443"
+            StatusCode: HTTP_301
+
+  # Listener for HTTPS
+  SumoChatwootHTTPSListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref SumoChatwootLoadBalancer
+      Protocol: HTTPS
+      Port: 443
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref SumoChatwootTargetGroup
+      Certificates:
+        - CertificateArn: !Ref SumoChatwootCertificateArn  
+
+Outputs:
+  SumoChatwootLoadBalancerSGId:
+    Description: 'The ID of the load balancer'
+    Value: !Ref SumoChatwootLoadBalancerSG
+    Export:
+      Name: SumoChatwootStack-SumoChatwootLoadBalancerSGId
+
+  SumoChatwootLoadBalancerDNSName:
+    Description: 'DNS name of the load balancer'
+    Value: !GetAtt SumoChatwootLoadBalancer.DNSName
+    Export:
+      Name: SumoChatwootStack-SumoChatwootLoadBalancerDNSName
+
+  SumoChatwootLoadBalancerCanonicalHostedZoneId:
+    Description: 'CanonicalHostedZoneId of the load balancer'
+    Value: !GetAtt SumoChatwootLoadBalancer.CanonicalHostedZoneID
+    Export:
+      Name: SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
+
+  SumoChatwootTargetGroupArn:
+    Description: 'The Arn of the TargetGroup'
+    Value: !GetAtt  SumoChatwootTargetGroup.TargetGroupArn
+    Export:
+      Name: SumoChatwootStack-SumoChatwootTargetGroupArn

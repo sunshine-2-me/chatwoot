@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for Redis ElastiCache setup for Chatwoot'
+
+Resources:
+  # Security Group for Redis
+  SumoChatwootRedisSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
+      GroupDescription: Security group for Chatwoot Redis
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 6379
+          ToPort: 6379
+          SourceSecurityGroupId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-redis-sg-dev
+
+  # ElastiCache Subnet Group
+  SumoChatwootRedisSubnetGroup:
+    Type: AWS::ElastiCache::SubnetGroup
+    Properties:
+      Description: Subnet group for Chatwoot Redis
+      SubnetIds:
+        - !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet1Id
+        - !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet2Id
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-redis-group-dev
+
+  # Redis Cluster
+  SumoChatwootRedisCluster:
+    Type: AWS::ElastiCache::ReplicationGroup
+    Properties:
+      ReplicationGroupDescription: Chatwoot Redis cluster
+      ReplicationGroupId: sumo-chatwoot-redis-dev
+      Engine: redis
+      CacheNodeType: cache.t3.micro
+      NumCacheClusters: 2
+      AutomaticFailoverEnabled: true
+      SecurityGroupIds:
+        - !Ref SumoChatwootRedisSecurityGroup
+      CacheSubnetGroupName: !Ref SumoChatwootRedisSubnetGroup
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-redis-dev
+
+Outputs:
+  SumoChatwootRedisEndpointAddress:
+    Description: 'Primary endpoint address for the Redis cluster'
+    Value: !GetAtt SumoChatwootRedisCluster.PrimaryEndPoint.Address
+    Export:
+      Name: SumoChatwootStack-SumoChatwootRedisEndpointAddress
+
+  SumoChatwootRedisEndpointPort:
+    Description: 'Primary endpoint port for the Redis cluster'
+    Value: !GetAtt SumoChatwootRedisCluster.PrimaryEndPoint.Port
+    Export:
+      Name: SumoChatwootStack-SumoChatwootRedisEndpointPort
