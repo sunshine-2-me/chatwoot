@@ -510,7 +510,7 @@ EOF
 
   sleep 3
   # read -rp 'Would you like to configure a domain and SSL for Chatwoot?(yes or no): ' configure_webserver
-  configure_webserver='yes'
+  configure_webserver='no'
 
   if [ "$configure_webserver" == "yes" ]; then
     get_domain_info
