@@ -19,7 +19,7 @@ Resources:
         InstanceType: c5.xlarge
         KeyName: !Ref KeyPairName
         NetworkInterfaces:
-          - AssociatePublicIpAddress: false
+          - AssociatePublicIpAddress: true
             DeviceIndex: 0
             SubnetId: !ImportValue  SumoChatwootStack-SumoChatwootPublicSubnet1Id
             Groups:
