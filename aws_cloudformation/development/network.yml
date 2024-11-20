@@ -3,7 +3,7 @@ Description: 'CloudFormation template for setting up Chatwoot VPC and networking
 
 Resources:
   # VPC
-  SumoChatwootDevVPC:
+  SumoChatwootVPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/16
@@ -14,24 +14,24 @@ Resources:
           Value: sumo-chatwoot-vpc-dev
 
   # Internet Gateway
-  SumoChatwootDevInternetGateway:
+  SumoChatwootInternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
         - Key: Name
           Value: sumo-chatwoot-igw-dev
 
-  SumoChatwootDevAttachGateway:
+  SumoChatwootAttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      VpcId: !Ref SumoChatwootDevVPC
-      InternetGatewayId: !Ref SumoChatwootDevInternetGateway
+      VpcId: !Ref SumoChatwootVPC
+      InternetGatewayId: !Ref SumoChatwootInternetGateway
 
   # Subnets
-  SumoChatwootDevPublicSubnet1:
+  SumoChatwootPublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref SumoChatwootDevVPC
+      VpcId: !Ref SumoChatwootVPC
       CidrBlock: 10.0.0.0/24
       AvailabilityZone: us-east-1a
       MapPublicIpOnLaunch: true
@@ -39,10 +39,10 @@ Resources:
         - Key: Name
           Value: sumo-chatwoot-public-1-dev
 
-  SumoChatwootDevPublicSubnet2:
+  SumoChatwootPublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref SumoChatwootDevVPC
+      VpcId: !Ref SumoChatwootVPC
       CidrBlock: 10.0.1.0/24
       AvailabilityZone: us-east-1b
       MapPublicIpOnLaunch: true
@@ -50,20 +50,20 @@ Resources:
         - Key: Name
           Value: sumo-chatwoot-public-2-dev
 
-  SumoChatwootDevPrivateSubnet1:
+  SumoChatwootPrivateSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref SumoChatwootDevVPC
+      VpcId: !Ref SumoChatwootVPC
       CidrBlock: 10.0.2.0/24
       AvailabilityZone: us-east-1a
       Tags:
         - Key: Name
           Value: sumo-chatwoot-private-1-dev
 
-  SumoChatwootDevPrivateSubnet2:
+  SumoChatwootPrivateSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref SumoChatwootDevVPC
+      VpcId: !Ref SumoChatwootVPC
       CidrBlock: 10.0.3.0/24
       AvailabilityZone: us-east-1b
       Tags:
@@ -71,141 +71,141 @@ Resources:
           Value: sumo-chatwoot-private-2-dev
 
   # NAT Gateways
-  SumoChatwootDevEIPForNat1:
+  SumoChatwootEIPForNat1:
     Type: AWS::EC2::EIP
-    DependsOn: SumoChatwootDevAttachGateway
+    DependsOn: SumoChatwootAttachGateway
     Properties:
       Domain: vpc
       Tags:
         - Key: Name
           Value: sumo-chatwoot-eip-nat-1-dev
 
-  SumoChatwootDevNATGateway1:
+  SumoChatwootNATGateway1:
     Type: AWS::EC2::NatGateway
     Properties:
-      AllocationId: !GetAtt SumoChatwootDevEIPForNat1.AllocationId
-      SubnetId: !Ref SumoChatwootDevPublicSubnet1
+      AllocationId: !GetAtt SumoChatwootEIPForNat1.AllocationId
+      SubnetId: !Ref SumoChatwootPublicSubnet1
       Tags:
         - Key: Name
           Value: sumo-chatwoot-nat-1-dev
 
-  SumoChatwootDevEIPForNat2:
+  SumoChatwootEIPForNat2:
     Type: AWS::EC2::EIP
-    DependsOn: SumoChatwootDevAttachGateway
+    DependsOn: SumoChatwootAttachGateway
     Properties:
       Domain: vpc
       Tags:
         - Key: Name
           Value: sumo-chatwoot-eip-nat-2-dev
 
-  SumoChatwootDevNATGateway2:
+  SumoChatwootNATGateway2:
     Type: AWS::EC2::NatGateway
     Properties:
-      AllocationId: !GetAtt SumoChatwootDevEIPForNat2.AllocationId
-      SubnetId: !Ref SumoChatwootDevPublicSubnet2
+      AllocationId: !GetAtt SumoChatwootEIPForNat2.AllocationId
+      SubnetId: !Ref SumoChatwootPublicSubnet2
       Tags:
         - Key: Name
           Value: sumo-chatwoot-nat-2-dev
 
   # Route Tables
-  SumoChatwootDevPublicRouteTable:
+  SumoChatwootPublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref SumoChatwootDevVPC
+      VpcId: !Ref SumoChatwootVPC
       Tags:
         - Key: Name
           Value: sumo-chatwoot-public-rt-dev
 
-  SumoChatwootDevPublicRoute:
+  SumoChatwootPublicRoute:
     Type: AWS::EC2::Route
-    DependsOn: SumoChatwootDevAttachGateway
+    DependsOn: SumoChatwootAttachGateway
     Properties:
-      RouteTableId: !Ref SumoChatwootDevPublicRouteTable
+      RouteTableId: !Ref SumoChatwootPublicRouteTable
       DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref SumoChatwootDevInternetGateway
+      GatewayId: !Ref SumoChatwootInternetGateway
 
-  SumoChatwootDevPrivateRouteTable1:
+  SumoChatwootPrivateRouteTable1:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref SumoChatwootDevVPC
+      VpcId: !Ref SumoChatwootVPC
       Tags:
         - Key: Name
           Value: sumo-chatwoot-private-a-dev
 
-  SumoChatwootDevPrivateRoute1:
+  SumoChatwootPrivateRoute1:
     Type: AWS::EC2::Route
     Properties:
-      RouteTableId: !Ref SumoChatwootDevPrivateRouteTable1
+      RouteTableId: !Ref SumoChatwootPrivateRouteTable1
       DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref SumoChatwootDevNATGateway1
+      NatGatewayId: !Ref SumoChatwootNATGateway1
 
-  SumoChatwootDevPrivateRouteTable2:
+  SumoChatwootPrivateRouteTable2:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref SumoChatwootDevVPC
+      VpcId: !Ref SumoChatwootVPC
       Tags:
         - Key: Name
           Value: sumo-chatwoot-private-b-dev
 
-  SumoChatwootDevPrivateRoute2:
+  SumoChatwootPrivateRoute2:
     Type: AWS::EC2::Route
     Properties:
-      RouteTableId: !Ref SumoChatwootDevPrivateRouteTable2
+      RouteTableId: !Ref SumoChatwootPrivateRouteTable2
       DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref SumoChatwootDevNATGateway2
+      NatGatewayId: !Ref SumoChatwootNATGateway2
 
   # Subnet Route Table Associations
-  SumoChatwootDevPublicSubnet1RouteTableAssociation:
+  SumoChatwootPublicSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref SumoChatwootDevPublicSubnet1
-      RouteTableId: !Ref SumoChatwootDevPublicRouteTable
+      SubnetId: !Ref SumoChatwootPublicSubnet1
+      RouteTableId: !Ref SumoChatwootPublicRouteTable
 
-  SumoChatwootDevPublicSubnet2RouteTableAssociation:
+  SumoChatwootPublicSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref SumoChatwootDevPublicSubnet2
-      RouteTableId: !Ref SumoChatwootDevPublicRouteTable
+      SubnetId: !Ref SumoChatwootPublicSubnet2
+      RouteTableId: !Ref SumoChatwootPublicRouteTable
 
-  SumoChatwootDevPrivateSubnet1RouteTableAssociation:
+  SumoChatwootPrivateSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref SumoChatwootDevPrivateSubnet1
-      RouteTableId: !Ref SumoChatwootDevPrivateRouteTable1
+      SubnetId: !Ref SumoChatwootPrivateSubnet1
+      RouteTableId: !Ref SumoChatwootPrivateRouteTable1
 
-  SumoChatwootDevPrivateSubnet2RouteTableAssociation:
+  SumoChatwootPrivateSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref SumoChatwootDevPrivateSubnet2
-      RouteTableId: !Ref SumoChatwootDevPrivateRouteTable2
+      SubnetId: !Ref SumoChatwootPrivateSubnet2
+      RouteTableId: !Ref SumoChatwootPrivateRouteTable2
 
 Outputs:
-  SumoChatwootDevVPCId:
+  SumoChatwootVPCId:
     Description: 'The VPC ID'
-    Value: !Ref SumoChatwootDevVPC
+    Value: !Ref SumoChatwootVPC
     Export:
-      Name: SumoChatwootDevStack-SumoChatwootDevVPCId
+      Name: SumoChatwootStack-SumoChatwootVPCId
 
-  SumoChatwootDevPublicSubnet1Id:
+  SumoChatwootPublicSubnet1Id:
     Description: 'The ID of the first public subnet'
-    Value: !Ref SumoChatwootDevPublicSubnet1
+    Value: !Ref SumoChatwootPublicSubnet1
     Export:
-      Name: SumoChatwootDevStack-SumoChatwootDevPublicSubnet1Id
+      Name: SumoChatwootStack-SumoChatwootPublicSubnet1Id
 
-  SumoChatwootDevPublicSubnet2Id:
+  SumoChatwootPublicSubnet2Id:
     Description: 'The ID of the second public subnet'
-    Value: !Ref SumoChatwootDevPublicSubnet2
+    Value: !Ref SumoChatwootPublicSubnet2
     Export:
-      Name: SumoChatwootDevStack-SumoChatwootDevPublicSubnet2Id
+      Name: SumoChatwootStack-SumoChatwootPublicSubnet2Id
 
-  SumoChatwootDevPrivateSubnet1Id:
+  SumoChatwootPrivateSubnet1Id:
     Description: 'The ID of the first private subnet'
-    Value: !Ref SumoChatwootDevPrivateSubnet1
+    Value: !Ref SumoChatwootPrivateSubnet1
     Export:
-      Name: SumoChatwootDevStack-SumoChatwootDevPrivateSubnet1Id
+      Name: SumoChatwootStack-SumoChatwootPrivateSubnet1Id
 
-  SumoChatwootDevPrivateSubnet2Id:
+  SumoChatwootPrivateSubnet2Id:
     Description: 'The ID of the second private subnet'
-    Value: !Ref SumoChatwootDevPrivateSubnet2
+    Value: !Ref SumoChatwootPrivateSubnet2
     Export:
-      Name: SumoChatwootDevStack-SumoChatwootDevPrivateSubnet2Id
+      Name: SumoChatwootStack-SumoChatwootPrivateSubnet2Id
