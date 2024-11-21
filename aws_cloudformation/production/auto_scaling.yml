@@ -19,11 +19,11 @@ Resources:
         InstanceType: c5.xlarge
         KeyName: !Ref KeyPairName
         NetworkInterfaces:
-          - AssociatePublicIpAddress: true
+          - AssociatePublicIpAddress: false
             DeviceIndex: 0
-            SubnetId: !ImportValue  SumoChatwootStack-SumoChatwootPublicSubnet1Id
+            SubnetId: !ImportValue  SumoChatwootProdStack-SumoChatwootPublicSubnet1Id
             Groups:
-              - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
+              - !ImportValue SumoChatwootProdStack-SumoChatwootLoadBalancerSGId
         BlockDeviceMappings:
           - DeviceName: /dev/sda1
             Ebs:
@@ -40,16 +40,16 @@ Resources:
     Type: 'AWS::AutoScaling::AutoScalingGroup'
     Properties:
       VPCZoneIdentifier: 
-        - !ImportValue  SumoChatwootStack-SumoChatwootPublicSubnet1Id
-        - !ImportValue  SumoChatwootStack-SumoChatwootPublicSubnet2Id
+        - !ImportValue  SumoChatwootProdStack-SumoChatwootPublicSubnet1Id
+        - !ImportValue  SumoChatwootProdStack-SumoChatwootPublicSubnet2Id
       LaunchTemplate:
         LaunchTemplateId: !Ref SumoChatwootLaunchTemplate
         Version: !GetAtt SumoChatwootLaunchTemplate.LatestVersionNumber
-      MinSize: '2'
-      DesiredCapacity: '2'
+      MinSize: '1'
+      DesiredCapacity: '1'
       MaxSize: '4'
       TargetGroupARNs:
-        - !ImportValue SumoChatwootStack-SumoChatwootTargetGroupArn
+        - !ImportValue SumoChatwootProdStack-SumoChatwootTargetGroupArn
       Tags:
         - Key: Name
           Value: sumo-chatwoot-auto-scaling-group-prod

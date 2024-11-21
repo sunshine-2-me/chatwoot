@@ -11,7 +11,7 @@ Resources:
   SumoChatwootBastionSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
+      VpcId: !ImportValue SumoChatwootProdStack-SumoChatwootVPCId
       GroupDescription: Security group for Bastion hosts
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -28,7 +28,7 @@ Resources:
     Properties:
       InstanceType: t3.micro
       KeyName: !Ref KeyPairName
-      SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet1Id
+      SubnetId: !ImportValue SumoChatwootProdStack-SumoChatwootPublicSubnet1Id
       ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
       SecurityGroupIds:
         - !Ref SumoChatwootBastionSecurityGroup
@@ -42,7 +42,7 @@ Resources:
     Properties:
       InstanceType: t3.micro
       KeyName: !Ref KeyPairName
-      SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet2Id
+      SubnetId: !ImportValue SumoChatwootProdStack-SumoChatwootPublicSubnet2Id
       ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
       SecurityGroupIds:
         - !Ref SumoChatwootBastionSecurityGroup
@@ -55,10 +55,10 @@ Outputs:
     Description: 'Public IP address of Bastion Host A'
     Value: !GetAtt SumoChatwootBastionHostA.PublicIp
     Export:
-      Name: SumoChatwootStack-SumoChatwootBastionHostAPublicIP
+      Name: SumoChatwootProdStack-SumoChatwootBastionHostAPublicIP
 
   SumoChatwootBastionHostBPublicIP:
     Description: 'Public IP address of Bastion Host B'
     Value: !GetAtt SumoChatwootBastionHostB.PublicIp
     Export:
-      Name: SumoChatwootStack-SumoChatwootBastionHostBPublicIP
+      Name: SumoChatwootProdStack-SumoChatwootBastionHostBPublicIP

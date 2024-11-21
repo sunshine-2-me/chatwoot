@@ -14,9 +14,9 @@ Resources:
       InstanceType: c5.xlarge
       KeyName: !Ref KeyPairName
       ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
-      # SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet1Id
+      # SubnetId: !ImportValue SumoChatwootDevStack-SumoChatwootPrivateSubnet1Id
       # SecurityGroupIds:
-      #   - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
+      #   - !ImportValue SumoChatwootDevStack-SumoChatwootLoadBalancerSGId
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
           Ebs:
@@ -28,9 +28,9 @@ Resources:
       NetworkInterfaces:
         - AssociatePublicIpAddress: false
           DeviceIndex: 0
-          SubnetId: !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet1Id
+          SubnetId: !ImportValue SumoChatwootDevStack-SumoChatwootPrivateSubnet1Id
           GroupSet:
-            - !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
+            - !ImportValue SumoChatwootDevStack-SumoChatwootLoadBalancerSGId
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
@@ -43,16 +43,16 @@ Outputs:
     Description: 'The ID of the Chatwoot EC2 instance'
     Value: !Ref SumoChatwootInstance
     Export:
-      Name: SumoChatwootStack-SumoChatwootInstanceId
+      Name: SumoChatwootDevStack-SumoChatwootInstanceId
 
   # SumoChatwootInstanceIP:
   #   Description: 'Public IP address of the Chatwoot EC2 instance'
   #   Value: !GetAtt SumoChatwootInstance.PublicIp    
   #   Export:
-  #     Name: SumoChatwootStack-SumoChatwootInstanceIP
+  #     Name: SumoChatwootDevStack-SumoChatwootInstanceIP
 
   SumoChatwootInstanceIP:
     Description: 'Public IP address of the Chatwoot EC2 instance'
     Value: !GetAtt SumoChatwootInstance.PrivateIp    
     Export:
-      Name: SumoChatwootStack-SumoChatwootInstanceIP
+      Name: SumoChatwootDevStack-SumoChatwootInstanceIP

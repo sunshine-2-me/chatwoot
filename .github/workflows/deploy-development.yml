@@ -1,10 +1,10 @@
-name: Deploy Sumo Chatwoot Infrastructure for Development
+name: Sumo Chatwoot for Development
 
 on:
   push:
   # pull_request:
     branches:
-      - develop
+      - dev
 
 jobs:
   deploy:
@@ -217,7 +217,6 @@ jobs:
 
             cd /home/ubuntu/chatwoot
             echo "run install.sh"
-            sed -i "s/domain_name='chat.sumoscheduler.com'/domain_name='dev.chat.sumoscheduler.com'/" install.sh
             chmod 777 install.sh
             sudo ./install.sh --install
             
@@ -246,7 +245,7 @@ jobs:
           STACK_NAME=sumo-chatwoot-instance-stack-dev
           
           # Retrieve existing AMIs with a similar name
-          BASE_AMI_NAME="chatwoot-base-ami"
+          BASE_AMI_NAME="chatwoot-base-ami-dev"
           existing_ami_id=$(aws ec2 describe-images --owners self --filters "Name=name,Values=$BASE_AMI_NAME" --query 'Images[0].ImageId' --output text)
 
           if [ "$existing_ami_id" != "None" ]; then
@@ -289,5 +288,5 @@ jobs:
       - name: Post-deployment script
         run: |
           STACK_NAME=sumo-chatwoot-route-stack-dev
-          DomainName=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='DevRecordSetName'].OutputValue" --output text)
+          DomainName=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='RecordSetName'].OutputValue" --output text)
           echo "Deployment complete!\n Check the url: https://${DomainName}"

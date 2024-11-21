@@ -25,13 +25,13 @@ Resources:
   SumoChatwootRDSDBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
+      VpcId: !ImportValue SumoChatwootProdStack-SumoChatwootVPCId
       GroupDescription: Security group for Chatwoot RDS
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
-          SourceSecurityGroupId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerSGId
+          SourceSecurityGroupId: !ImportValue SumoChatwootProdStack-SumoChatwootLoadBalancerSGId
       Tags:
         - Key: Name
           Value: sumo-chatwoot-rds-sg-prod
@@ -42,8 +42,8 @@ Resources:
     Properties:
       DBSubnetGroupDescription: Subnet group for Chatwoot RDS
       SubnetIds:
-        - !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet1Id
-        - !ImportValue SumoChatwootStack-SumoChatwootPrivateSubnet2Id
+        - !ImportValue SumoChatwootProdStack-SumoChatwootPrivateSubnet1Id
+        - !ImportValue SumoChatwootProdStack-SumoChatwootPrivateSubnet2Id
       Tags:
         - Key: Name
           Value: sumo-chatwoot-rds-group-prod
@@ -73,10 +73,10 @@ Outputs:
     Description: 'The connection endpoint for the RDS instance'
     Value: !GetAtt SumoChatwootRDSDBInstance.Endpoint.Address
     Export:
-      Name: SumoChatwootStack-SumoChatwootRDSInstanceEndpoint
+      Name: SumoChatwootProdStack-SumoChatwootRDSInstanceEndpoint
 
   SumoChatwootRDSInstancePort:
     Description: 'The port of the RDS instance'
     Value: !GetAtt SumoChatwootRDSDBInstance.Endpoint.Port
     Export:
-      Name: SumoChatwootStack-SumoChatwootRDSInstancePort
+      Name: SumoChatwootProdStack-SumoChatwootRDSInstancePort

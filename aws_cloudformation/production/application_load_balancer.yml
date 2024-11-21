@@ -11,7 +11,7 @@ Resources:
   SumoChatwootLoadBalancerSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
+      VpcId: !ImportValue SumoChatwootProdStack-SumoChatwootVPCId
       GroupDescription: Security group for Chatwoot ALB
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -41,8 +41,8 @@ Resources:
       Name: sumo-chatwoot-loadbalancer-prod
       Scheme: internet-facing
       Subnets:
-        - !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet1Id
-        - !ImportValue SumoChatwootStack-SumoChatwootPublicSubnet2Id
+        - !ImportValue SumoChatwootProdStack-SumoChatwootPublicSubnet1Id
+        - !ImportValue SumoChatwootProdStack-SumoChatwootPublicSubnet2Id
       SecurityGroups:
         - !Ref SumoChatwootLoadBalancerSG
       IpAddressType: ipv4
@@ -55,7 +55,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Name: sumo-chatwoot-tg-prod
-      VpcId: !ImportValue SumoChatwootStack-SumoChatwootVPCId
+      VpcId: !ImportValue SumoChatwootProdStack-SumoChatwootVPCId
       Protocol: HTTP
       Port: 3000
       TargetType: instance
@@ -97,22 +97,22 @@ Outputs:
     Description: 'The ID of the load balancer'
     Value: !Ref SumoChatwootLoadBalancerSG
     Export:
-      Name: SumoChatwootStack-SumoChatwootLoadBalancerSGId
+      Name: SumoChatwootProdStack-SumoChatwootLoadBalancerSGId
 
   SumoChatwootLoadBalancerDNSName:
     Description: 'DNS name of the load balancer'
     Value: !GetAtt SumoChatwootLoadBalancer.DNSName
     Export:
-      Name: SumoChatwootStack-SumoChatwootLoadBalancerDNSName
+      Name: SumoChatwootProdStack-SumoChatwootLoadBalancerDNSName
 
   SumoChatwootLoadBalancerCanonicalHostedZoneId:
     Description: 'CanonicalHostedZoneId of the load balancer'
     Value: !GetAtt SumoChatwootLoadBalancer.CanonicalHostedZoneID
     Export:
-      Name: SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
+      Name: SumoChatwootProdStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
 
   SumoChatwootTargetGroupArn:
     Description: 'The Arn of the TargetGroup'
     Value: !GetAtt  SumoChatwootTargetGroup.TargetGroupArn
     Export:
-      Name: SumoChatwootStack-SumoChatwootTargetGroupArn
+      Name: SumoChatwootProdStack-SumoChatwootTargetGroupArn

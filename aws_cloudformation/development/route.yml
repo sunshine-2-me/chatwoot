@@ -21,13 +21,13 @@ Resources:
       Type: 'A'
       # TTL: '60'  # Set TTL to 60 seconds
       # ResourceRecords: 
-      #   - !ImportValue SumoChatwootStack-SumoChatwootInstanceIP
+      #   - !ImportValue SumoChatwootDevStack-SumoChatwootInstanceIP
       AliasTarget: 
-        DNSName: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerDNSName
-        HostedZoneId: !ImportValue SumoChatwootStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
+        DNSName: !ImportValue SumoChatwootDevStack-SumoChatwootLoadBalancerDNSName
+        HostedZoneId: !ImportValue SumoChatwootDevStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
 
 Outputs:
-  DevRecordSetName:
+  RecordSetName:
     Description: 'The name of the DNS record set created'
     Value: !Ref DomainName
 
