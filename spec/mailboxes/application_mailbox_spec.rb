@@ -69,26 +69,18 @@ RSpec.describe ApplicationMailbox do
     end
 
     describe 'Invalid Mail To Address' do
-      let(:logger) { double }
-
-      before do
-        allow(Rails).to receive(:logger).and_return(logger)
-        allow(logger).to receive(:error)
-      end
-
-      it 'will not raise error when mail.to header is malformed format 1' do
-        expect(logger).to receive(:error).with("Email to address header is malformed `#{mail_with_invalid_to_address.mail.to}`")
+      it 'raises error when mail.to header is malformed' do
         expect do
           described_class.route mail_with_invalid_to_address
-        end.not_to raise_error
+        end.to raise_error(StandardError,
+                           'Invalid email to address header <vishnu@chatwoot.com>vishnu@chatwoot.com')
       end
 
-      it 'will not raise error when mail.to header is malformed format 2' do
-        expect(logger).to receive(:error).with("Email to address header is malformed `#{mail_with_invalid_to_address_2.mail.to}`")
-
+      it 'raises another error when mail.to header is malformed' do
         expect do
           described_class.route mail_with_invalid_to_address_2
-        end.not_to raise_error
+        end.to raise_error(StandardError,
+                           'Invalid email to address header vishnu@chatwoot.com www.chatwoot.com')
       end
     end
   end

@@ -85,15 +85,17 @@ defineExpose({ dialogRef });
     :description="t('HELP_CENTER.LOCALES_PAGE.ADD_LOCALE_DIALOG.DESCRIPTION')"
     @confirm="onCreate"
   >
-    <div class="flex flex-col gap-6">
-      <ComboBox
-        v-model="selectedLocale"
-        :options="locales"
-        :placeholder="
-          t('HELP_CENTER.LOCALES_PAGE.ADD_LOCALE_DIALOG.COMBOBOX.PLACEHOLDER')
-        "
-        class="[&>div>button]:!border-n-slate-5 [&>div>button]:dark:!border-n-slate-5"
-      />
-    </div>
+    <template #form>
+      <div class="flex flex-col gap-6">
+        <ComboBox
+          v-model="selectedLocale"
+          :options="locales"
+          :placeholder="
+            t('HELP_CENTER.LOCALES_PAGE.ADD_LOCALE_DIALOG.COMBOBOX.PLACEHOLDER')
+          "
+          class="[&>div>button]:!border-n-slate-5 [&>div>button]:dark:!border-n-slate-5"
+        />
+      </div>
+    </template>
   </Dialog>
 </template>

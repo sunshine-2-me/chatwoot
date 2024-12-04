@@ -27,7 +27,6 @@ const props = defineProps({
 
 const emit = defineEmits([
   'saveArticle',
-  'saveArticleAsync',
   'goBack',
   'setAuthor',
   'setCategory',
@@ -36,37 +35,19 @@ const emit = defineEmits([
 
 const { t } = useI18n();
 
-const saveAndSync = value => {
-  emit('saveArticle', value);
-};
-
-// this will only send the data to the backend
-// but will not update the local state preventing unnecessary re-renders
-// since the data is already saved and we keep the editor text as the source of truth
-const quickSave = debounce(
-  value => emit('saveArticleAsync', value),
-  400,
-  false
-);
-
-// 2.5 seconds is enough to know that the user has stopped typing and is taking a pause
-// so we can save the data to the backend and retrieve the updated data
-// this will update the local state with response data
-const saveAndSyncDebounced = debounce(saveAndSync, 2500, false);
+const saveArticle = debounce(value => emit('saveArticle', value), 600, false);
 
 const articleTitle = computed({
   get: () => props.article.title,
   set: value => {
-    quickSave({ title: value });
-    saveAndSyncDebounced({ title: value });
+    saveArticle({ title: value });
   },
 });
 
 const articleContent = computed({
   get: () => props.article.content,
   set: content => {
-    quickSave({ content });
-    saveAndSyncDebounced({ content });
+    saveArticle({ content });
   },
 });
 
@@ -112,7 +93,7 @@ const previewArticle = () => {
         />
         <ArticleEditorControls
           :article="article"
-          @save-article="saveAndSync"
+          @save-article="saveArticle"
           @set-author="setAuthorId"
           @set-category="setCategoryId"
         />
