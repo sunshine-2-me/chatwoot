@@ -34,7 +34,7 @@ jobs:
             --template-body file://aws_cloudformation/production/bastion.yml
           aws cloudformation validate-template \
             --template-body file://aws_cloudformation/production/chatwoot.yml
-
+      
       - name: Network-Cloudformation
         run: |
           STACK_NAME=sumo-chatwoot-network-stack-prod
@@ -58,7 +58,7 @@ jobs:
 
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
-
+          
           SumoChatwootTargetGroupArn=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootTargetGroupArn'].OutputValue" --output text)
           echo "TARGET_GROUP_ARN=${SumoChatwootTargetGroupArn}" >> $GITHUB_ENV
 
@@ -127,10 +127,10 @@ jobs:
 
           SumoChatwootInstanceIP=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstanceIP'].OutputValue" --output text)
           echo "EC2_IP=${SumoChatwootInstanceIP}" >> $GITHUB_ENV
-
+          
           SumoChatwootInstanceId=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootInstanceId'].OutputValue" --output text)
           echo "EC2_ID=${SumoChatwootInstanceId}" >> $GITHUB_ENV
-
+          
       - name: Route53-Cloudformation
         run: |
           STACK_NAME=sumo-chatwoot-route-stack-prod
@@ -196,8 +196,7 @@ jobs:
             fi
             EOF
 
-            sudo rm -rf /home/chatwoot/*
-            sudo cp -rf /home/ubuntu/chatwoot /home/chatwoot
+            sudo cp -ri /home/ubuntu/chatwoot /home/chatwoot
             sudo chown -R chatwoot:chatwoot /home/chatwoot/chatwoot
 
             EOT
@@ -210,28 +209,23 @@ jobs:
           script: |
             ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.EC2_IP }} << 'EOT'
 
-            echo "run install.sh"
-            sudo chmod 777 /home/chatwoot/chatwoot/install.sh
-            sudo /home/chatwoot/chatwoot/install.sh --install
+            POSTGRES_HOST=${{ env.POSTGRES_HOST }}
+            POSTGRES_USERNAME=${{ secrets.RDS_MASTER_USERNAME }}
+            POSTGRES_PASSWORD=${{ secrets.RDS_MASTER_PASSWORD }}
+            REDIS_HOST=${{ env.REDIS_HOST }}
 
+            cd /home/ubuntu/chatwoot
+            echo "run install.sh"
+            chmod 777 install.sh
+            sudo ./install.sh --install
+            
             sudo -i -u chatwoot << "EOF"
             cd chatwoot
 
-            sed -i -e "/FRONTEND_URL/ s/=.*/=https:\/\/dev-chat.sumoscheduler.com/" .env
-            sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/'"${{ env.REDIS_HOST }}"':6379/' .env
-            sed -i -e '/POSTGRES_HOST/ s/=.*/='"${{ env.POSTGRES_HOST }}"'/' .env
-            sed -i -e '/POSTGRES_USERNAME/ s/=.*/='"${{ secrets.RDS_MASTER_USERNAME }}"'/' .env
-            sed -i -e "/POSTGRES_PASSWORD/ s/=.*/='"${{ secrets.RDS_MASTER_PASSWORD }}"'/" .env
-            sed -i -e "/SMTP_ADDRESS/ s/=.*/='"${{ secrets.SMTP_ADDRESS }}"'/" .env
-            sed -i -e "/SMTP_PASSWORD/ s/=.*/='"${{ secrets.SMTP_PASSWORD }}"'/" .env
-            sed -i -e "/SMTP_PORT/ s/=.*/='"${{ secrets.SMTP_PORT }}"'/" .env
-            sed -i -e "/SMTP_USERNAME/ s/=.*/='"${{ secrets.SMTP_USERNAME }}"'/" .env
-            sed -i -e "/ACTIVE_STORAGE_SERVICE/ s/=.*/=amazon/" .env
-            sed -i -e "/AWS_ACCESS_KEY_ID/ s/=.*/='"${{ secrets.AWS_ACCESS_KEY_ID }}"'/" .env
-            sed -i -e "/AWS_SECRET_ACCESS_KEY/ s/=.*/='"${{ secrets.AWS_SECRET_ACCESS_KEY }}"'/" .env
-            sed -i -e "/AWS_REGION/ s/=.*/='"${{ secrets.AWS_REGION }}"'/" .env
-            sed -i -e "/S3_BUCKET_NAME/ s/=.*/=sumo-chatwoot-dev/" .env
-            sed -i -e "/RAILS_ENV/ s/=.*/=production/" .env
+            sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/$REDIS_HOST:6379/' .env
+            sed -i -e '/POSTGRES_HOST/ s/=.*/=$POSTGRES_HOST/' .env
+            sed -i -e '/POSTGRES_USERNAME/ s/=.*/=$POSTGRES_USERNAME/' .env
+            sed -i -e "/POSTGRES_PASSWORD/ s/=.*/=$POSTGRES_PASSWORD/" .env
 
             RAILS_ENV=production bundle exec rake db:prepare
             sudo cwctl --restart
@@ -248,7 +242,7 @@ jobs:
         run: |
           echo "Create the AMI"
           STACK_NAME=sumo-chatwoot-instance-stack-prod
-
+          
           # Retrieve existing AMIs with a similar name
           BASE_AMI_NAME="chatwoot-base-ami-prod"
           existing_ami_id=$(aws ec2 describe-images --owners self --filters "Name=name,Values=$BASE_AMI_NAME" --query 'Images[0].ImageId' --output text)
@@ -268,7 +262,7 @@ jobs:
             fi
           else
             echo "No existing AMI found with the name $BASE_AMI_NAME."
-          fi
+          fi          
 
           INSTANCE_ID=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs[?OutputKey==`SumoChatwootInstanceId`].OutputValue' --output text)
 
@@ -289,7 +283,7 @@ jobs:
 
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
-
+          
       - name: Post-deployment script
         run: |
           STACK_NAME=sumo-chatwoot-route-stack-prod

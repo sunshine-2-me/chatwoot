@@ -131,7 +131,6 @@ trap exit_handler EXIT
 function exit_handler() {
   if [ "$?" -ne 0 ] && [ "$u" == "n" ]; then
    echo -en "\nSome error has occured. Check '/var/log/chatwoot-setup.log' for details.\n"
-   cat /var/log/chatwoot-setup.log
    exit 1
   fi
 }
@@ -334,9 +333,7 @@ EOF
 function setup_chatwoot() {
   local secret=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 63 ; echo '')
   local RAILS_ENV=production
-  local NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
   get_pgpass
-
 
   sudo -i -u chatwoot << EOF
   rvm --version
@@ -358,8 +355,6 @@ function setup_chatwoot() {
   sed -i -e "/POSTGRES_PASSWORD/ s/=.*/=$pg_pass/" .env
   sed -i -e '/RAILS_ENV/ s/=.*/=$RAILS_ENV/' .env
   echo -en "\nINSTALLATION_ENV=linux_script" >> ".env"
-
-  NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider" vite build
 
   rake assets:precompile RAILS_ENV=production NODE_OPTIONS="--max-old-space-size=4096 --openssl-legacy-provider"
 EOF
@@ -436,7 +431,7 @@ function setup_ssl() {
   sudo certbot certonly --non-interactive --agree-tos --nginx -m "$le_email" -d "$domain_name"
   sudo ln -s /etc/nginx/sites-available/nginx_chatwoot.conf /etc/nginx/sites-enabled/nginx_chatwoot.conf
   sudo systemctl restart nginx
-
+  
   sudo -i -u chatwoot << EOF
   cd chatwoot
   sed -i "s/http:\/\/0.0.0.0:3000/https:\/\/$domain_name/g" .env
@@ -464,6 +459,7 @@ function ssl_success_message() {
 ***************************************************************************
 Woot! Woot!! Chatwoot server installation is complete.
 The server will be accessible at https://$domain_name
+
 Join the community at https://chatwoot.com/community?utm_source=cwctl
 ***************************************************************************
 
@@ -565,9 +561,6 @@ EOF
   configure_systemd_services &>> "${LOG_FILE}"
 
   public_ip=$(curl http://checkip.amazonaws.com -s)
-
-  echo "chatwoot-setup.log"
-  cat ${LOG_FILE}
 
   if [ "$configure_webserver" != "yes" ]
   then
@@ -780,7 +773,7 @@ function upgrade_redis() {
 
 
 ##############################################################################
-# Update nodejs to  v20+
+# Update nodejs to v20+
 # Globals:
 #   None
 # Arguments:
@@ -953,7 +946,7 @@ function report_event() {
   local data="{\"installation_identifier\":\"$installation_identifier\",\"event_name\":\"$event_name\",\"event_data\":{\"action\":\"$event_data\"}}"
 
   # Make the curl request to report the event
-  #  curl -X POST -H "Content-Type: application/json" -d "$data" "$CHATWOOT_HUB_URL" -s -o /dev/null
+  curl -X POST -H "Content-Type: application/json" -d "$data" "$CHATWOOT_HUB_URL" -s -o /dev/null
 }
 
 
