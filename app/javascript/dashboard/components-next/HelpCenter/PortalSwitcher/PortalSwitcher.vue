@@ -6,7 +6,7 @@ import { useMapGetter, useStore } from 'dashboard/composables/store.js';
 import { buildPortalURL } from 'dashboard/helper/portalHelper';
 
 import Button from 'dashboard/components-next/button/Button.vue';
-import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
+import Thumbnail from 'dashboard/components-next/thumbnail/Thumbnail.vue';
 
 const emit = defineEmits(['close', 'createPortal']);
 
@@ -148,13 +148,14 @@ const redirectToPortalHomePage = () => {
         <span class="text-sm font-medium truncate text-n-slate-12">
           {{ portal.name || '' }}
         </span>
-        <Avatar
+        <Thumbnail
           v-if="portal"
+          :author="portal"
           :name="portal.name"
-          :src="getPortalThumbnailSrc(portal)"
           :size="20"
+          :src="getPortalThumbnailSrc(portal)"
+          :show-author-name="false"
           icon-name="i-lucide-building-2"
-          rounded-full
         />
       </Button>
     </div>

@@ -7,7 +7,6 @@ import Input from 'dashboard/components-next/input/Input.vue';
 const alertDialog = ref(null);
 const editDialog = ref(null);
 const confirmDialog = ref(null);
-const confirmDialogWithCustomFooter = ref(null);
 
 const openAlertDialog = () => {
   alertDialog.value.open();
@@ -17,9 +16,6 @@ const openEditDialog = () => {
 };
 const openConfirmDialog = () => {
   confirmDialog.value.open();
-};
-const openConfirmDialogWithCustomFooter = () => {
-  confirmDialogWithCustomFooter.value.open();
 };
 
 // eslint-disable-next-line no-unused-vars
@@ -48,22 +44,24 @@ const onConfirm = dialog => {};
         confirm-button-label="Save"
         @confirm="onConfirm()"
       >
-        <div class="flex flex-col gap-6">
-          <Input
-            id="portal-name"
-            type="text"
-            placeholder="User Guide | Chatwoot"
-            label="Name"
-            message="This will be the name of your public facing portal"
-          />
-          <Input
-            id="portal-slug"
-            type="text"
-            placeholder="user-guide"
-            label="Slug"
-            message="app.chatwoot.com/hc/my-portal/en-US/categories/my-slug"
-          />
-        </div>
+        <template #form>
+          <div class="flex flex-col gap-6">
+            <Input
+              id="portal-name"
+              type="text"
+              placeholder="User Guide | Chatwoot"
+              label="Name"
+              message="This will be the name of your public facing portal"
+            />
+            <Input
+              id="portal-slug"
+              type="text"
+              placeholder="user-guide"
+              label="Slug"
+              message="app.chatwoot.com/hc/my-portal/en-US/categories/my-slug"
+            />
+          </div>
+        </template>
       </Dialog>
     </Variant>
 
@@ -78,22 +76,6 @@ const onConfirm = dialog => {};
         cancel-button-label="No, cancel"
         @confirm="onConfirm()"
       />
-    </Variant>
-
-    <Variant title="With custom footer">
-      <Button
-        label="Open Confirm Dialog with custom footer"
-        @click="openConfirmDialogWithCustomFooter"
-      />
-      <Dialog
-        ref="confirmDialogWithCustomFooter"
-        title="Confirm Action"
-        description="Are you sure you want to perform this action?"
-      >
-        <template #footer>
-          <Button label="Custom Button" @click="onConfirm()" />
-        </template>
-      </Dialog>
     </Variant>
   </Story>
 </template>

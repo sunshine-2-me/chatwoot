@@ -46,13 +46,6 @@ const handleClickOutside = () => {
   }
 };
 
-const handleKeydown = event => {
-  if (event.key === ',') {
-    event.preventDefault();
-    addTag();
-  }
-};
-
 watch(
   () => props.modelValue,
   newValue => {
@@ -88,7 +81,6 @@ watch(
         :placeholder="placeholder"
         custom-input-class="flex-grow"
         @enter-press="addTag"
-        @keydown="handleKeydown"
       />
     </div>
   </OnClickOutside>

@@ -1,4 +1,5 @@
 <script setup>
+// [VITE] TODO: Test this component across different screen sizes and usages
 import { ref, provide, onMounted, computed } from 'vue';
 import { useEventListener } from '@vueuse/core';
 
@@ -16,10 +17,15 @@ const props = defineProps({
 const emit = defineEmits(['change']);
 
 const hasScroll = ref(false);
+// TODO: We may not this internalActiveIndex, we can use activeIndex directly
+// But right I'll keep it and fix it when testing the rest of the codebase
+const internalActiveIndex = ref(props.index);
 
+// Create a proxy for activeIndex using computed
 const activeIndex = computed({
-  get: () => props.index,
+  get: () => internalActiveIndex.value,
   set: newValue => {
+    internalActiveIndex.value = newValue;
     emit('change', newValue);
   },
 });

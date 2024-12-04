@@ -43,7 +43,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:modelValue', 'search']);
+const emit = defineEmits(['update:modelValue']);
 
 const { t } = useI18n();
 
@@ -118,13 +118,13 @@ watch(
 
       <ComboBoxDropdown
         ref="dropdownRef"
-        v-model:search-value="search"
         :open="open"
         :options="filteredOptions"
+        :search-value="search"
         :search-placeholder="searchPlaceholder"
         :empty-state="emptyState"
         :selected-values="selectedValue"
-        @search="emit('search', $event)"
+        @update:search-value="search = $event"
         @select="selectOption"
       />
 
