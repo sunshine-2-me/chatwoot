@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for deploying Chatwoot on an EC2 instance'
+
+Parameters:
+  KeyPairName:
+    Description: 'Name of an existing EC2 KeyPair to enable SSH access to the instances'
+    Type: 'AWS::EC2::KeyPair::KeyName'
+
+
+Resources:
+  SumoChatwootInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: c5.xlarge
+      KeyName: !Ref KeyPairName
+      ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
+      # SubnetId: !ImportValue SumoChatwootDevStack-SumoChatwootPrivateSubnet1Id
+      # SecurityGroupIds:
+      #   - !ImportValue SumoChatwootDevStack-SumoChatwootLoadBalancerSGId
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: 60
+            VolumeType: gp2
+      Tags:
+        - Key: Name
+          Value: sumo-chatwoot-instance-dev
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: false
+          DeviceIndex: 0
+          SubnetId: !ImportValue SumoChatwootDevStack-SumoChatwootPrivateSubnet1Id
+          GroupSet:
+            - !ImportValue SumoChatwootDevStack-SumoChatwootLoadBalancerSGId
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # Update and upgrade system packages
+          apt-get update -y
+          apt-get upgrade -y
+
+Outputs:
+  SumoChatwootInstanceId:
+    Description: 'The ID of the Chatwoot EC2 instance'
+    Value: !Ref SumoChatwootInstance
+    Export:
+      Name: SumoChatwootDevStack-SumoChatwootInstanceId
+
+  # SumoChatwootInstanceIP:
+  #   Description: 'Public IP address of the Chatwoot EC2 instance'
+  #   Value: !GetAtt SumoChatwootInstance.PublicIp
+  #   Export:
+  #     Name: SumoChatwootDevStack-SumoChatwootInstanceIP
+
+  SumoChatwootInstanceIP:
+    Description: 'Public IP address of the Chatwoot EC2 instance'
+    Value: !GetAtt SumoChatwootInstance.PrivateIp
+    Export:
+      Name: SumoChatwootDevStack-SumoChatwootInstanceIP
