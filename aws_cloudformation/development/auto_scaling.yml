@@ -39,7 +39,7 @@ Resources:
   SumoChatwootAutoScalingGroup:
     Type: 'AWS::AutoScaling::AutoScalingGroup'
     Properties:
-      VPCZoneIdentifier: 
+      VPCZoneIdentifier:
         - !ImportValue  SumoChatwootDevStack-SumoChatwootPublicSubnet1Id
         - !ImportValue  SumoChatwootDevStack-SumoChatwootPublicSubnet2Id
       LaunchTemplate:

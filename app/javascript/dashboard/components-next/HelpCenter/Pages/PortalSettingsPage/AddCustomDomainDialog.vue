@@ -55,18 +55,20 @@ defineExpose({ dialogRef });
     "
     @confirm="handleDialogConfirm"
   >
-    <Input
-      v-model="formState.customDomain"
-      :label="
-        t(
-          'HELP_CENTER.PORTAL_SETTINGS.CONFIGURATION_FORM.CUSTOM_DOMAIN.DIALOG.LABEL'
-        )
-      "
-      :placeholder="
-        t(
-          'HELP_CENTER.PORTAL_SETTINGS.CONFIGURATION_FORM.CUSTOM_DOMAIN.DIALOG.PLACEHOLDER'
-        )
-      "
-    />
+    <template #form>
+      <Input
+        v-model="formState.customDomain"
+        :label="
+          t(
+            'HELP_CENTER.PORTAL_SETTINGS.CONFIGURATION_FORM.CUSTOM_DOMAIN.DIALOG.LABEL'
+          )
+        "
+        :placeholder="
+          t(
+            'HELP_CENTER.PORTAL_SETTINGS.CONFIGURATION_FORM.CUSTOM_DOMAIN.DIALOG.PLACEHOLDER'
+          )
+        "
+      />
+    </template>
   </Dialog>
 </template>
