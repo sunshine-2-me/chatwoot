@@ -8,12 +8,50 @@ Parameters:
 
 
 Resources:
+  SumoChatwootLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "/chatwoot/logs"
+      RetentionInDays: 7 # Retain logs for 7 days (customize based on needs)
+      Tags:
+        - Key: Name
+          Value: "ChatwootLogs"
+
+  SumoChatwootLogsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CloudWatchAgentPolicy
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+  
+  SumoChatwootInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref SumoChatwootLogsRole
+
   SumoChatwootInstance:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: c5.xlarge
       KeyName: !Ref KeyPairName
       ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
+      IamInstanceProfile: !Ref SumoChatwootInstanceProfile
       # SubnetId: !ImportValue SumoChatwootDevStack-SumoChatwootPrivateSubnet1Id
       # SecurityGroupIds:
       #   - !ImportValue SumoChatwootDevStack-SumoChatwootLoadBalancerSGId
@@ -37,6 +75,35 @@ Resources:
           # Update and upgrade system packages
           apt-get update -y
           apt-get upgrade -y
+
+          apt-get install -y amazon-cloudwatch-agent
+
+          # Create CloudWatch Agent configuration file
+          cat <<EOF > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+          {
+            "logs": {
+              "logs_collected": {
+                "files": {
+                  "collect_list": [
+                    {
+                      "file_path": "/var/log/chatwoot-setup.log",
+                      "log_group_name": "/chatwoot/logs",
+                      "log_stream_name": "{instance_id}/chatwoot-app-logs"
+                    },
+                    {
+                      "file_path": "/var/log/syslog",
+                      "log_group_name": "/chatwoot/system-logs",
+                      "log_stream_name": "{instance_id}/system-logs"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+          EOF
+
+          # Start the CloudWatch Agent
+          /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
 
 Outputs:
   SumoChatwootInstanceId:
