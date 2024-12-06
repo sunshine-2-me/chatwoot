@@ -2,16 +2,12 @@ name: Backup Repository to S3
 
 on:
   schedule:
-    - cron: '0 2 * * 0' # Runs every Sunday at 2 AM UTC
+    - cron: '1 * * * *' # Runs every Sunday at 2 AM UTC
   workflow_dispatch: # Allows manual trigger of the workflow
-    inputs: # Optional inputs for customization
-      environment:
-        description: 'Deployment environment (e.g., staging, production)'
-        required: true
-        default: 'staging'
+
   push:
     branches:
-      - master
+      - develop
           
 jobs:
   backup:
