@@ -3,6 +3,7 @@ name: Backup Repository to S3
 on:
   schedule:
     - cron: '0 2 * * 0' # Runs every Sunday at 2 AM UTC
+    - cron: '0 * * * *' # Runs every minutes
   workflow_dispatch: # Allows manual trigger of the workflow
     inputs: # Optional inputs for customization
       environment:
