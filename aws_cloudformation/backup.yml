@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create an S3 bucket for GitHub repository backups with lifecycle policy.
+
+Parameters:
+  BackupBucketName:
+    Description: "The name of the S3 bucket to store GitHub repository backups."
+    Type: String
+    Default: "github-repo-backups-bucket"
+    AllowedPattern: "[a-z0-9-]+" # Bucket name must follow S3 naming rules
+    ConstraintDescription: "Bucket name must only contain lowercase letters, numbers, and dashes."
+
+Resources:
+  RepositoryBackupBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BackupBucketName
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: "BackupRotation"
+            Status: Enabled
+            ExpirationInDays: 35 # Optional: Expire backups after 30 days
+            NoncurrentVersionExpirationInDays: 35 # Optional: Expire old versions
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+
+  BackupBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref RepositoryBackupBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action:
+              - "s3:GetObject"
+              - "s3:PutObject"
+            Resource: !Sub "arn:aws:s3:::${RepositoryBackupBucket}/*"
+
+Outputs:
+  BackupBucketName:
+    Description: "The name of the S3 bucket where backups will be stored."
+    Value: !Ref RepositoryBackupBucket
