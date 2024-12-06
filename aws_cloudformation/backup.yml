@@ -25,19 +25,19 @@ Resources:
             AbortIncompleteMultipartUpload:
               DaysAfterInitiation: 7
 
-  BackupBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref RepositoryBackupBucket
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal: "*"
-            Action:
-              - "s3:GetObject"
-              - "s3:PutObject"
-            Resource: !Sub "arn:aws:s3:::${RepositoryBackupBucket}/*"
+  # BackupBucketPolicy:
+  #   Type: AWS::S3::BucketPolicy
+  #   Properties:
+  #     Bucket: !Ref RepositoryBackupBucket
+  #     PolicyDocument:
+  #       Version: "2012-10-17"
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal: "*"
+  #           Action:
+  #             - "s3:GetObject"
+  #             - "s3:PutObject"
+  #           Resource: !Sub "arn:aws:s3:::${RepositoryBackupBucket}/*"
 
 Outputs:
   BackupBucketName:
