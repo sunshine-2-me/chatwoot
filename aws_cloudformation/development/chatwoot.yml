@@ -73,13 +73,18 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
           # Update and upgrade system packages
-          apt-get update -y
-          apt-get upgrade -y
-
-          apt-get install -y amazon-cloudwatch-agent
+          sudo apt-get update -y
+          sudo apt-get upgrade -y
+          
+          # Install the agent
+          wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+          sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+          
+          # Verify the installation
+          /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -m ec2 -a status
 
           # Create CloudWatch Agent configuration file
-          cat <<EOF > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+          cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json > /dev/null
           {
             "logs": {
               "logs_collected": {
@@ -89,11 +94,6 @@ Resources:
                       "file_path": "/var/log/chatwoot-setup.log",
                       "log_group_name": "/chatwoot/logs",
                       "log_stream_name": "{instance_id}/chatwoot-app-logs"
-                    },
-                    {
-                      "file_path": "/var/log/syslog",
-                      "log_group_name": "/chatwoot/system-logs",
-                      "log_stream_name": "{instance_id}/system-logs"
                     }
                   ]
                 }
