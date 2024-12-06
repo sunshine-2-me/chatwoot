@@ -2,7 +2,7 @@ name: Backup Repository to S3
 
 on:
   schedule:
-    - cron: '1 * * * *' # Runs every Sunday at 2 AM UTC
+    - cron: '0 0 * * *' # Runs every Sunday at 2 AM UTC
   workflow_dispatch: # Allows manual trigger of the workflow
 
   push:
@@ -45,17 +45,27 @@ jobs:
       # Step 4: Compress the repository into a tarball
       - name: Create repository backup using git archive
         run: |
-          git archive --format=tar.gz -o repo-backup.tar.gz HEAD
-          # tar -czvf repo-backup.tar.gz . # Compress the entire repository
-          echo "Backup file created: repo-backup.tar.gz"
+          git archive --format=tar.gz -o sumo-chatwoot-backup.tar.gz HEAD
+          # tar -czvf sumo-chatwoot-backup.tar.gz . # Compress the entire repository
+          echo "Backup file created: sumo-chatwoot-backup.tar.gz"
 
       # Step 5: Upload the backup to S3
       - name: Upload backup to S3
         run: |
           BACKUP_NAME="repo-backup-$(date +'%Y-%m-%d_%H-%M-%S').tar.gz"
-          aws s3 cp repo-backup.tar.gz s3://${{ env.BackupBucketName }}/$BACKUP_NAME
+          aws s3 cp sumo-chatwoot-backup.tar.gz s3://${{ env.BackupBucketName }}/$BACKUP_NAME
           echo "Backup uploaded as $BACKUP_NAME"
 
-      # Optional Step 6: List backups in S3
+      # Step 6: Retain only the last 5 backups
+      - name: Clean up old backups
+        run: |
+          echo "Ensuring only the last 5 backups are retained..."
+          BACKUPS=$(aws s3 ls s3://${{ env.BackupBucketName }}/ | sort | head -n -5 | awk '{print $4}')
+          for BACKUP in $BACKUPS; do
+            echo "Deleting old backup: $BACKUP"
+            aws s3 rm s3://${{ env.BackupBucketName }}/$BACKUP
+          done
+
+      # Optional Step 7: List backups in S3
       - name: List backups in S3
         run: aws s3 ls s3://${{ env.BackupBucketName }}/

@@ -5,7 +5,7 @@ Parameters:
   BackupBucketName:
     Description: "The name of the S3 bucket to store GitHub repository backups."
     Type: String
-    Default: "github-repo-backups-bucket"
+    Default: "sumo-chatwoot-repo-backups"
     AllowedPattern: "[a-z0-9-]+" # Bucket name must follow S3 naming rules
     ConstraintDescription: "Bucket name must only contain lowercase letters, numbers, and dashes."
 
@@ -16,14 +16,14 @@ Resources:
       BucketName: !Ref BackupBucketName
       VersioningConfiguration:
         Status: Enabled
-      LifecycleConfiguration:
-        Rules:
-          - Id: "BackupRotation"
-            Status: Enabled
-            ExpirationInDays: 35 # Optional: Expire backups after 30 days
-            NoncurrentVersionExpirationInDays: 35 # Optional: Expire old versions
-            AbortIncompleteMultipartUpload:
-              DaysAfterInitiation: 7
+      # LifecycleConfiguration:
+      #   Rules:
+      #     - Id: "BackupRotation"
+      #       Status: Enabled
+      #       ExpirationInDays: 35 # Optional: Expire backups after 30 days
+      #       NoncurrentVersionExpirationInDays: 35 # Optional: Expire old versions
+      #       AbortIncompleteMultipartUpload:
+      #         DaysAfterInitiation: 7
 
   # BackupBucketPolicy:
   #   Type: AWS::S3::BucketPolicy
