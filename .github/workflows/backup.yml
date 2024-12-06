@@ -33,6 +33,12 @@ jobs:
           aws cloudformation validate-template \
             --template-body file://aws_cloudformation/backup.yml
 
+          STACK_NAME=sumo-chatwoot-backup
+          aws cloudformation deploy \
+            --template-file aws_cloudformation/backup.yml \
+            --stack-name $STACK_NAME \
+            --capabilities CAPABILITY_NAMED_IAM
+
           BackupBucketName=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='BackupBucketName'].OutputValue" --output text)
           echo "BackupBucketName=${BackupBucketName}" >> $GITHUB_ENV
             
