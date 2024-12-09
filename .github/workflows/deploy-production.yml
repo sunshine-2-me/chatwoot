@@ -23,35 +23,35 @@ jobs:
       - name: Validate Cloudformation
         run: |
           aws cloudformation validate-template \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
+            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/production/network.yml
 
           aws cloudformation validate-template \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
+            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/production/application_load_balancer.yml
 
           aws cloudformation validate-template \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
+            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/production/postgresql.yml
 
           aws cloudformation validate-template \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
+            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/production/redis.yml
 
           aws cloudformation validate-template \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
+            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/production/bastion.yml
 
           aws cloudformation validate-template \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
+            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/production/chatwoot.yml
 
           aws cloudformation validate-template \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
+            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/development/route.yml
 
           aws cloudformation validate-template \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
+            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/development/auto_scaling.yml
 
       - name: Network-Cloudformation
@@ -59,7 +59,7 @@ jobs:
           STACK_NAME=sumo-chatwoot-network-stack-prod
           aws cloudformation deploy \
             --template-file aws_cloudformation/production/network.yml \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
+            --parameter-overrides Environment=prod \
             --stack-name $STACK_NAME \
             --capabilities CAPABILITY_NAMED_IAM
 
@@ -71,9 +71,9 @@ jobs:
           STACK_NAME=sumo-chatwoot-alb-stack-prod
           aws cloudformation deploy \
             --template-file aws_cloudformation/production/application_load_balancer.yml \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
             --stack-name $STACK_NAME \
             --parameter-overrides \
+              Environment=prod \
               SumoChatwootCertificateArn=${{ secrets.ACM_CERTIFICATE_ARN }} \
             --capabilities CAPABILITY_NAMED_IAM
 
@@ -88,9 +88,9 @@ jobs:
           STACK_NAME=sumo-chatwoot-postgre-stack-prod
           aws cloudformation deploy \
             --template-file aws_cloudformation/production/postgresql.yml \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
             --stack-name $STACK_NAME \
             --parameter-overrides \
+              Environment=prod \
               SumoChatwootDBUsername=${{ secrets.RDS_MASTER_USERNAME }} \
               SumoChatwootDBPassword=${{ secrets.RDS_MASTER_PASSWORD }} \
             --capabilities CAPABILITY_NAMED_IAM
@@ -106,7 +106,7 @@ jobs:
           STACK_NAME=sumo-chatwoot-redis-stack-prod
           aws cloudformation deploy \
             --template-file aws_cloudformation/production/redis.yml \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
+            --parameter-overrides Environment=prod \
             --stack-name $STACK_NAME \
             --capabilities CAPABILITY_NAMED_IAM
 
@@ -121,9 +121,9 @@ jobs:
           STACK_NAME=sumo-chatwoot-bastion-stack-prod
           aws cloudformation deploy \
             --template-file aws_cloudformation/production/bastion.yml \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
             --stack-name $STACK_NAME \
             --parameter-overrides \
+              Environment=prod \
               KeyPairName=${{ secrets.KEY_NAME }} \
             --capabilities CAPABILITY_NAMED_IAM
 
@@ -141,9 +141,9 @@ jobs:
           STACK_NAME=sumo-chatwoot-instance-stack-prod
           aws cloudformation deploy \
             --template-file aws_cloudformation/production/chatwoot.yml \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
             --stack-name $STACK_NAME \
             --parameter-overrides \
+              Environment=prod \
               KeyPairName=${{ secrets.KEY_NAME }} \
             --capabilities CAPABILITY_NAMED_IAM
 
@@ -161,9 +161,9 @@ jobs:
           STACK_NAME=sumo-chatwoot-route-stack-prod
           aws cloudformation deploy \
             --template-file aws_cloudformation/production/route.yml \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
             --stack-name $STACK_NAME \
             --parameter-overrides \
+              Environment=prod \
               HostedZoneId=${{ secrets.ROUTE_HZ_ID }} \
             --capabilities CAPABILITY_NAMED_IAM
 
@@ -307,9 +307,9 @@ jobs:
           STACK_NAME=sumo-chatwoot-auto-scaling-stack-prod
           aws cloudformation deploy \
             --template-file aws_cloudformation/production/auto_scaling.yml \
-            --parameters ParameterKey=Environment,ParameterValue=prod \
             --stack-name $STACK_NAME \
             --parameter-overrides \
+              Environment=prod \
               ChatwootAMI=${{ env.AMI_ID }} \
               KeyPairName=${{ secrets.KEY_NAME }} \
             --capabilities CAPABILITY_NAMED_IAM
