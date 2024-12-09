@@ -23,35 +23,27 @@ jobs:
       - name: Validate Cloudformation
         run: |
           aws cloudformation validate-template \
-            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/production/network.yml
 
           aws cloudformation validate-template \
-            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/production/application_load_balancer.yml
 
           aws cloudformation validate-template \
-            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/production/postgresql.yml
 
           aws cloudformation validate-template \
-            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/production/redis.yml
 
           aws cloudformation validate-template \
-            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/production/bastion.yml
 
           aws cloudformation validate-template \
-            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/production/chatwoot.yml
 
           aws cloudformation validate-template \
-            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/development/route.yml
 
           aws cloudformation validate-template \
-            --parameter-overrides Environment=prod \
             --template-body file://aws_cloudformation/development/auto_scaling.yml
 
       - name: Network-Cloudformation
