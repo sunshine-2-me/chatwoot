@@ -33,13 +33,15 @@ Resources:
   SumoChatwootRDSDBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootVPCId"
+      VpcId: !ImportValue 
+        Fn::Sub: "SumoChatwoot-${Environment}-VPCId"
       GroupDescription: Security group for Chatwoot RDS
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
-          SourceSecurityGroupId: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerSGId"
+          SourceSecurityGroupId: !ImportValue 
+            Fn::Sub: "SumoChatwoot-${Environment}-LoadBalancerSGId"
       Tags:
         - Key: Name
           Value: !Sub "sumo-chatwoot-rds-sg-${Environment}"
@@ -52,8 +54,10 @@ Resources:
     Properties:
       DBSubnetGroupDescription: Subnet group for Chatwoot RDS
       SubnetIds:
-        - !ImportValue "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet1Id"
-        - !ImportValue "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet2Id"
+        - !ImportValue 
+          Fn::Sub: "SumoChatwoot-${Environment}-PrivateSubnet1Id"
+        - !ImportValue 
+          Fn::Sub: "SumoChatwoot-${Environment}-PrivateSubnet2Id"
       Tags:
         - Key: Name
           Value: !Sub "sumo-chatwoot-rds-group-${Environment}"
@@ -87,10 +91,10 @@ Outputs:
     Description: 'The connection endpoint for the RDS instance'
     Value: !GetAtt SumoChatwootRDSDBInstance.Endpoint.Address
     Export:
-      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootRDSInstanceEndpoint"
+      Name: !Sub "SumoChatwoot-${Environment}-RDSInstanceEndpoint"
 
   SumoChatwootRDSInstancePort:
     Description: 'The port of the RDS instance'
     Value: !GetAtt SumoChatwootRDSDBInstance.Endpoint.Port
     Export:
-      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootRDSInstancePort"
+      Name: !Sub "SumoChatwoot-${Environment}-RDSInstancePort"

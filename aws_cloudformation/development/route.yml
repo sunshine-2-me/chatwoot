@@ -31,8 +31,10 @@ Resources:
       # ResourceRecords: 
       #   - !ImportValue SumoChatwootDevStack-SumoChatwootInstanceIP
       AliasTarget: 
-        DNSName: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerDNSName"
-        HostedZoneId: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerCanonicalHostedZoneId"
+        DNSName: !ImportValue 
+          Fn::Sub: "SumoChatwoot-${Environment}-LoadBalancerDNSName"
+        HostedZoneId: !ImportValue 
+          Fn::Sub: "SumoChatwoot-${Environment}-LoadBalancerCanonicalHostedZoneId"
 
 Outputs:
   RecordSetName:

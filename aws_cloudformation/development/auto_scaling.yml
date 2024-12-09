@@ -29,9 +29,11 @@ Resources:
         NetworkInterfaces:
           - AssociatePublicIpAddress: false
             DeviceIndex: 0
-            SubnetId: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet1Id"
+            SubnetId: !ImportValue 
+              Fn::Sub: "SumoChatwoot-${Environment}-PublicSubnet1Id"
             Groups:
-              - !ImportValue "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerSGId"
+              - !ImportValue 
+                Fn::Sub: "SumoChatwoot-${Environment}-LoadBalancerSGId"
         BlockDeviceMappings:
           - DeviceName: /dev/sda1
             Ebs:
@@ -50,8 +52,10 @@ Resources:
     Type: 'AWS::AutoScaling::AutoScalingGroup'
     Properties:
       VPCZoneIdentifier:
-        - !ImportValue "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet1Id"
-        - !ImportValue "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet2Id"
+        - !ImportValue 
+          Fn::Sub: "SumoChatwoot-${Environment}-PublicSubnet1Id"
+        - !ImportValue 
+          Fn::Sub: "SumoChatwoot-${Environment}-PublicSubnet2Id"
       LaunchTemplate:
         LaunchTemplateId: !Ref SumoChatwootLaunchTemplate
         Version: !GetAtt SumoChatwootLaunchTemplate.LatestVersionNumber
@@ -59,13 +63,12 @@ Resources:
       DesiredCapacity: '1'
       MaxSize: '4'
       TargetGroupARNs:
-        - !ImportValue "SumoChatwoot-${Environment}-SumoChatwootTargetGroupArn"
+        - !ImportValue 
+          Fn::Sub: "SumoChatwoot-${Environment}-TargetGroupArn"
       Tags:
         - Key: Name
           Value: !Sub "sumo-chatwoot-auto-scaling-group-${Environment}"
           PropagateAtLaunch: true
-        - Key: Environment
-          Value: !Ref Environment
       Cooldown: 300 # Default cooldown period for the Auto Scaling Group in seconds
 
   # Scaling Policy
