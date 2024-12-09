@@ -28,7 +28,7 @@ jobs:
             --template-body file://aws_cloudformation/development/network.yml
 
           aws cloudformation validate-template \
-            --paramparameter-overrideseters Environment=dev \
+            --paramparameter-overrides Environment=dev \
             --template-body file://aws_cloudformation/development/application_load_balancer.yml
 
           aws cloudformation validate-template \
