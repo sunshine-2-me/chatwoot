@@ -6,8 +6,8 @@ Parameters:
     Description: 'Deployment environment (e.g., dev, prod)'
     Type: 'String'
     AllowedValues:
-      - dev
-      - prod
+        - dev
+        - prod
     Default: dev
 
 Resources:
