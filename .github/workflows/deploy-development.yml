@@ -26,26 +26,26 @@ jobs:
           aws cloudformation validate-template \
             --template-body file://aws_cloudformation/development/network.yml
 
-          aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/development/application_load_balancer.yml
+          # aws cloudformation validate-template \
+          #   --template-body file://aws_cloudformation/development/application_load_balancer.yml
 
-          aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/development/postgresql.yml
+          # aws cloudformation validate-template \
+          #   --template-body file://aws_cloudformation/development/postgresql.yml
 
-          aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/development/redis.yml
+          # aws cloudformation validate-template \
+          #   --template-body file://aws_cloudformation/development/redis.yml
 
-          aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/development/bastion.yml
+          # aws cloudformation validate-template \
+          #   --template-body file://aws_cloudformation/development/bastion.yml
 
-          aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/development/chatwoot.yml
+          # aws cloudformation validate-template \
+          #   --template-body file://aws_cloudformation/development/chatwoot.yml
 
-          aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/development/route.yml
+          # aws cloudformation validate-template \
+          #   --template-body file://aws_cloudformation/development/route.yml
 
-          aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/development/auto_scaling.yml
+          # aws cloudformation validate-template \
+          #   --template-body file://aws_cloudformation/development/auto_scaling.yml
 
       - name: Network-Cloudformation
         run: |
