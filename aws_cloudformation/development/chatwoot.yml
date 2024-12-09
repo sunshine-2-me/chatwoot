@@ -2,6 +2,14 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'CloudFormation template for deploying Chatwoot on an EC2 instance'
 
 Parameters:
+  Environment:
+    Description: "Deployment environment (e.g., dev, prod)"
+    Type: String
+    AllowedValues:
+      - dev
+      - prod
+    Default: dev
+
   KeyPairName:
     Description: 'Name of an existing EC2 KeyPair to enable SSH access to the instances'
     Type: 'AWS::EC2::KeyPair::KeyName'
@@ -15,7 +23,9 @@ Resources:
       RetentionInDays: 7 # Retain logs for 7 days (customize based on needs)
       Tags:
         - Key: Name
-          Value: "sumo-chatwoot-logs-dev"
+          Value: !Sub "sumo-chatwoot-logs-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   SumoChatwootLogsRole:
     Type: AWS::IAM::Role
@@ -62,13 +72,15 @@ Resources:
             VolumeType: gp2
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-instance-dev
+          Value: !Sub "sumo-chatwoot-instance-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
       NetworkInterfaces:
         - AssociatePublicIpAddress: false
           DeviceIndex: 0
-          SubnetId: !ImportValue SumoChatwootDevStack-SumoChatwootPrivateSubnet1Id
+          SubnetId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet1Id"
           GroupSet:
-            - !ImportValue SumoChatwootDevStack-SumoChatwootLoadBalancerSGId
+            - !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerSGId"
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
@@ -110,7 +122,7 @@ Outputs:
     Description: 'The ID of the Chatwoot EC2 instance'
     Value: !Ref SumoChatwootInstance
     Export:
-      Name: SumoChatwootDevStack-SumoChatwootInstanceId
+      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootInstanceId"
 
   # SumoChatwootInstanceIP:
   #   Description: 'Public IP address of the Chatwoot EC2 instance'
@@ -122,4 +134,4 @@ Outputs:
     Description: 'Public IP address of the Chatwoot EC2 instance'
     Value: !GetAtt SumoChatwootInstance.PrivateIp
     Export:
-      Name: SumoChatwootDevStack-SumoChatwootInstanceIP
+      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootInstanceIP"

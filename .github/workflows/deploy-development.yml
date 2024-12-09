@@ -24,23 +24,43 @@ jobs:
       - name: Validate Cloudformation
         run: |
           aws cloudformation validate-template \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
             --template-body file://aws_cloudformation/development/network.yml
+
           aws cloudformation validate-template \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
             --template-body file://aws_cloudformation/development/application_load_balancer.yml
+
           aws cloudformation validate-template \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
             --template-body file://aws_cloudformation/development/postgresql.yml
+
           aws cloudformation validate-template \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
             --template-body file://aws_cloudformation/development/redis.yml
+
           aws cloudformation validate-template \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
             --template-body file://aws_cloudformation/development/bastion.yml
+
           aws cloudformation validate-template \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
             --template-body file://aws_cloudformation/development/chatwoot.yml
+
+          aws cloudformation validate-template \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
+            --template-body file://aws_cloudformation/development/route.yml
+
+          aws cloudformation validate-template \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
+            --template-body file://aws_cloudformation/development/auto_scaling.yml
 
       - name: Network-Cloudformation
         run: |
           STACK_NAME=sumo-chatwoot-network-stack-dev
           aws cloudformation deploy \
             --template-file aws_cloudformation/development/network.yml \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
             --stack-name $STACK_NAME \
             --capabilities CAPABILITY_NAMED_IAM
 
@@ -52,6 +72,7 @@ jobs:
           STACK_NAME=sumo-chatwoot-alb-stack-dev
           aws cloudformation deploy \
             --template-file aws_cloudformation/development/application_load_balancer.yml \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
             --stack-name $STACK_NAME \
             --parameter-overrides \
               SumoChatwootCertificateArn=${{ secrets.ACM_CERTIFICATE_ARN }} \
@@ -68,6 +89,7 @@ jobs:
           STACK_NAME=sumo-chatwoot-postgre-stack-dev
           aws cloudformation deploy \
             --template-file aws_cloudformation/development/postgresql.yml \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
             --stack-name $STACK_NAME \
             --parameter-overrides \
               SumoChatwootDBUsername=${{ secrets.RDS_MASTER_USERNAME }} \
@@ -85,6 +107,7 @@ jobs:
           STACK_NAME=sumo-chatwoot-redis-stack-dev
           aws cloudformation deploy \
             --template-file aws_cloudformation/development/redis.yml \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
             --stack-name $STACK_NAME \
             --capabilities CAPABILITY_NAMED_IAM
 
@@ -99,6 +122,7 @@ jobs:
           STACK_NAME=sumo-chatwoot-bastion-stack-dev
           aws cloudformation deploy \
             --template-file aws_cloudformation/development/bastion.yml \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
             --stack-name $STACK_NAME \
             --parameter-overrides \
               KeyPairName=${{ secrets.KEY_NAME }} \
@@ -118,6 +142,7 @@ jobs:
           STACK_NAME=sumo-chatwoot-instance-stack-dev
           aws cloudformation deploy \
             --template-file aws_cloudformation/development/chatwoot.yml \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
             --stack-name $STACK_NAME \
             --parameter-overrides \
               KeyPairName=${{ secrets.KEY_NAME }} \
@@ -137,6 +162,7 @@ jobs:
           STACK_NAME=sumo-chatwoot-route-stack-dev
           aws cloudformation deploy \
             --template-file aws_cloudformation/development/route.yml \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
             --stack-name $STACK_NAME \
             --parameter-overrides \
               HostedZoneId=${{ secrets.ROUTE_HZ_ID }} \
@@ -282,6 +308,7 @@ jobs:
           STACK_NAME=sumo-chatwoot-auto-scaling-stack-dev
           aws cloudformation deploy \
             --template-file aws_cloudformation/development/auto_scaling.yml \
+            --parameters ParameterKey=Environment,ParameterValue=dev \
             --stack-name $STACK_NAME \
             --parameter-overrides \
               ChatwootAMI=${{ env.AMI_ID }} \

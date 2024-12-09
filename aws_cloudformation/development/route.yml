@@ -2,6 +2,14 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'CloudFormation template to create a Route 53 hosted zone and an A record'
 
 Parameters:
+  Environment:
+    Description: "Deployment environment (e.g., dev, prod)"
+    Type: String
+    AllowedValues:
+      - dev
+      - prod
+    Default: dev
+
   HostedZoneId:
     Description: 'The ID of the existing Route 53 hosted zone'
     Type: 'AWS::Route53::HostedZone::Id'
@@ -23,8 +31,8 @@ Resources:
       # ResourceRecords: 
       #   - !ImportValue SumoChatwootDevStack-SumoChatwootInstanceIP
       AliasTarget: 
-        DNSName: !ImportValue SumoChatwootDevStack-SumoChatwootLoadBalancerDNSName
-        HostedZoneId: !ImportValue SumoChatwootDevStack-SumoChatwootLoadBalancerCanonicalHostedZoneId
+        DNSName: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerDNSName"
+        HostedZoneId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerCanonicalHostedZoneId"
 
 Outputs:
   RecordSetName:

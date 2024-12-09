@@ -2,6 +2,14 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'CloudFormation template to create an Auto Scaling Group for Chatwoot instances'
 
 Parameters:
+  Environment:
+    Description: "Deployment environment (e.g., dev, prod)"
+    Type: String
+    AllowedValues:
+      - dev
+      - prod
+    Default: dev
+
   KeyPairName:
     Description: 'Name of an existing EC2 KeyPair to enable SSH access to the instances'
     Type: 'AWS::EC2::KeyPair::KeyName'
@@ -21,9 +29,9 @@ Resources:
         NetworkInterfaces:
           - AssociatePublicIpAddress: false
             DeviceIndex: 0
-            SubnetId: !ImportValue  SumoChatwootDevStack-SumoChatwootPublicSubnet1Id
+            SubnetId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet1Id"
             Groups:
-              - !ImportValue SumoChatwootDevStack-SumoChatwootLoadBalancerSGId
+              - !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerSGId"
         BlockDeviceMappings:
           - DeviceName: /dev/sda1
             Ebs:
@@ -33,15 +41,17 @@ Resources:
           - ResourceType: instance
             Tags:
               - Key: Name
-                Value: sumo-chatwoot-instance-template-dev
+                Value: !Sub "sumo-chatwoot-instance-template-${Environment}"
+              - Key: Environment
+                Value: !Ref Environment
 
   # Auto Scaling Group
   SumoChatwootAutoScalingGroup:
     Type: 'AWS::AutoScaling::AutoScalingGroup'
     Properties:
       VPCZoneIdentifier:
-        - !ImportValue  SumoChatwootDevStack-SumoChatwootPublicSubnet1Id
-        - !ImportValue  SumoChatwootDevStack-SumoChatwootPublicSubnet2Id
+        - !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet1Id"
+        - !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet2Id"
       LaunchTemplate:
         LaunchTemplateId: !Ref SumoChatwootLaunchTemplate
         Version: !GetAtt SumoChatwootLaunchTemplate.LatestVersionNumber
@@ -49,11 +59,13 @@ Resources:
       DesiredCapacity: '1'
       MaxSize: '4'
       TargetGroupARNs:
-        - !ImportValue SumoChatwootDevStack-SumoChatwootTargetGroupArn
+        - !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootTargetGroupArn"
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-auto-scaling-group-dev
+          Value: !Sub "sumo-chatwoot-auto-scaling-group-${Environment}"
           PropagateAtLaunch: true
+        - Key: Environment
+          Value: !Ref Environment
       Cooldown: 300 # Default cooldown period for the Auto Scaling Group in seconds
 
   # Scaling Policy

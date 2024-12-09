@@ -1,21 +1,32 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'CloudFormation template for Redis ElastiCache setup for Chatwoot'
 
+Parameters:
+  Environment:
+    Description: "Deployment environment (e.g., dev, prod)"
+    Type: String
+    AllowedValues:
+      - dev
+      - prod
+    Default: dev
+    
 Resources:
   # Security Group for Redis
   SumoChatwootRedisSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !ImportValue SumoChatwootDevStack-SumoChatwootVPCId
+      VpcId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootVPCId"
       GroupDescription: Security group for Chatwoot Redis
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 6379
           ToPort: 6379
-          SourceSecurityGroupId: !ImportValue SumoChatwootDevStack-SumoChatwootLoadBalancerSGId
+          SourceSecurityGroupId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerSGId"
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-redis-sg-dev
+          Value: !Sub "sumo-chatwoot-redis-sg-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   # ElastiCache Subnet Group
   SumoChatwootRedisSubnetGroup:
@@ -23,18 +34,20 @@ Resources:
     Properties:
       Description: Subnet group for Chatwoot Redis
       SubnetIds:
-        - !ImportValue SumoChatwootDevStack-SumoChatwootPrivateSubnet1Id
-        - !ImportValue SumoChatwootDevStack-SumoChatwootPrivateSubnet2Id
+        - !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet1Id"
+        - !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet2Id"
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-redis-group-dev
+          Value: !Sub "sumo-chatwoot-redis-group-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   # Redis Cluster
   SumoChatwootRedisCluster:
     Type: AWS::ElastiCache::ReplicationGroup
     Properties:
       ReplicationGroupDescription: Chatwoot Redis cluster
-      ReplicationGroupId: sumo-chatwoot-redis-dev
+      ReplicationGroupId: !Sub "sumo-chatwoot-redis-${Environment}"
       Engine: redis
       CacheNodeType: cache.t3.micro
       NumCacheClusters: 2
@@ -44,17 +57,19 @@ Resources:
       CacheSubnetGroupName: !Ref SumoChatwootRedisSubnetGroup
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-redis-dev
+          Value: !Sub "sumo-chatwoot-redis-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
 Outputs:
   SumoChatwootRedisEndpointAddress:
     Description: 'Primary endpoint address for the Redis cluster'
     Value: !GetAtt SumoChatwootRedisCluster.PrimaryEndPoint.Address
     Export:
-      Name: SumoChatwootDevStack-SumoChatwootRedisEndpointAddress
+      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootRedisEndpointAddress"
 
   SumoChatwootRedisEndpointPort:
     Description: 'Primary endpoint port for the Redis cluster'
     Value: !GetAtt SumoChatwootRedisCluster.PrimaryEndPoint.Port
     Export:
-      Name: SumoChatwootDevStack-SumoChatwootRedisEndpointPort
+      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootRedisEndpointPort"

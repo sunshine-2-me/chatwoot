@@ -2,6 +2,14 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'CloudFormation template for setting up Bastion Hosts'
 
 Parameters:
+  Environment:
+    Description: "Deployment environment (e.g., dev, prod)"
+    Type: String
+    AllowedValues:
+      - dev
+      - prod
+    Default: dev
+
   KeyPairName:
     Description: 'Name of an existing EC2 KeyPair to enable SSH access to the instances'
     Type: 'AWS::EC2::KeyPair::KeyName'
@@ -11,7 +19,7 @@ Resources:
   SumoChatwootBastionSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !ImportValue SumoChatwootDevStack-SumoChatwootVPCId
+      VpcId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootVPCId"
       GroupDescription: Security group for Bastion hosts
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -20,7 +28,9 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-bastion-sg-dev
+          Value: !Sub "sumo-chatwoot-bastion-sg-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   # Bastion Host in Public Subnet 1
   SumoChatwootBastionHostA:
@@ -28,13 +38,15 @@ Resources:
     Properties:
       InstanceType: t3.micro
       KeyName: !Ref KeyPairName
-      SubnetId: !ImportValue SumoChatwootDevStack-SumoChatwootPublicSubnet1Id
+      SubnetId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet1Id"
       ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
       SecurityGroupIds:
         - !Ref SumoChatwootBastionSecurityGroup
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-bastion-a-dev
+          Value: !Sub "sumo-chatwoot-bastion-a-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   # Bastion Host in Public Subnet 2
   SumoChatwootBastionHostB:
@@ -42,23 +54,25 @@ Resources:
     Properties:
       InstanceType: t3.micro
       KeyName: !Ref KeyPairName
-      SubnetId: !ImportValue SumoChatwootDevStack-SumoChatwootPublicSubnet2Id
+      SubnetId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet2Id"
       ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
       SecurityGroupIds:
         - !Ref SumoChatwootBastionSecurityGroup
       Tags:
         - Key: Name
-          Value: sumo-chatwoot-bastion-b-dev
+          Value: !Sub sumo-chatwoot-bastion-b-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
 Outputs:
   SumoChatwootBastionHostAPublicIP:
     Description: 'Public IP address of Bastion Host A'
     Value: !GetAtt SumoChatwootBastionHostA.PublicIp
     Export:
-      Name: SumoChatwootDevStack-SumoChatwootBastionHostAPublicIP
+      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootBastionHostAPublicIP"
 
   SumoChatwootBastionHostBPublicIP:
     Description: 'Public IP address of Bastion Host B'
     Value: !GetAtt SumoChatwootBastionHostB.PublicIp
     Export:
-      Name: SumoChatwootDevStack-SumoChatwootBastionHostBPublicIP
+      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootBastionHostBPublicIP"

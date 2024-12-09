@@ -1,0 +1,210 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "IAM Roles and Policies for Admin, Support, Developer, and Contractor"
+
+Resources:
+  # Admin Role
+  AdminRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: AdminRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS: "*"
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/AdministratorAccess" # Full Admin Access
+
+  # Support Role
+  SupportRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: SupportRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: "*"
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SupportAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # Read-Only access to CloudWatch logs
+              - Sid: CloudWatchLogsReadAccess
+                Effect: Allow
+                Action:
+                  - "logs:DescribeLogGroups"
+                  - "logs:DescribeLogStreams"
+                  - "logs:GetLogEvents"
+                Resource: "*"
+
+              # Read-Only access to EC2, RDS, and ELB resources
+              - Sid: ReadOnlyAccessToResources
+                Effect: Allow
+                Action:
+                  - "ec2:Describe*"
+                  - "rds:Describe*"
+                  - "elasticloadbalancing:Describe*"
+                  - "autoscaling:Describe*"
+                Resource: "*"
+
+              # Read-Only access to monitoring and metrics
+              - Sid: MonitoringPermissions
+                Effect: Allow
+                Action:
+                  - "cloudwatch:GetMetricData"
+                  - "cloudwatch:ListMetrics"
+                  - "cloudwatch:DescribeAlarms"
+                  - "cloudwatch:GetDashboard"
+                Resource: "*"
+
+              # Deny write access to all resources
+              - Sid: DenyWriteAccess
+                Effect: Deny
+                Action:
+                  - "ec2:RunInstances"
+                  - "ec2:TerminateInstances"
+                  - "ec2:Delete*"
+                  - "rds:Delete*"
+                  - "elasticloadbalancing:Delete*"
+                  - "autoscaling:Delete*"
+                  - "autoscaling:UpdateAutoScalingGroup"
+                  - "logs:PutLogEvents"
+                  - "logs:DeleteLogGroup"
+                  - "logs:DeleteLogStream"
+                Resource: "*"
+
+  # Developer Role
+  DeveloperRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: DeveloperRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: "*"
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: DeveloperAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # Full Access to Development Environment
+              - Sid: FullAccessToDevelopment
+                Effect: Allow
+                Action: "*"
+                Resource: "*"
+                Condition:
+                  StringEquals:
+                    "aws:ResourceTag/Environment": ["dev", "dev-*", "*-dev"]
+
+              # Read-Only Access to Production Environment
+              - Sid: ReadOnlyAccessToProduction
+                Effect: Allow
+                Action:
+                  - "ec2:Describe*"
+                  - "elasticloadbalancing:Describe*"
+                  - "rds:Describe*"
+                  - "elasticache:Describe*"
+                  - "autoscaling:Describe*"
+                  - "cloudwatch:GetMetricData"
+                  - "cloudwatch:ListMetrics"
+                  - "logs:GetLogEvents"
+                  - "logs:Describe*"
+                  - "route53:ListResourceRecordSets"
+                Resource: "*"
+                Condition:
+                  StringEquals:
+                    "aws:ResourceTag/Environment": ["prod", "prod-*", "*-prod"]
+
+              # Deny Write Access to Production Environment
+              - Sid: DenyWriteAccessToProduction
+                Effect: Deny
+                Action:
+                  - "ec2:RunInstances"
+                  - "ec2:TerminateInstances"
+                  - "ec2:Delete*"
+                  - "elasticloadbalancing:Delete*"
+                  - "rds:Delete*"
+                  - "elasticache:Delete*"
+                  - "autoscaling:Delete*"
+                Resource: "*"
+                Condition:
+                  StringEquals:
+                    "aws:ResourceTag/Environment": ["prod", "prod-*", "*-prod"]
+
+  # Contractor Role
+  ContractorRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ContractorRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: "*"
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ContractorAccessPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # Read-Only Access to Development Environment
+              - Sid: ReadOnlyAccessToDevelopment
+                Effect: Allow
+                Action:
+                  - "ec2:Describe*"
+                  - "elasticloadbalancing:Describe*"
+                  - "rds:Describe*"
+                  - "elasticache:Describe*"
+                  - "autoscaling:Describe*"
+                  - "cloudwatch:GetMetricData"
+                  - "cloudwatch:ListMetrics"
+                  - "logs:GetLogEvents"
+                  - "logs:Describe*"
+                  - "route53:ListResourceRecordSets"
+                Resource: "*"
+                Condition:
+                  StringEquals:
+                    "aws:ResourceTag/Environment": ["prod", "prod-*", "*-prod"]
+
+              # Read-Only Access to Production Environment
+              - Sid: ReadOnlyAccessToProduction
+                Effect: Allow
+                Action:
+                  - "ec2:Describe*"
+                  - "elasticloadbalancing:Describe*"
+                  - "rds:Describe*"
+                  - "elasticache:Describe*"
+                  - "autoscaling:Describe*"
+                  - "cloudwatch:GetMetricData"
+                  - "cloudwatch:ListMetrics"
+                  - "logs:GetLogEvents"
+                  - "logs:Describe*"
+                  - "route53:ListResourceRecordSets"
+                Resource: "*"
+                Condition:
+                  StringEquals:
+                    "aws:ResourceTag/Environment": ["prod", "prod-*", "*-prod"]
+
+              # Deny Write Access to All Environments
+              - Sid: DenyWriteAccessToAll
+                Effect: Deny
+                Action:
+                  - "ec2:RunInstances"
+                  - "ec2:TerminateInstances"
+                  - "ec2:Delete*"
+                  - "elasticloadbalancing:Delete*"
+                  - "rds:Delete*"
+                  - "elasticache:Delete*"
+                  - "autoscaling:Delete*"
+                Resource: "*"
+

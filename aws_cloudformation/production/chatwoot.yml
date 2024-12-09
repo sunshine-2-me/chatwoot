@@ -25,6 +25,10 @@ Resources:
       Tags:
         - Key: Name
           Value: sumo-chatwoot-instance-prod
+        - Key: Environment
+          Value: Production
+        - Key: Project
+          Value: Sumo-chatwoot
       NetworkInterfaces:
         - AssociatePublicIpAddress: false
           DeviceIndex: 0
