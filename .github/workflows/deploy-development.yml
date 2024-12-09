@@ -26,8 +26,8 @@ jobs:
           aws cloudformation validate-template \
             --template-body file://aws_cloudformation/development/network.yml
 
-          # aws cloudformation validate-template \
-          #   --template-body file://aws_cloudformation/development/application_load_balancer.yml
+          aws cloudformation validate-template \
+            --template-body file://aws_cloudformation/development/application_load_balancer.yml
 
           # aws cloudformation validate-template \
           #   --template-body file://aws_cloudformation/development/postgresql.yml
@@ -59,22 +59,22 @@ jobs:
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-      # - name: Application Load Balancer-Cloudformation
-      #   run: |
-      #     STACK_NAME=sumo-chatwoot-alb-stack-dev
-      #     aws cloudformation deploy \
-      #       --template-file aws_cloudformation/development/application_load_balancer.yml \
-      #       --stack-name $STACK_NAME \
-      #       --parameter-overrides \
-      #         Environment=dev \
-      #         SumoChatwootCertificateArn=${{ secrets.ACM_CERTIFICATE_ARN }} \
-      #       --capabilities CAPABILITY_NAMED_IAM
+      - name: Application Load Balancer-Cloudformation
+        run: |
+          STACK_NAME=sumo-chatwoot-alb-stack-dev
+          aws cloudformation deploy \
+            --template-file aws_cloudformation/development/application_load_balancer.yml \
+            --stack-name $STACK_NAME \
+            --parameter-overrides \
+              Environment=dev \
+              SumoChatwootCertificateArn=${{ secrets.ACM_CERTIFICATE_ARN }} \
+            --capabilities CAPABILITY_NAMED_IAM
 
-      #     echo "CloudFormation Outputs:"
-      #     aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
+          echo "CloudFormation Outputs:"
+          aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
 
-      #     SumoChatwootTargetGroupArn=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootTargetGroupArn'].OutputValue" --output text)
-      #     echo "TARGET_GROUP_ARN=${SumoChatwootTargetGroupArn}" >> $GITHUB_ENV
+          SumoChatwootTargetGroupArn=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='SumoChatwootTargetGroupArn'].OutputValue" --output text)
+          echo "TARGET_GROUP_ARN=${SumoChatwootTargetGroupArn}" >> $GITHUB_ENV
 
       # - name: Postgresql-Cloudformation
       #   run: |

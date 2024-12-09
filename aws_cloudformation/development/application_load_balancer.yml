@@ -5,10 +5,10 @@ Parameters:
   Environment:
     Description: "Deployment environment (e.g., dev, prod)"
     Type: String
+    Default: dev
     AllowedValues:
       - dev
       - prod
-    Default: dev
 
   SumoChatwootCertificateArn:
     Description: Certificate ARN
