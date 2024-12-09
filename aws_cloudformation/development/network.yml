@@ -3,7 +3,7 @@ Description: 'CloudFormation template for setting up Chatwoot VPC and networking
 
 Parameters:
   Environment:
-    Description: "Deployment environment e.g., dev, prod"
+    Description: "Deployment environment (e.g., dev, prod)"
     Type: String
     AllowedValues:
       - dev
