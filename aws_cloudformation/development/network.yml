@@ -219,28 +219,28 @@ Outputs:
     Description: 'The VPC ID'
     Value: !Ref SumoChatwootVPC
     Export:
-      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootVPCId"
+      Name: !Sub "SumoChatwoot-${Environment}-VPCId"
 
   SumoChatwootPublicSubnet1Id:
     Description: 'The ID of the first public subnet'
     Value: !Ref SumoChatwootPublicSubnet1
     Export:
-      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet1Id"
+      Name: !Sub "SumoChatwoot-${Environment}-PublicSubnet1Id"
 
   SumoChatwootPublicSubnet2Id:
     Description: 'The ID of the second public subnet'
     Value: !Ref SumoChatwootPublicSubnet2
     Export:
-      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet2Id"
+      Name: !Sub "SumoChatwoot-${Environment}-PublicSubnet2Id"
 
   SumoChatwootPrivateSubnet1Id:
     Description: 'The ID of the first private subnet'
     Value: !Ref SumoChatwootPrivateSubnet1
     Export:
-      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet1Id"
+      Name: !Sub "SumoChatwoot-${Environment}-PrivateSubnet1Id"
 
   SumoChatwootPrivateSubnet2Id:
     Description: 'The ID of the second private subnet'
     Value: !Ref SumoChatwootPrivateSubnet2
     Export:
-      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet2Id"
+      Name: !Sub "SumoChatwoot-${Environment}-PrivateSubnet2Id"
