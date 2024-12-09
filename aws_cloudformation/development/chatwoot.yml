@@ -78,9 +78,9 @@ Resources:
       NetworkInterfaces:
         - AssociatePublicIpAddress: false
           DeviceIndex: 0
-          SubnetId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet1Id"
+          SubnetId: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet1Id"
           GroupSet:
-            - !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerSGId"
+            - !ImportValue "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerSGId"
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash

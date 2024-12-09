@@ -15,13 +15,13 @@ Resources:
   SumoChatwootRedisSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootVPCId"
+      VpcId: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootVPCId"
       GroupDescription: Security group for Chatwoot Redis
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 6379
           ToPort: 6379
-          SourceSecurityGroupId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerSGId"
+          SourceSecurityGroupId: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerSGId"
       Tags:
         - Key: Name
           Value: !Sub "sumo-chatwoot-redis-sg-${Environment}"
@@ -34,8 +34,8 @@ Resources:
     Properties:
       Description: Subnet group for Chatwoot Redis
       SubnetIds:
-        - !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet1Id"
-        - !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet2Id"
+        - !ImportValue "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet1Id"
+        - !ImportValue "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet2Id"
       Tags:
         - Key: Name
           Value: !Sub "sumo-chatwoot-redis-group-${Environment}"

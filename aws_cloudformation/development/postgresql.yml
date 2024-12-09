@@ -33,13 +33,13 @@ Resources:
   SumoChatwootRDSDBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootVPCId"
+      VpcId: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootVPCId"
       GroupDescription: Security group for Chatwoot RDS
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
-          SourceSecurityGroupId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerSGId"
+          SourceSecurityGroupId: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootLoadBalancerSGId"
       Tags:
         - Key: Name
           Value: !Sub "sumo-chatwoot-rds-sg-${Environment}"
@@ -52,8 +52,8 @@ Resources:
     Properties:
       DBSubnetGroupDescription: Subnet group for Chatwoot RDS
       SubnetIds:
-        - !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet1Id"
-        - !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet2Id"
+        - !ImportValue "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet1Id"
+        - !ImportValue "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet2Id"
       Tags:
         - Key: Name
           Value: !Sub "sumo-chatwoot-rds-group-${Environment}"

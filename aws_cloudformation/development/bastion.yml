@@ -19,7 +19,7 @@ Resources:
   SumoChatwootBastionSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootVPCId"
+      VpcId: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootVPCId"
       GroupDescription: Security group for Bastion hosts
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -38,7 +38,7 @@ Resources:
     Properties:
       InstanceType: t3.micro
       KeyName: !Ref KeyPairName
-      SubnetId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet1Id"
+      SubnetId: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet1Id"
       ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
       SecurityGroupIds:
         - !Ref SumoChatwootBastionSecurityGroup
@@ -54,7 +54,7 @@ Resources:
     Properties:
       InstanceType: t3.micro
       KeyName: !Ref KeyPairName
-      SubnetId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet2Id"
+      SubnetId: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet2Id"
       ImageId: ami-005fc0f236362e99f # Ubuntu 20.04 LTS AMI in us-east-1, replace with your region's ID
       SecurityGroupIds:
         - !Ref SumoChatwootBastionSecurityGroup

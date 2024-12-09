@@ -19,7 +19,7 @@ Resources:
   SumoChatwootLoadBalancerSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      VpcId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootVPCId"
+      VpcId: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootVPCId"
       GroupDescription: Security group for Chatwoot ALB
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -51,8 +51,8 @@ Resources:
       Name: !Sub "sumo-chatwoot-loadbalancer-${Environment}"
       Scheme: internet-facing
       Subnets:
-        - !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet1Id"
-        - !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet2Id"
+        - !ImportValue "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet1Id"
+        - !ImportValue "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet2Id"
       SecurityGroups:
         - !Ref SumoChatwootLoadBalancerSG
       IpAddressType: ipv4
@@ -67,7 +67,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Name: !Sub "sumo-chatwoot-tg-${Environment}"
-      VpcId: !ImportValue !Sub "SumoChatwoot-${Environment}-SumoChatwootVPCId"
+      VpcId: !ImportValue "SumoChatwoot-${Environment}-SumoChatwootVPCId"
       Protocol: HTTP
       Port: 3000
       TargetType: instance
