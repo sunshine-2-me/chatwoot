@@ -2,8 +2,8 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'CloudFormation template for setting up Chatwoot VPC and networking resources'
 
 Parameters:
-  Env:
-    Description: "Deployment Env (e.g., dev, prod)"
+  Environment:
+    Description: "Deployment environment e.g., dev, prod"
     Type: String
     AllowedValues:
       - dev
@@ -20,9 +20,9 @@ Resources:
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: !Sub "sumo-chatwoot-vpc-${Env}"
-        - Key: Env
-          Value: !Ref Env
+          Value: !Sub "sumo-chatwoot-vpc-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   # Internet Gateway
   SumoChatwootInternetGateway:
@@ -30,9 +30,9 @@ Resources:
     Properties:
       Tags:
         - Key: Name
-          Value: !Sub "sumo-chatwoot-igw-${Env}"
-        - Key: Env
-          Value: !Ref Env
+          Value: !Sub "sumo-chatwoot-igw-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   SumoChatwootAttachGateway:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -50,9 +50,9 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: !Sub "sumo-chatwoot-public-1-${Env}"
-        - Key: Env
-          Value: !Ref Env
+          Value: !Sub "sumo-chatwoot-public-1-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   SumoChatwootPublicSubnet2:
     Type: AWS::EC2::Subnet
@@ -63,9 +63,9 @@ Resources:
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
-          Value: !Sub "sumo-chatwoot-public-2-${Env}"
-        - Key: Env
-          Value: !Ref Env
+          Value: !Sub "sumo-chatwoot-public-2-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   SumoChatwootPrivateSubnet1:
     Type: AWS::EC2::Subnet
@@ -75,9 +75,9 @@ Resources:
       AvailabilityZone: us-east-1a
       Tags:
         - Key: Name
-          Value: !Sub "sumo-chatwoot-private-1-${Env}"
-        - Key: Env
-          Value: !Ref Env
+          Value: !Sub "sumo-chatwoot-private-1-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   SumoChatwootPrivateSubnet2:
     Type: AWS::EC2::Subnet
@@ -87,9 +87,9 @@ Resources:
       AvailabilityZone: us-east-1b
       Tags:
         - Key: Name
-          Value: !Sub "sumo-chatwoot-private-2-${Env}"
-        - Key: Env
-          Value: !Ref Env
+          Value: !Sub "sumo-chatwoot-private-2-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   # NAT Gateways
   SumoChatwootEIPForNat1:
@@ -99,9 +99,9 @@ Resources:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: !Sub "sumo-chatwoot-eip-nat-1-${Env}"
-        - Key: Env
-          Value: !Ref Env
+          Value: !Sub "sumo-chatwoot-eip-nat-1-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   SumoChatwootNATGateway1:
     Type: AWS::EC2::NatGateway
@@ -110,9 +110,9 @@ Resources:
       SubnetId: !Ref SumoChatwootPublicSubnet1
       Tags:
         - Key: Name
-          Value: !Sub "sumo-chatwoot-nat-1-${Env}"
-        - Key: Env
-          Value: !Ref Env
+          Value: !Sub "sumo-chatwoot-nat-1-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   SumoChatwootEIPForNat2:
     Type: AWS::EC2::EIP
@@ -121,9 +121,9 @@ Resources:
       Domain: vpc
       Tags:
         - Key: Name
-          Value: !Sub "sumo-chatwoot-eip-nat-2-${Env}"
-        - Key: Env
-          Value: !Ref Env
+          Value: !Sub "sumo-chatwoot-eip-nat-2-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   SumoChatwootNATGateway2:
     Type: AWS::EC2::NatGateway
@@ -132,9 +132,9 @@ Resources:
       SubnetId: !Ref SumoChatwootPublicSubnet2
       Tags:
         - Key: Name
-          Value: !Sub "sumo-chatwoot-nat-2-${Env}"
-        - Key: Env
-          Value: !Ref Env
+          Value: !Sub "sumo-chatwoot-nat-2-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   # Route Tables
   SumoChatwootPublicRouteTable:
@@ -143,9 +143,9 @@ Resources:
       VpcId: !Ref SumoChatwootVPC
       Tags:
         - Key: Name
-          Value: !Sub "sumo-chatwoot-public-rt-${Env}"
-        - Key: Env
-          Value: !Ref Env
+          Value: !Sub "sumo-chatwoot-public-rt-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   SumoChatwootPublicRoute:
     Type: AWS::EC2::Route
@@ -161,9 +161,9 @@ Resources:
       VpcId: !Ref SumoChatwootVPC
       Tags:
         - Key: Name
-          Value: !Sub "sumo-chatwoot-private-a-${Env}"
-        - Key: Env
-          Value: !Ref Env
+          Value: !Sub "sumo-chatwoot-private-a-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   SumoChatwootPrivateRoute1:
     Type: AWS::EC2::Route
@@ -178,9 +178,9 @@ Resources:
       VpcId: !Ref SumoChatwootVPC
       Tags:
         - Key: Name
-          Value: !Sub "sumo-chatwoot-private-b-${Env}"
-        - Key: Env
-          Value: !Ref Env
+          Value: !Sub "sumo-chatwoot-private-b-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
 
   SumoChatwootPrivateRoute2:
     Type: AWS::EC2::Route
@@ -219,28 +219,28 @@ Outputs:
     Description: 'The VPC ID'
     Value: !Ref SumoChatwootVPC
     Export:
-      Name: !Sub "SumoChatwoot-${Env}-SumoChatwootVPCId"
+      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootVPCId"
 
   SumoChatwootPublicSubnet1Id:
     Description: 'The ID of the first public subnet'
     Value: !Ref SumoChatwootPublicSubnet1
     Export:
-      Name: !Sub "SumoChatwoot-${Env}-SumoChatwootPublicSubnet1Id"
+      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet1Id"
 
   SumoChatwootPublicSubnet2Id:
     Description: 'The ID of the second public subnet'
     Value: !Ref SumoChatwootPublicSubnet2
     Export:
-      Name: !Sub "SumoChatwoot-${Env}-SumoChatwootPublicSubnet2Id"
+      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootPublicSubnet2Id"
 
   SumoChatwootPrivateSubnet1Id:
     Description: 'The ID of the first private subnet'
     Value: !Ref SumoChatwootPrivateSubnet1
     Export:
-      Name: !Sub "SumoChatwoot-${Env}-SumoChatwootPrivateSubnet1Id"
+      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet1Id"
 
   SumoChatwootPrivateSubnet2Id:
     Description: 'The ID of the second private subnet'
     Value: !Ref SumoChatwootPrivateSubnet2
     Export:
-      Name: !Sub "SumoChatwoot-${Env}-SumoChatwootPrivateSubnet2Id"
+      Name: !Sub "SumoChatwoot-${Environment}-SumoChatwootPrivateSubnet2Id"
