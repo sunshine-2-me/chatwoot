@@ -2,6 +2,7 @@ name: Sumo Chatwoot for Production
 
 on:
   push:
+  # pull_request:
     branches:
       - master
 
@@ -23,34 +24,34 @@ jobs:
       - name: Validate Cloudformation
         run: |
           aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/production/network.yml
+            --template-body file://aws_cloudformation/network.yml
 
           aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/production/application_load_balancer.yml
+            --template-body file://aws_cloudformation/application_load_balancer.yml
 
           aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/production/postgresql.yml
+            --template-body file://aws_cloudformation/postgresql.yml
 
           aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/production/redis.yml
+            --template-body file://aws_cloudformation/redis.yml
 
           aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/production/bastion.yml
+            --template-body file://aws_cloudformation/bastion.yml
 
           aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/production/chatwoot.yml
+            --template-body file://aws_cloudformation/chatwoot.yml
 
           aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/development/route.yml
+            --template-body file://aws_cloudformation/route.yml
 
           aws cloudformation validate-template \
-            --template-body file://aws_cloudformation/development/auto_scaling.yml
+            --template-body file://aws_cloudformation/auto_scaling.yml
 
       - name: Network-Cloudformation
         run: |
           STACK_NAME=sumo-chatwoot-network-stack-prod
           aws cloudformation deploy \
-            --template-file aws_cloudformation/production/network.yml \
+            --template-file aws_cloudformation/network.yml \
             --parameter-overrides Environment=prod \
             --stack-name $STACK_NAME \
             --capabilities CAPABILITY_NAMED_IAM
@@ -62,7 +63,7 @@ jobs:
         run: |
           STACK_NAME=sumo-chatwoot-alb-stack-prod
           aws cloudformation deploy \
-            --template-file aws_cloudformation/production/application_load_balancer.yml \
+            --template-file aws_cloudformation/application_load_balancer.yml \
             --stack-name $STACK_NAME \
             --parameter-overrides \
               Environment=prod \
@@ -79,7 +80,7 @@ jobs:
         run: |
           STACK_NAME=sumo-chatwoot-postgre-stack-prod
           aws cloudformation deploy \
-            --template-file aws_cloudformation/production/postgresql.yml \
+            --template-file aws_cloudformation/postgresql.yml \
             --stack-name $STACK_NAME \
             --parameter-overrides \
               Environment=prod \
@@ -97,7 +98,7 @@ jobs:
         run: |
           STACK_NAME=sumo-chatwoot-redis-stack-prod
           aws cloudformation deploy \
-            --template-file aws_cloudformation/production/redis.yml \
+            --template-file aws_cloudformation/redis.yml \
             --parameter-overrides Environment=prod \
             --stack-name $STACK_NAME \
             --capabilities CAPABILITY_NAMED_IAM
@@ -112,7 +113,7 @@ jobs:
         run: |
           STACK_NAME=sumo-chatwoot-bastion-stack-prod
           aws cloudformation deploy \
-            --template-file aws_cloudformation/production/bastion.yml \
+            --template-file aws_cloudformation/bastion.yml \
             --stack-name $STACK_NAME \
             --parameter-overrides \
               Environment=prod \
@@ -132,7 +133,7 @@ jobs:
         run: |
           STACK_NAME=sumo-chatwoot-instance-stack-prod
           aws cloudformation deploy \
-            --template-file aws_cloudformation/production/chatwoot.yml \
+            --template-file aws_cloudformation/chatwoot.yml \
             --stack-name $STACK_NAME \
             --parameter-overrides \
               Environment=prod \
@@ -152,7 +153,7 @@ jobs:
         run: |
           STACK_NAME=sumo-chatwoot-route-stack-prod
           aws cloudformation deploy \
-            --template-file aws_cloudformation/production/route.yml \
+            --template-file aws_cloudformation/route.yml \
             --stack-name $STACK_NAME \
             --parameter-overrides \
               Environment=prod \
@@ -173,6 +174,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           overwrite: true
           timeout: 150s
+          rm: true
           source: './*'
           target: '/home/ubuntu/chatwoot'
 
@@ -219,6 +221,7 @@ jobs:
             sudo chown -R chatwoot:chatwoot /home/chatwoot/chatwoot
 
             EOT
+
       - name: Install Chatwoot in Chatwoot EC2
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -235,7 +238,8 @@ jobs:
             sudo -i -u chatwoot << "EOF"
             cd chatwoot
 
-            sed -i -e "/FRONTEND_URL/ s/=.*/=https:\/\/dev-chat.sumoscheduler.com/" .env
+            sed -i -e "/FRONTEND_URL/ s/=.*/=https:\/\/chat.sumoscheduler.com/" .env
+            sed -i -e '/SECRET_KEY_BASE/ s/=.*/='"${{ secrets.SECRET_KEY_BASE }}"'/' .env
             sed -i -e '/REDIS_URL/ s/=.*/=redis:\/\/'"${{ env.REDIS_HOST }}"':6379/' .env
             sed -i -e '/POSTGRES_HOST/ s/=.*/='"${{ env.POSTGRES_HOST }}"'/' .env
             sed -i -e '/POSTGRES_USERNAME/ s/=.*/='"${{ secrets.RDS_MASTER_USERNAME }}"'/' .env
@@ -248,7 +252,7 @@ jobs:
             sed -i -e "/AWS_ACCESS_KEY_ID/ s/=.*/='"${{ secrets.AWS_ACCESS_KEY_ID }}"'/" .env
             sed -i -e "/AWS_SECRET_ACCESS_KEY/ s/=.*/='"${{ secrets.AWS_SECRET_ACCESS_KEY }}"'/" .env
             sed -i -e "/AWS_REGION/ s/=.*/='"${{ secrets.AWS_REGION }}"'/" .env
-            sed -i -e "/S3_BUCKET_NAME/ s/=.*/=sumo-chatwoot-dev/" .env
+            sed -i -e "/S3_BUCKET_NAME/ s/=.*/=sumo-chatwoot/" .env
             sed -i -e "/RAILS_ENV/ s/=.*/=production/" .env
 
             RAILS_ENV=production bundle exec rake db:prepare
@@ -256,6 +260,50 @@ jobs:
             EOF
 
             EOT
+
+      - name: Forward log to CloudWatch
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ env.BastionHostAPublicIP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            ssh -i ${{ secrets.KEY_NAME }}.pem -o StrictHostKeyChecking=no ubuntu@${{ env.EC2_IP }} << 'EOT'
+
+            # Create CloudWatch Agent configuration file
+            cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json > /dev/null
+            {
+              "logs": {
+                "logs_collected": {
+                  "files": {
+                    "collect_list": [
+                      {
+                        "file_path": "/var/log/chatwoot-setup.log",
+                        "log_group_name": "/chatwoot/logs-prod",
+                        "log_stream_name": "chatwoot-setup-logs"
+                      },
+                      {
+                        "file_path": "/var/log/chatwoot-web.1.log",
+                        "log_group_name": "/chatwoot/logs-prod",
+                        "log_stream_name": "chatwoot-web-logs"
+                      },
+                      {
+                        "file_path": "/var/log/chatwoot-worker.1.log",
+                        "log_group_name": "/chatwoot/logs-prod",
+                        "log_stream_name": "chatwoot-worker-logs"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+            EOF
+
+            # Start the CloudWatch Agent
+            sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
+
+            EOT
+
       - name: Add instance to the target group attached to the alb
         run: |
           TARGET_GROUP_ARN=${{ env.TARGET_GROUP_ARN }}
@@ -298,7 +346,7 @@ jobs:
         run: |
           STACK_NAME=sumo-chatwoot-auto-scaling-stack-prod
           aws cloudformation deploy \
-            --template-file aws_cloudformation/production/auto_scaling.yml \
+            --template-file aws_cloudformation/auto_scaling.yml \
             --stack-name $STACK_NAME \
             --parameter-overrides \
               Environment=prod \
@@ -308,6 +356,11 @@ jobs:
 
           echo "CloudFormation Outputs:"
           aws cloudformation describe-stacks --stack-name $STACK_NAME --query 'Stacks[0].Outputs' --output table
+
+          GroupName=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[?OutputKey=='AutoScalingGroupName'].OutputValue" --output text)
+
+          echo "Instances refresh: ${GroupName}"
+          aws autoscaling start-instance-refresh --auto-scaling-group-name ${GroupName}
 
       - name: Post-deployment script
         run: |

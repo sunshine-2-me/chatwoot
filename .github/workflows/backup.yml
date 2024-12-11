@@ -5,10 +5,6 @@ on:
     - cron: '0 0 * * *' # Runs every Sunday at 2 AM UTC
   workflow_dispatch: # Allows manual trigger of the workflow
 
-  push:
-    branches:
-      - develop
-          
 jobs:
   backup:
     name: Backup Repository and Upload to S3
